@@ -17,6 +17,8 @@ public class TokenService {
 
     private final String ISSUER = "MentorPG-API";
 
+    private final int TEMPO_EXPIRACAO_MINUTOS = 30;
+
     @Value("${api.security.token.secret}")
     private String secret;
 
@@ -47,7 +49,7 @@ public class TokenService {
     }
 
     private Instant dataExpiracao() {
-        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
+        return LocalDateTime.now().plusMinutes(TEMPO_EXPIRACAO_MINUTOS).toInstant(ZoneOffset.of("-03:00"));
     }
 
 }
