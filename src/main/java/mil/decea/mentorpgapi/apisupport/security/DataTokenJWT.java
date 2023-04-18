@@ -1,3 +1,3 @@
 package mil.decea.mentorpgapi.apisupport.security;
 
-public record DataTokenJWT(String token) {}
+public record DataTokenJWT(Long id, String username, String access_token, Long expiredAt, String avatar) {}

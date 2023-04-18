@@ -17,17 +17,33 @@ public class TokenService {
 
     private final String ISSUER = "MentorPG-API";
 
-    @Value("${api.security.token.secret}")
+    private final int TEMPO_EXPIRACAO_MINUTOS = 30;
+
+    @Value("${mentorapi.security.token.secret}")
     private String secret;
 
-    public String gerarToken(User usuario) {
+    public DataTokenJWT gerarToken(User usuario) {
+
         try {
+
             var algoritmo = Algorithm.HMAC256(secret);
-            return JWT.create()
-                    .withIssuer(ISSUER)
-                    .withSubject(usuario.getCpf())
-                    .withExpiresAt(dataExpiracao())
-                    .sign(algoritmo);
+            var expireAt = expireAt();
+
+            String token = JWT.create()
+                .withIssuer(ISSUER)
+                .withSubject(usuario.getCpf())
+                .withExpiresAt(expireAt())
+                .withClaim("roles", usuario.getRoles())
+                .withClaim("nome", usuario.getNomeCompleto())
+                .withClaim("avatar", usuario.getPhoto().getUrl())
+                .sign(algoritmo);
+
+            return new DataTokenJWT(usuario.getId(),
+                    usuario.getNomeCompleto(),
+                    token,
+                    expireAt.toEpochMilli(),
+                    null);
+
         } catch (JWTCreationException exception){
             throw new RuntimeException("erro ao gerar token jwt", exception);
         }
@@ -46,8 +62,8 @@ public class TokenService {
         }
     }
 
-    private Instant dataExpiracao() {
-        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
+    private Instant expireAt() {
+        return LocalDateTime.now().plusMinutes(TEMPO_EXPIRACAO_MINUTOS).toInstant(ZoneOffset.of("-03:00"));
     }
 
 }
