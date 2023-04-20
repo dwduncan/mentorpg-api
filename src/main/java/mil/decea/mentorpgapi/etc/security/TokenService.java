@@ -1,4 +1,4 @@
-package mil.decea.mentorpgapi.apisupport.security;
+package mil.decea.mentorpgapi.etc.security;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;

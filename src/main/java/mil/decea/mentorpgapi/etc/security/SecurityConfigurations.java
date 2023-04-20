@@ -1,4 +1,4 @@
-package mil.decea.mentorpgapi.apisupport.security;
+package mil.decea.mentorpgapi.etc.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

@@ -1,4 +1,4 @@
-package mil.decea.mentorpgapi.apisupport.security;
+package mil.decea.mentorpgapi.etc.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

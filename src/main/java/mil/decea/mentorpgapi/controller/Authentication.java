@@ -1,8 +1,7 @@
 package mil.decea.mentorpgapi.controller;
 
 import jakarta.validation.Valid;
-import mil.decea.mentorpgapi.apisupport.security.DataTokenJWT;
-import mil.decea.mentorpgapi.apisupport.security.TokenService;
+import mil.decea.mentorpgapi.etc.security.TokenService;
 import mil.decea.mentorpgapi.domain.user.LoginRecord;
 import mil.decea.mentorpgapi.domain.user.User;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,4 +1,4 @@
-package mil.decea.mentorpgapi.apisupport.exceptions;
+package mil.decea.mentorpgapi.etc.exceptions;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class ApiExceptionHandler {
 
+
+
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity tratarErro404() {
         return ResponseEntity.notFound().build();
@@ -25,6 +27,13 @@ public class ApiExceptionHandler {
         var erros = ex.getFieldErrors();
         return ResponseEntity.badRequest().body(erros.stream().map(DadosErroValidacao::new).toList());
     }
+
+    @ExceptionHandler(MentorValidationException.class)
+    public ResponseEntity tratarErroVliadacaoMentor(Exception ex) {
+
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity tratarErro400(HttpMessageNotReadableException ex) {
