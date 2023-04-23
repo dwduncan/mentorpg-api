@@ -58,7 +58,7 @@ public class User extends BaseEntity implements UserDetails {
     @Embedded
     private Contato contato;
     @Embedded
-    private UserImage photo;
+    private final UserImage photo = new UserImage();
     @Column(columnDefinition = "TEXT")
     private String identidade;
     @Column(columnDefinition = "TEXT")
@@ -132,8 +132,8 @@ public class User extends BaseEntity implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
     public void setRoles(String roles) {
         this.roles = roles != null ? roles.trim() : "";
     }
+
 }

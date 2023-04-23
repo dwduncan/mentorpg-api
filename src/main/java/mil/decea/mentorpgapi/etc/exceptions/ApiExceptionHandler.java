@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class ApiExceptionHandler {
 
-
-
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity tratarErro404() {
         return ResponseEntity.notFound().build();
@@ -30,7 +28,6 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(MentorValidationException.class)
     public ResponseEntity tratarErroVliadacaoMentor(Exception ex) {
-
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
@@ -47,7 +44,7 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity tratarErroAuthentication() {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Falha na autenticação");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("CPF não autorizado ou senha inválida");
     }
 
     @ExceptionHandler(AccessDeniedException.class)
@@ -57,6 +54,7 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity tratarErro500(Exception ex) {
+        ex.printStackTrace();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro: " +ex.getLocalizedMessage());
     }
 

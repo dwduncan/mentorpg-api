@@ -49,6 +49,9 @@ public class SecurityConfigurations {
         return configuration.getAuthenticationManager();
     }
 
+    public static void main(String... s){
+        System.out.println(new BCryptPasswordEncoder().encode("123456"));
+    }
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

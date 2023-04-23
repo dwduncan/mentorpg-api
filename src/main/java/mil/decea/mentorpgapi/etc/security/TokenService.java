@@ -34,15 +34,13 @@ public class TokenService {
                 .withSubject(usuario.getCpf())
                 .withExpiresAt(expireAt())
                 .withClaim("roles", usuario.getRoles())
-                .withClaim("nome", usuario.getNomeCompleto())
-                .withClaim("avatar", usuario.getPhoto().getUrl())
                 .sign(algoritmo);
 
             return new DataTokenJWT(usuario.getId(),
                     usuario.getNomeCompleto(),
                     token,
                     expireAt.toEpochMilli(),
-                    null);
+                    usuario.getPhoto().getHref());
 
         } catch (JWTCreationException exception){
             throw new RuntimeException("erro ao gerar token jwt", exception);

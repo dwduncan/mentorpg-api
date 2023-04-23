@@ -6,6 +6,7 @@ import mil.decea.mentorpgapi.domain.user.LoginRecord;
 import mil.decea.mentorpgapi.domain.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
@@ -32,5 +33,10 @@ public class Authentication {
         return ResponseEntity.ok(tokenJWT);
     }
 
+    @GetMapping
+    //@Secured({"ROLE_ADMIN","ROLE_USER"})
+    public ResponseEntity checarAutenticado(){
+        return ResponseEntity.ok("");
+    }
 
 }
