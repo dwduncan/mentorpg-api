@@ -50,4 +50,8 @@ public class Contato {
     private String ramal;
 
 
+    public String getDefautEmail(){
+        return emailPreferencial == EMAIL_PESSOAL && emailPessoal != null && !emailPessoal.isEmpty() ? emailPessoal : emailInstitucional;
+    }
+
 }

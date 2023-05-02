@@ -34,8 +34,39 @@ public record UserRecord(
 	String conta,
 	String saram,
 	String observacoes,
-	List documents){
+	List documents) {
 	public UserRecord(User obj){
-		this(obj.getId(), obj.getCpf(), obj.getTitulacao(), obj.getPosto(), obj.getQuadro(), obj.getEspecialidade(), obj.getNomeGuerra(), obj.getNomeCompleto(), obj.getSexo(), obj.getForcaSingular(), obj.getUltimaPromocao(), obj.isPttc(), obj.getAntiguidadeRelativa(), obj.getSenha(), obj.getRoles(), obj.getEndereco(), obj.getContato(), obj.getPhoto(), obj.getIdentidade(), obj.getPassaporte(), obj.getNacionalidade(), obj.getNaturalidade(), obj.getDataNascimento(), obj.getValidadePassaporte(), obj.getDataPraca(), obj.getProximaPromocao(), obj.getBanco(), obj.getAgencia(), obj.getConta(), obj.getSaram(), obj.getObservacoes(), obj.getDocuments());
+		this(obj.getId(),
+			obj.getCpf(),
+			obj.getTitulacao(),
+			obj.getPosto(),
+			obj.getQuadro(),
+			obj.getEspecialidade(),
+			obj.getNomeGuerra(),
+			obj.getNomeCompleto(),
+			obj.getSexo(),
+			obj.getForcaSingular(),
+			obj.getUltimaPromocao(),
+			obj.isPttc(),
+			obj.getAntiguidadeRelativa(),
+			obj.getSenha(),
+			obj.getRoles(),
+			obj.getEndereco(),
+			obj.getContato(),
+			obj.getPhoto(),
+			obj.getIdentidade(),
+			obj.getPassaporte(),
+			obj.getNacionalidade(),
+			obj.getNaturalidade(),
+			obj.getDataNascimento(),
+			obj.getValidadePassaporte(),
+			obj.getDataPraca(),
+			obj.getProximaPromocao(),
+			obj.getBanco(),
+			obj.getAgencia(),
+			obj.getConta(),
+			obj.getSaram(),
+			obj.getObservacoes(),
+			obj.getDocuments());
 	}
 }

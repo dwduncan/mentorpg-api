@@ -40,7 +40,9 @@ public class TokenService {
                     usuario.getNomeCompleto(),
                     token,
                     expireAt.toEpochMilli(),
-                    usuario.getPhoto().getHref());
+                    usuario.getPhoto().getHref(),
+                    usuario.getContato().getDefautEmail(),
+                    usuario.getRoles());
 
         } catch (JWTCreationException exception){
             throw new RuntimeException("erro ao gerar token jwt", exception);
