@@ -24,6 +24,8 @@ public class Authentication {
     @PostMapping
     public ResponseEntity login(@RequestBody @Valid LoginRecord dados) {
 
+        System.out.println("Recebendo login " + dados.cpf());
+
         var authenticationToken = new UsernamePasswordAuthenticationToken(dados.cpf(), dados.senha());
 
         var authentication = manager.authenticate(authenticationToken);
