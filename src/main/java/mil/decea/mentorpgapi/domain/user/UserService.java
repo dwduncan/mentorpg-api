@@ -1,6 +1,7 @@
 package mil.decea.mentorpgapi.domain.user;
 
 import mil.decea.mentorpgapi.domain.DTOValidator;
+import mil.decea.mentorpgapi.domain.daoservices.UserRepository;
 import mil.decea.mentorpgapi.domain.user.dto.UserBasicDTO;
 import mil.decea.mentorpgapi.domain.user.dto.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,11 +15,14 @@ import java.util.List;
 @Service
 public class UserService implements UserDetailsService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private List<DTOValidator<UserDTO>> validators;
+    private final List<DTOValidator<UserDTO>> validators;
+
+    public UserService(@Autowired UserRepository userRepository, @Autowired List<DTOValidator<UserDTO>> validators) {
+        this.userRepository = userRepository;
+        this.validators = validators;
+    }
 
     public UserBasicDTO save(UserDTO userDTO){
 
@@ -30,6 +34,6 @@ public class UserService implements UserDetailsService {
     }
     @Override
     public UserDetails loadUserByUsername(String cpf) throws UsernameNotFoundException {
-        return userRepository.findByCpf(cpf);
+        return userRepository.findByCpf(cpf.replaceAll("\\D",""));
     }
 }

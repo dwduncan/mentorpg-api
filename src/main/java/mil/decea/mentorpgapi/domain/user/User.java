@@ -2,7 +2,9 @@ package mil.decea.mentorpgapi.domain.user;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import mil.decea.mentorpgapi.domain.BaseEntity;
 import mil.decea.mentorpgapi.domain.user.dto.UserDTO;
 import mil.decea.mentorpgapi.domain.user.validation.annotations.IsValidCpf;
@@ -15,7 +17,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@SuppressWarnings({"JpaAttributeMemberSignatureInspection", "JpaAttributeTypeInspection"})
+
 @Table(name = "users", schema = "mentorpgapi",indexes = {@Index(unique = true, name = "indexcpfs", columnList = "cpf")})
 @Entity
 @Getter
@@ -51,8 +53,8 @@ public class User extends BaseEntity implements UserDetails {
     private int antiguidadeRelativa;
     @Column(columnDefinition = "TEXT")
     private String senha;
-    @Column(columnDefinition = "TEXT", nullable = false)
-    private String roles = "";
+    @Column(columnDefinition = "TEXT")
+    private String role;
     @Embedded
     private Endereco endereco;
     @Embedded
@@ -94,10 +96,12 @@ public class User extends BaseEntity implements UserDetails {
     }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-
         return List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
+    public void setCpf(String cpf) {
+        this.cpf = cpf.replaceAll("\\D","") ;
+    }
 
     @Override
     public String getPassword() {
@@ -131,9 +135,6 @@ public class User extends BaseEntity implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
-    }
-    public void setRoles(String roles) {
-        this.roles = roles != null ? roles.trim() : "";
     }
 
 }
