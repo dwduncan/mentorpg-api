@@ -33,7 +33,7 @@ public class Authentication {
 
         var tokenJWT = tokenService.gerarToken((User) authentication.getPrincipal());
 
-        //System.out.println(tokenJWT);
+        System.out.println(tokenJWT);
 
         return ResponseEntity.ok(tokenJWT);
     }
