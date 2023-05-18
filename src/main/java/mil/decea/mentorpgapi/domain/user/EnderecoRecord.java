@@ -9,7 +9,7 @@ public record EnderecoRecord(
 	String uf,
 	String cep) {
 	public EnderecoRecord(Endereco obj){
-		this(			obj.getRua(),
+		this(obj.getRua(),
 			obj.getNumero(),
 			obj.getComplemento(),
 			obj.getBairro(),
