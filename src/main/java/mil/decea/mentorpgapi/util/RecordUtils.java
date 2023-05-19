@@ -2,7 +2,6 @@ package mil.decea.mentorpgapi.util;
 
 import jakarta.persistence.Embedded;
 import mil.decea.mentorpgapi.domain.BaseEntity;
-import mil.decea.mentorpgapi.domain.user.User;
 import mil.decea.mentorpgapi.domain.user.UserRecord;
 
 import java.io.FileWriter;
