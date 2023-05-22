@@ -8,7 +8,7 @@ public record EnderecoRecord(
 	String cidade,
 	String uf,
 	String cep) {
-	public EnderecoRecord(Endereco obj){
+	public EnderecoRecord(Endereco obj) {
 		this(obj.getRua(),
 			obj.getNumero(),
 			obj.getComplemento(),
