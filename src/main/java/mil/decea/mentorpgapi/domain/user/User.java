@@ -55,34 +55,20 @@ public class User extends BaseEntity implements UserDetails {
     private String senha;
     @Column(columnDefinition = "TEXT")
     private String role;
-    @Embedded
-    private Endereco endereco;
-    @Embedded
-    private Contato contato;
+    @Column(columnDefinition = "TEXT")
+    private String celular;
+    @Column(columnDefinition = "TEXT")
+    private String email;
     @Embedded
     private final UserImage photo = new UserImage();
     @Column(columnDefinition = "TEXT")
     private String identidade;
-    @Column(columnDefinition = "TEXT")
-    private String passaporte;
-    @Column(columnDefinition = "TEXT")
-    private String nacionalidade;
-    @Column(columnDefinition = "TEXT")
-    private String naturalidade;
     @Column(columnDefinition = "DATE")
     private LocalDate dataNascimento;
-    @Column(columnDefinition = "DATE")
-    private LocalDate validadePassaporte;
     @Column(columnDefinition = "DATE")
     private LocalDate dataPraca;
     @Column(columnDefinition = "DATE")
     private LocalDate proximaPromocao;
-    @Column(columnDefinition = "TEXT")
-    private  String banco;
-    @Column(columnDefinition = "TEXT")
-    private String agencia;
-    @Column(columnDefinition = "TEXT")
-    private String conta;
     @Column(columnDefinition = "TEXT")
     private String saram;
     @Column(columnDefinition = "TEXT")

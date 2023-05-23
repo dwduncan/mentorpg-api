@@ -41,7 +41,7 @@ public class TokenService {
                     token,
                     expireAt.toEpochMilli(),
                     usuario.getPhoto().getHref(),
-                    usuario.getContato().getDefautEmail(),
+                    usuario.getEmail(),
                     usuario.getRole());
 
         } catch (JWTCreationException exception){

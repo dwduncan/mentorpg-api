@@ -140,7 +140,7 @@ public class RecordUtils {
 
         String reactInterfaceName = "I" + classe.getSimpleName();
         StringBuilder interfaceBuilder = new StringBuilder("export ").append(defaultExport ? "default " : "").append("interface ").append(reactInterfaceName).append(" {\r\n");
-        StringBuilder defaultValuesBuilder = new StringBuilder("export const ").append(reactInterfaceName).append(" = {\r\n");
+        StringBuilder defaultValuesBuilder = new StringBuilder("export const default").append(reactInterfaceName).append(" = {\r\n");
 
         boolean b = false;
 
@@ -201,14 +201,16 @@ public class RecordUtils {
 
     public static void main(String... args) throws IOException{
 
-        //RecordUtils ru = new RecordUtils(User.class);
-        //ru.generateRecord();
-        //RecordUtils.printReactModel(UserRecord.class);
-        System.out.println("export const FORCASSINGULARES = [");
+        /*RecordUtils ru = new RecordUtils(User.class);
+        ru.generateRecord();*/
+        RecordUtils.printReactModel(UserRecord.class);
+
+
+        /*System.out.println("export const FORCASSINGULARES = [");
         for(ForcaSingular p : ForcaSingular.values()){
             System.out.println("\t'" + p.getSigla() + "',");
         }
-        System.out.println("];\r\n");
+        System.out.println("];\r\n");*/
     }
 
 }
