@@ -60,7 +60,7 @@ public class User extends BaseEntity implements UserDetails {
     @Column(columnDefinition = "TEXT")
     private String email;
     @Embedded
-    private final UserImage photo = new UserImage();
+    private final UserImage userImage = new UserImage();
     @Column(columnDefinition = "TEXT")
     private String identidade;
     @Column(columnDefinition = "DATE")
@@ -122,5 +122,7 @@ public class User extends BaseEntity implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+
 
 }

@@ -40,7 +40,7 @@ public class TokenService {
                     usuario.getNomeCompleto(),
                     token,
                     expireAt.toEpochMilli(),
-                    usuario.getPhoto().getHref(),
+                    usuario.getUserImage().getArquivoUrl(),
                     usuario.getEmail(),
                     usuario.getRole());
 

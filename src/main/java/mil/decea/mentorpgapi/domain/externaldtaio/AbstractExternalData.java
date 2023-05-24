@@ -24,9 +24,6 @@ public abstract class AbstractExternalData implements Serializable {
     @Column(columnDefinition = "TIMESTAMP")
     protected LocalDateTime dataHoraUpload;
     @Column(columnDefinition = "TEXT")
-    private String href = "";
+    protected String arquivoUrl = "";
 
-    public void setHref(String href) {
-        this.href = href == null ? "" : href;
-    }
 }
