@@ -60,7 +60,7 @@ public class User extends BaseEntity implements UserDetails {
     @Column(columnDefinition = "TEXT")
     private String email;
     @Embedded
-    private final UserImage userImage = new UserImage();
+    private UserImage userImage;
     @Column(columnDefinition = "TEXT")
     private String identidade;
     @Column(columnDefinition = "DATE")
@@ -89,6 +89,10 @@ public class User extends BaseEntity implements UserDetails {
         this.cpf = cpf.replaceAll("\\D","") ;
     }
 
+    public UserImage getUserImage(){
+        if (userImage == null) userImage = new UserImage();
+        return userImage;
+    }
     @Override
     public String getPassword() {
         return senha;
