@@ -1,16 +1,20 @@
 package mil.decea.mentorpgapi.domain.user;
 
+import jakarta.persistence.criteria.Path;
 import mil.decea.mentorpgapi.domain.DTOValidator;
 import mil.decea.mentorpgapi.domain.daoservices.UserRepository;
 import mil.decea.mentorpgapi.domain.user.dto.UserBasicDTO;
 import mil.decea.mentorpgapi.domain.user.dto.UserDTO;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -36,4 +40,6 @@ public class UserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String cpf) throws UsernameNotFoundException {
         return userRepository.findByCpf(cpf.replaceAll("\\D",""));
     }
+
+
 }

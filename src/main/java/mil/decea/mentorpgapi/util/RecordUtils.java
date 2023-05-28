@@ -309,8 +309,11 @@ public class RecordUtils {
         ru.generateRecord();
 */
 
-        RecordUtils.printReactModel(UserRecord.class);
+        //RecordUtils.printReactModel(UserRecord.class);
 
+        for(Field f : UserRecord.class.getDeclaredFields()){
+            System.out.println(f.getName());
+        }
 
         /*
             System.out.println("export const FORCASSINGULARES = [");
