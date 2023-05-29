@@ -27,6 +27,7 @@ public class User extends BaseEntity implements UserDetails {
 
 
     @IsValidCpf
+    @NotNull(message = "Informe um CPF válido")
     @Column(columnDefinition = "TEXT", nullable = false)
     private String cpf;
     @Column @Enumerated(EnumType.STRING)

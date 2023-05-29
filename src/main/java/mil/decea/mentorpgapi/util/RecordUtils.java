@@ -1,6 +1,8 @@
 package mil.decea.mentorpgapi.util;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
+import jakarta.validation.constraints.NotNull;
 import mil.decea.mentorpgapi.domain.BaseEntity;
 import mil.decea.mentorpgapi.domain.user.*;
 
@@ -11,9 +13,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class RecordUtils {
 
@@ -102,43 +102,6 @@ public class RecordUtils {
 
         }
     }
-    private void processAttribute(Field field, String prefixObjReference){
-
-        String fieldName = field.getName();
-        String prefix = field.getType().getSimpleName().equals("boolean") ? "is" : "get";
-        String method = prefix + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
-
-        if (hasAddedField) {
-            main.append(",\r\n");
-            constructor.append(",\r\n\t\t\t");
-        }
-
-        if (LocalDate.class.isAssignableFrom(field.getType()) || LocalDateTime.class.isAssignableFrom(field.getType())) {
-            String c = "mil.decea.mentorpgapi.util.ConvertDateToMillis";
-            if (!impConf.contains(c)) {
-                impConf.add(c);
-                imps.append("import ").append(c).append(";\r\n");
-            }
-            constructor.append("ConvertDateToMillis.converter(").append(prefixObjReference).append(method).append("())+\"\"");
-            main.append("\tString ").append(field.getName());
-        } else {
-
-            if (!field.getType().isPrimitive() && !(String.class.isAssignableFrom(field.getType()))
-                    && !field.getType().getPackage().equals(classe.getPackage()) && !impConf.contains(field.getType().getName())) {
-                imps.append("import ").append(field.getType().getName()).append(";\r\n");
-                impConf.add(field.getType().getName());
-            }
-
-            constructor.append(prefixObjReference).append(method).append("()");
-            if (Collection.class.isAssignableFrom(field.getType())) {
-                main.append("\t").append(field.getType().getSimpleName()).append("<?> ").append(field.getName());
-            } else {
-                main.append("\t").append(field.getType().getSimpleName()).append(" ").append(field.getName());
-            }
-
-        }
-        hasAddedField = true;
-    }
     private void processAttribute(Method method, String prefixObjReference){
 
         String methodName = method.getName();
@@ -151,7 +114,18 @@ public class RecordUtils {
             return;
         }
 
-
+        NotNull nnAnnotation = field.getAnnotation(NotNull.class);
+        String notNull;
+        if (nnAnnotation != null) {
+            notNull = nnAnnotation.message() != null ? "\t@NotNull(message=\"" + nnAnnotation.message() + "\")\r\n\t" : "\t@NotNull\r\n\t";
+            String c = "jakarta.validation.constraints.NotNull";
+            if (!impConf.contains(c)) {
+                impConf.add(c);
+                imps.append("import ").append(c).append(";\r\n");
+            }
+        }else{
+            notNull = "\t";
+        }
 
         Class<?> type = method.getReturnType();
 
@@ -167,7 +141,7 @@ public class RecordUtils {
                 imps.append("import ").append(c).append(";\r\n");
             }
             constructor.append("ConvertDateToMillis.converter(").append(prefixObjReference).append(methodName).append("())+\"\"");
-            main.append("\tString ").append(fieldName);
+            main.append(notNull).append("String ").append(fieldName);
         } else {
 
             if (!type.isPrimitive() && !(String.class.isAssignableFrom(type))
@@ -178,9 +152,9 @@ public class RecordUtils {
 
             constructor.append(prefixObjReference).append(methodName).append("()");
             if (Collection.class.isAssignableFrom(type)) {
-                main.append("\t").append(type.getSimpleName()).append("<?> ").append(fieldName);
+                main.append(notNull).append(type.getSimpleName()).append("<?> ").append(fieldName);
             } else {
-                main.append("\t").append(type.getSimpleName()).append(" ").append(fieldName);
+                main.append(notNull).append(type.getSimpleName()).append(" ").append(fieldName);
             }
 
         }
@@ -240,38 +214,51 @@ public class RecordUtils {
 
         String reactInterfaceName = "I" + classe.getSimpleName();
         StringBuilder interfaceBuilder = new StringBuilder("export ").append(defaultExport ? "default " : "").append("interface ").append(reactInterfaceName).append(" {\r\n");
+        StringBuilder fieldsDeclaretionBuilder = new StringBuilder("\r\n");
         StringBuilder defaultValuesBuilder = new StringBuilder("export const default").append(reactInterfaceName).append(" = {\r\n");
+
+        StringBuilder classBuilder = new StringBuilder("export class ").append(classe.getSimpleName()).append(" implements ").append(reactInterfaceName).append(" {\r\n");
+        StringBuilder classBuilderConstructor = new StringBuilder("\r\n\tpublic constructor(obj?:  ").append(reactInterfaceName).append(") {\r\n\r\n\t\tif (obj){\r\n");
+        StringBuilder elseBuilderConstructor = new StringBuilder("else{\r\n");
 
         boolean b = false;
 
         if (BaseEntity.class.isAssignableFrom(classe)){
             b = true;
-            interfaceBuilder.append("\r\n\tid:\tstring,");
+            fieldsDeclaretionBuilder.append("\r\n\tid:\tstring;");
+            classBuilderConstructor.append("\t\t\tthis.id = obj.id;");
+            elseBuilderConstructor.append("\t\t\tthis.id = '';");
         }
 
         for(Field field: classe.getDeclaredFields()){
             String campo = field.getName();
 
             if (b) {
-                interfaceBuilder.append(",\r\n");
+                fieldsDeclaretionBuilder.append(";\r\n");
+                classBuilderConstructor.append("\r\n");
+                elseBuilderConstructor.append("\r\n");
             }
 
             if (field.getType().isRecord()) {
                 String recordName = printReactModel(field.getType(),false);
-                interfaceBuilder.append("\t").append(campo).append(": ").append(recordName);
-                defaultValuesBuilder.append("\t").append(campo).append(": default").append(recordName).append(",\r\n");
+                fieldsDeclaretionBuilder.append("\t").append(campo).append(": ").append(recordName);
+                defaultValuesBuilder.append("\t").append(campo).append(": default").append(recordName).append(";\r\n");
+
+                classBuilderConstructor.append("\t\t\tthis.").append(campo).append(" = obj.").append(campo).append(";");
+                elseBuilderConstructor.append("\t\t\tthis.").append(campo).append(" = new ").append(field.getType().getSimpleName()).append("();");
             }else if (classe.isRecord() || (!(Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers())))) {
 
                 final String tipoNome = field.getType().getSimpleName();
-
+                NotNull nnAnnotation = field.getAnnotation(NotNull.class);
+                boolean nullable = nnAnnotation == null;
                 String type;
                 if (Collection.class.isAssignableFrom(field.getType())){
                     type = "[]";
                 }else if (field.getType().isEnum()){
-                    type = "string";
+                    type = "string" + (nullable ? " | null" : "");
                 }else {
                     type = switch (tipoNome) {
-                        case "String","LocalDate", "LocalTime", "LocalDateTime" -> "string";
+                        case "String","LocalDate", "LocalTime", "LocalDateTime" -> "string" + (nullable ? " | null" : "");
                         case "boolean", "Boolean" -> "boolean";
                         case "Integer", "int", "float", "Float", "double", "Double", "long", "Long", "BigDecimal", "BigInteger" -> "number";
                         default -> tipoNome;
@@ -279,49 +266,62 @@ public class RecordUtils {
                 }
 
                 if (campo.equals("id")) {
-                    interfaceBuilder.append("\tid: string");
-                    defaultValuesBuilder.append("\tid: '',\r\n");
+                    fieldsDeclaretionBuilder.append("\tid: string"+ (nullable ? " | null" : ""));
+                    defaultValuesBuilder.append("\tid: '';\r\n");
+                    classBuilderConstructor.append("\t\t\tthis.id").append(" = obj.id;");
+                    elseBuilderConstructor.append("\t\t\tthis.id = '';");
                 } else {
-                    interfaceBuilder.append("\t").append(campo).append(": ").append(type);
+                    fieldsDeclaretionBuilder.append("\t").append(campo).append(": ").append(type);
                     var val = switch (type){
-                        case "string" -> "''";
+                        case "string","string | null" -> "''";
                         case "number" -> "0";
                         case "[]" -> "[]";
                         case "boolean" -> "false";
                         default -> "{}";
                     };
-                    defaultValuesBuilder.append("\t").append(campo).append(": ").append(val).append(",\r\n");
+                    classBuilderConstructor.append("\t\t\tthis.").append(campo).append(" = obj.").append(campo).append(";");
+                    elseBuilderConstructor.append("\t\t\tthis.").append(campo).append(" = ").append(val).append(";");
+                    defaultValuesBuilder.append("\t").append(campo).append(": ").append(val).append(";\r\n");
                 }
 
                 b = true;
             }
         }
 
-        System.out.println(interfaceBuilder.append("\r\n}\r\n"));
-        System.out.println(defaultValuesBuilder.append("} as ").append(reactInterfaceName).append(";\r\n\r\n"));
+        Map<String,String> delaredMethods = ReactMethodDeclaration.getDeclaredMethodsForClass(classe);
+        classBuilderConstructor.append("\r\n\t\t}").append(elseBuilderConstructor).append("\r\n\t\t}\r\n\t}");
+        interfaceBuilder.append(fieldsDeclaretionBuilder).append("\r\n");
+        classBuilder.append(fieldsDeclaretionBuilder).append("\r\n").append(classBuilderConstructor);
+        if (delaredMethods != null){
+            for(String key : delaredMethods.keySet()){
+                String value = delaredMethods.get(key);
+                classBuilder.append("\t").append(value).append("\r\n");
+                interfaceBuilder.append("\t").append(key);
+            }
+        }
+
+        interfaceBuilder.append("\r\n}\r\n");
+        classBuilder.append("\r\n}\r\n");
+        System.out.println(interfaceBuilder);
+        //System.out.println(defaultValuesBuilder.append("} as ").append(reactInterfaceName).append(";\r\n\r\n"));
+        System.out.println(classBuilder);
         return reactInterfaceName;
     }
 
     public static void main(String... args) throws IOException {
+
+        //RecordUtils ru = new RecordUtils(User.class);
+        //ru.generateRecord();
+
+        RecordUtils.printReactModel(UserRecord.class);
+
 /*
-
-        RecordUtils ru = new RecordUtils(User.class);
-        ru.generateRecord();
-*/
-
-        //RecordUtils.printReactModel(UserRecord.class);
-
-        for(Field f : UserRecord.class.getDeclaredFields()){
-            System.out.println(f.getName());
-        }
-
-        /*
             System.out.println("export const FORCASSINGULARES = [");
             for(ForcaSingular p : ForcaSingular.values()){
                 System.out.println("\t'" + p.getSigla() + "',");
             }
             System.out.println("];\r\n");
-        */
+*/
     }
 
 }

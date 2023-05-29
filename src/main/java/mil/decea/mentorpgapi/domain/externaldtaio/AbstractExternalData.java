@@ -2,6 +2,7 @@ package mil.decea.mentorpgapi.domain.externaldtaio;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,5 +26,7 @@ public abstract class AbstractExternalData implements Serializable {
     protected LocalDateTime dataHoraUpload;
     @Column(columnDefinition = "TEXT")
     protected String arquivoUrl = "";
+    @Transient
+    protected String base64Data;
 
 }
