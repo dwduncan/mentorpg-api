@@ -54,7 +54,6 @@ public class UserController {
         return ResponseEntity.ok(page);
     }
 */
-
     @GetMapping("/search/{search_name}")
     @Transactional
     public ResponseEntity userSearch(@PathVariable String search_name){
@@ -62,12 +61,17 @@ public class UserController {
         return ResponseEntity.ok(users.stream().map(UserRecord::new));
     }
 
-
     @GetMapping("/{id}")
     @Transactional
     public ResponseEntity getUserByID(@PathVariable Long id){
         var user = repository.getReferenceById(id);
         return ResponseEntity.ok(new UserRecord(user));
+    }
+
+    @GetMapping("/error/{code}")
+    @Transactional
+    public ResponseEntity getUserByID(@PathVariable Integer code){
+        return ResponseEntity.status(code).build();
     }
 
 }
