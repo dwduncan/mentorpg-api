@@ -255,10 +255,10 @@ public class RecordUtils {
                 if (Collection.class.isAssignableFrom(field.getType())){
                     type = "[]";
                 }else if (field.getType().isEnum()){
-                    type = "string" + (nullable ? " | null" : "");
+                    type = "string";
                 }else {
                     type = switch (tipoNome) {
-                        case "String","LocalDate", "LocalTime", "LocalDateTime" -> "string" + (nullable ? " | null" : "");
+                        case "String","LocalDate", "LocalTime", "LocalDateTime" -> "string";
                         case "boolean", "Boolean" -> "boolean";
                         case "Integer", "int", "float", "Float", "double", "Double", "long", "Long", "BigDecimal", "BigInteger" -> "number";
                         default -> tipoNome;
@@ -266,7 +266,7 @@ public class RecordUtils {
                 }
 
                 if (campo.equals("id")) {
-                    fieldsDeclaretionBuilder.append("\tid: string"+ (nullable ? " | null" : ""));
+                    fieldsDeclaretionBuilder.append("\tid: string");
                     defaultValuesBuilder.append("\tid: '';\r\n");
                     classBuilderConstructor.append("\t\t\tthis.id").append(" = obj.id;");
                     elseBuilderConstructor.append("\t\t\tthis.id = '';");
