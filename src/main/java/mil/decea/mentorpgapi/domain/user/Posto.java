@@ -1,8 +1,6 @@
 
 package mil.decea.mentorpgapi.domain.user;
 
-import mil.decea.mentorpgapi.domain.EnumConverter;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +16,7 @@ import java.util.stream.Collectors;
  * Date: 03/03/2021
  * Time: 19:24
  */
-public enum Posto implements EnumConverter<Posto> {
+public enum Posto {
 
     TB("Ten Brig","Tenente Brigadeiro",2, true, false, false),
     MB("Maj Brig","Major Brigadeiro",3, true, false, false),
@@ -107,7 +105,6 @@ public enum Posto implements EnumConverter<Posto> {
         return mb;
     }
 
-    @Override
     public Posto convert(String s) {
         return Arrays.stream(Posto.values()).filter(p->getSigla().equalsIgnoreCase(s)).findAny().orElse(null);
     }

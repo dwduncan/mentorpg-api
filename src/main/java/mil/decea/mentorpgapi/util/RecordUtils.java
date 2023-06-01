@@ -6,11 +6,11 @@ import jakarta.validation.constraints.NotNull;
 import mil.decea.mentorpgapi.domain.BaseEntity;
 import mil.decea.mentorpgapi.domain.user.*;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
+import java.rmi.RemoteException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -308,20 +308,94 @@ public class RecordUtils {
         return reactInterfaceName;
     }
 
-    public static void main(String... args) throws IOException {
+
+    static String getTypeScript(Class<?> classe){
+        if (String.class.isAssignableFrom(classe)) return "string";
+        if (classe.isPrimitive()){
+            if (boolean.class.isAssignableFrom(classe)) return "boolean";
+            return "number";
+        }
+        return null;
+    }
+    public static void exportEnumsToTypeScript(String targetDir, Class<?> classe) throws IOException {
+
+
+
+        for(Method m : classe.getMethods()){
+            if (m.getReturnType().isEnum()){
+
+                StringBuilder fileBody = new StringBuilder();
+                String enum_name = m.getReturnType().getSimpleName();
+
+                Class<?> enumClass = m.getReturnType();
+
+                fileBody.append("\r\nexport interface ").append(enum_name).append(" {").append("\r\n\tname: string,");
+                Arrays.stream(enumClass.getDeclaredFields())
+                        .filter(f -> f.getType().isPrimitive() || String.class.isAssignableFrom(f.getType()))
+                        .forEach(f->{fileBody
+                                .append("\r\n\t")
+                                .append(f.getName())
+                                .append(": ")
+                                .append(getTypeScript(f.getType()))
+                                .append(",");
+                        });
+
+                fileBody.append("\r\n}\r\n");
+
+                fileBody.append("\r\nexport const enum").append(enum_name).append(": ").append(enum_name).append("[] = [\r\n");
+
+                for(Field enumValue : m.getReturnType().getFields()){
+                    fileBody.append("\t\t{ name: '").append(enumValue.getName()).append("'");
+
+                    for(Field f : m.getReturnType().getDeclaredFields()){
+                        if (f.getType().isPrimitive() || String.class.isAssignableFrom(f.getType())){
+                            try{
+                                Enum _enum = Enum.valueOf((Class<Enum>)enumValue.getType(),enumValue.getName());
+                                f.setAccessible(true);
+                                Object value = f.get(_enum);
+                                String quotes = String.class.isAssignableFrom(f.getType()) ? "'" : "";
+                                fileBody.append(", ").append(f.getName()).append(": ").append(quotes).append(value).append(quotes);
+                            }catch (Exception ex){
+                                throw new RuntimeException(ex);
+                            }
+                        }
+                    }
+
+                    fileBody.append(" },\r\n");
+                }
+                fileBody.append("];\r\n");
+
+                if (!fileBody.toString().isBlank()) {
+                    if (!targetDir.endsWith("/")) targetDir += "/";
+                    FileWriter arq = new FileWriter(targetDir + enum_name + ".ts");
+                    arq.write(fileBody.toString());
+                    arq.close();
+                }
+
+                //System.out.println(fileBody);
+            }
+        }
+
+    }
+
+
+
+    public static void main(String... args) throws IOException, NoSuchFieldException, IllegalAccessException, NoSuchMethodException {
+
+        /*
+
+        System.out.println(new File(targetDir).exists());
+
+        StringBuilder fileBody = new StringBuilder();*/
 
         //RecordUtils ru = new RecordUtils(User.class);
         //ru.generateRecord();
 
-        RecordUtils.printReactModel(UserRecord.class);
+        //RecordUtils.printReactModel(UserRecord.class);
 
-/*
-            System.out.println("export const FORCASSINGULARES = [");
-            for(ForcaSingular p : ForcaSingular.values()){
-                System.out.println("\t'" + p.getSigla() + "',");
-            }
-            System.out.println("];\r\n");
-*/
+        String targetDir = "/Users/duncandwdi.DECEA/IdeaProjects/PrototipoMentorPG3Next/src/model";
+        exportEnumsToTypeScript(targetDir,User.class);
+
     }
 
 }

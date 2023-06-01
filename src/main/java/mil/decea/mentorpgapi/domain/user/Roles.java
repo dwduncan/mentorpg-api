@@ -1,12 +1,11 @@
 package mil.decea.mentorpgapi.domain.user;
 
-import mil.decea.mentorpgapi.domain.EnumConverter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.Arrays;
 
-public enum Roles implements EnumConverter<Roles> {
+public enum Roles {
 
     USER("USER"),
     ADMIN("ADMIN"),
@@ -34,7 +33,6 @@ public enum Roles implements EnumConverter<Roles> {
         return grantedAuthority;
     }
 
-    @Override
     public Roles convert(String s) {
         return Arrays.stream(Roles.values()).filter(p->roleName.equalsIgnoreCase(s) || p.name().equalsIgnoreCase(s)).findAny().orElse(null);
     }

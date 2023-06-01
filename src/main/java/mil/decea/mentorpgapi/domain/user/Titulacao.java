@@ -1,7 +1,5 @@
 package mil.decea.mentorpgapi.domain.user;
 
-import mil.decea.mentorpgapi.domain.EnumConverter;
-
 import java.util.Arrays;
 
 /**
@@ -15,7 +13,7 @@ import java.util.Arrays;
  * Date: 10/04/2021
  * Time: 14:59
  */
-public enum Titulacao implements EnumConverter<Titulacao> {
+public enum Titulacao {
 
     SENHOR("Senhor", "Sr.", "Sra."),
     PROF("Professor", "Prof.", "Profa."),
@@ -60,7 +58,7 @@ public enum Titulacao implements EnumConverter<Titulacao> {
         return getSigla() + " / " + getSiglaFem();
     }
 
-    @Override
+
     public Titulacao convert(String s) {
         return Arrays.stream(Titulacao.values()).filter(p->sigla.equalsIgnoreCase(s) || titulo.equalsIgnoreCase(s)
                 || p.name().equalsIgnoreCase(s) || siglaFem.equalsIgnoreCase(s)).findAny().orElse(null);
