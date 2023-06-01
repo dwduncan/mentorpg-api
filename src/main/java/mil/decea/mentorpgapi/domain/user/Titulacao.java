@@ -1,5 +1,9 @@
 package mil.decea.mentorpgapi.domain.user;
 
+import mil.decea.mentorpgapi.domain.EnumConverter;
+
+import java.util.Arrays;
+
 /**
  * Força Aérea Brasileira - (FAB)
  * Instituto Tecnológico de Aeronáutica - (ITA)
@@ -11,7 +15,7 @@ package mil.decea.mentorpgapi.domain.user;
  * Date: 10/04/2021
  * Time: 14:59
  */
-public enum Titulacao {
+public enum Titulacao implements EnumConverter<Titulacao> {
 
     SENHOR("Senhor", "Sr.", "Sra."),
     PROF("Professor", "Prof.", "Profa."),
@@ -54,5 +58,11 @@ public enum Titulacao {
 
     public String getSiglas(){
         return getSigla() + " / " + getSiglaFem();
+    }
+
+    @Override
+    public Titulacao convert(String s) {
+        return Arrays.stream(Titulacao.values()).filter(p->sigla.equalsIgnoreCase(s) || titulo.equalsIgnoreCase(s)
+                || p.name().equalsIgnoreCase(s) || siglaFem.equalsIgnoreCase(s)).findAny().orElse(null);
     }
 }

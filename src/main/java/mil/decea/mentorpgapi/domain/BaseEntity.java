@@ -24,14 +24,15 @@ public class BaseEntity implements Serializable {
 
         for(Field f : dados.getClass().getDeclaredFields()){
             String methodRadix = f.getName().substring(0,1).toUpperCase() + f.getName().substring(1);
-            if (f.getType().isRecord()){
+            if (f.getType().isRecord()) {
                 String m_name = "get" + methodRadix;
                 try {
                     Object obj = getClass().getMethod(m_name).invoke(this);
-                    if (obj instanceof BaseEntity){
+                    if (obj instanceof BaseEntity) {
                         ((BaseEntity) obj).updateValues((Record) f.get(dados));
                     }
-                }catch (Exception ignore){}
+                } catch (Exception ignore) {
+                }
             }else{
                 String m_name = "set" + methodRadix;
                 try {

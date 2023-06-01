@@ -3,6 +3,7 @@ package mil.decea.mentorpgapi.controller;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import mil.decea.mentorpgapi.domain.daoservices.UserRepository;
+import mil.decea.mentorpgapi.domain.user.Posto;
 import mil.decea.mentorpgapi.domain.user.UserRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

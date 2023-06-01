@@ -1,4 +1,5 @@
 package mil.decea.mentorpgapi.domain.user;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import jakarta.validation.constraints.NotNull;
 import mil.decea.mentorpgapi.util.ConvertDateToMillis;
 import java.util.List;
@@ -39,27 +40,29 @@ public record UserRecord(
 			obj.getTitulacao(),
 			obj.getNomeCompleto(),
 			obj.getCpf(),
-			new UserImageRecord(obj.getUserImage()),
+			obj.getUserImage() == null ? null : new UserImageRecord(obj.getUserImage()),
 			obj.getPosto(),
 			obj.getQuadro(),
 			obj.getEspecialidade(),
 			obj.getNomeGuerra(),
 			obj.getSexo(),
-			ConvertDateToMillis.converter(obj.getUltimaPromocao())+"",
+			obj.getUltimaPromocao() == null ? "" : ConvertDateToMillis.converter(obj.getUltimaPromocao()) + "",
 			obj.getEmail(),
 			obj.isPttc(),
 			obj.getSaram(),
 			obj.getIdentidade(),
 			obj.getCelular(),
-			ConvertDateToMillis.converter(obj.getDataPraca())+"",
+			obj.getDataPraca() == null ? "" : ConvertDateToMillis.converter(obj.getDataPraca()) + "",
 			obj.getSenha(),
 			obj.getDocuments(),
-			ConvertDateToMillis.converter(obj.getDataNascimento())+"",
+			obj.getDataNascimento() == null ? "" : ConvertDateToMillis.converter(obj.getDataNascimento()) + "",
 			obj.getRole(),
-			ConvertDateToMillis.converter(obj.getProximaPromocao())+"",
+			obj.getProximaPromocao() == null ? "" : ConvertDateToMillis.converter(obj.getProximaPromocao()) + "",
 			obj.getObservacoes(),
 			obj.getForcaSingular(),
 			obj.getId(),
 			obj.isAtivo());
 	}
+
+
 }

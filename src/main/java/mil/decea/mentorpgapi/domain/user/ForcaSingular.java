@@ -1,6 +1,8 @@
 
 package mil.decea.mentorpgapi.domain.user;
 
+import mil.decea.mentorpgapi.domain.EnumConverter;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -16,7 +18,7 @@ import java.util.stream.Collectors;
  * Date: 03/03/2021
  * Time: 19:40
  */
-public enum ForcaSingular {
+public enum ForcaSingular implements EnumConverter<ForcaSingular> {
 
     CIV("Civil", "Civil",3),
     FAB("FAB","Força Aérea Brasileira",0),
@@ -69,5 +71,10 @@ public enum ForcaSingular {
 
     public int getPrioridade() {
         return prioridade;
+    }
+
+    @Override
+    public ForcaSingular convert(String s) {
+        return Arrays.stream(ForcaSingular.values()).filter(p->getSigla().equalsIgnoreCase(s)).findAny().orElse(null);
     }
 }

@@ -1,6 +1,8 @@
 
 package mil.decea.mentorpgapi.domain.user;
 
+import mil.decea.mentorpgapi.domain.EnumConverter;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +20,7 @@ import java.util.stream.Collectors;
  */
 
 @SuppressWarnings("unused")
-public enum Sexo {
+public enum Sexo implements EnumConverter<Sexo> {
     MASCULINO("Masculino","Masc"),
     FEMININO("Feminino","Fem");
 
@@ -46,5 +48,10 @@ public enum Sexo {
 
     public String getSigla() {
         return sigla;
+    }
+
+    @Override
+    public Sexo convert(String s) {
+        return Arrays.stream(Sexo.values()).filter(p->getSigla().equalsIgnoreCase(s) || p.desc.equalsIgnoreCase(s)).findAny().orElse(null);
     }
 }

@@ -77,6 +77,45 @@ public class User extends BaseEntity implements UserDetails {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserDocument> documents = new ArrayList<>();
 
+    public User(Long id,
+                boolean ativo,
+                Posto posto,
+                String quadro,
+                String especialidade,
+                String nomeGuerra,
+                String nomeCompleto) {
+
+        super(id, ativo);
+        this.posto = posto;
+        this.quadro = quadro;
+        this.especialidade = especialidade;
+        this.nomeGuerra = nomeGuerra;
+        this.nomeCompleto = nomeCompleto;
+    }
+
+    public User(Long id,
+                boolean ativo,
+                @NotNull(message = "Informe um CPF válido") String cpf,
+                Titulacao titulacao,
+                Posto posto,
+                String quadro,
+                String especialidade,
+                @NotNull(message = "Informe o nome de guerra") String nomeGuerra,
+                @NotNull(message = "Informe o nome completo") String nomeCompleto,
+                Sexo sexo,
+                boolean pttc) {
+
+        super(id, ativo);
+        this.cpf = cpf;
+        this.titulacao = titulacao;
+        this.posto = posto;
+        this.quadro = quadro;
+        this.especialidade = especialidade;
+        this.nomeGuerra = nomeGuerra;
+        this.nomeCompleto = nomeCompleto;
+        this.sexo = sexo;
+        this.pttc = pttc;
+    }
 
     public User(UserDTO dto){
         //todo
