@@ -1,17 +1,15 @@
 package mil.decea.mentorpgapi.util;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.validation.constraints.NotNull;
 import mil.decea.mentorpgapi.domain.BaseEntity;
 import mil.decea.mentorpgapi.domain.NotForRecordField;
 import mil.decea.mentorpgapi.domain.user.*;
+import mil.decea.mentorpgapi.etc.security.FirstAdminRecord;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.*;
-import java.rmi.RemoteException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -209,10 +207,10 @@ public class RecordUtils {
         }
         throw new NoSuchFieldException();
     }
-    public static void printReactModel(Class<?> classe){
-        printReactModel(classe,true);
+    public static void exportReactModel(Class<?> classe, String targetDir) throws IOException{
+        exportReactModel(classe, targetDir,true);
     }
-    public static String printReactModel(Class<?> classe, boolean defaultExport){
+    public static String exportReactModel(Class<?> classe, String targetDir, boolean defaultExport) throws IOException {
 
         String reactInterfaceName = "I" + classe.getSimpleName();
         StringBuilder interfaceBuilder = new StringBuilder("export ").append(defaultExport ? "default " : "").append("interface ").append(reactInterfaceName).append(" {\r\n");
@@ -220,7 +218,7 @@ public class RecordUtils {
         StringBuilder defaultValuesBuilder = new StringBuilder("export const default").append(reactInterfaceName).append(" = {\r\n");
 
         StringBuilder classBuilder = new StringBuilder("export class ").append(classe.getSimpleName()).append(" implements ").append(reactInterfaceName).append(" {\r\n");
-        StringBuilder classBuilderConstructor = new StringBuilder("\r\n\tpublic constructor(obj?:  ").append(reactInterfaceName).append(") {\r\n\r\n\t\tif (obj){\r\n");
+        StringBuilder classBuilderConstructor = new StringBuilder("\r\n\tpublic constructor(obj?:  ").append(reactInterfaceName).append(") {\r\n\r\n\t\tif (!!obj){\r\n");
         StringBuilder elseBuilderConstructor = new StringBuilder("else{\r\n");
 
         boolean b = false;
@@ -245,7 +243,7 @@ public class RecordUtils {
             }
 
             if (field.getType().isRecord()) {
-                String recordName = printReactModel(field.getType(),false);
+                String recordName = exportReactModel(field.getType(), targetDir, false);
                 fieldsDeclaretionBuilder.append("\t").append(campo).append(": ").append(recordName);
                 defaultValuesBuilder.append("\t").append(campo).append(": default").append(recordName).append(";\r\n");
 
@@ -310,6 +308,15 @@ public class RecordUtils {
         System.out.println(interfaceBuilder);
         //System.out.println(defaultValuesBuilder.append("} as ").append(reactInterfaceName).append(";\r\n\r\n"));
         System.out.println(classBuilder);
+
+        if (!interfaceBuilder.toString().isBlank()) {
+            if (!targetDir.endsWith("/")) targetDir += "/";
+            FileWriter arq = new FileWriter(targetDir + reactInterfaceName + ".ts");
+            arq.write(interfaceBuilder.toString());
+            arq.write(classBuilder.toString());
+            arq.close();
+        }
+
         return reactInterfaceName;
     }
 
@@ -387,18 +394,24 @@ public class RecordUtils {
 
     public static void main(String... args) throws IOException, NoSuchFieldException, IllegalAccessException, NoSuchMethodException {
 
+        String targetDir = "/Users/duncandwdi.DECEA/IdeaProjects/PrototipoMentorPG3Next/src/model";
+
         /*
 
         System.out.println(new File(targetDir).exists());
 
-        StringBuilder fileBody = new StringBuilder();*/
+        StringBuilder fileBody = new StringBuilder();
+
 
         RecordUtils ru = new RecordUtils(User.class);
         ru.generateRecord();
 
-        //RecordUtils.printReactModel(UserRecord.class);
+
+        */
+
+        RecordUtils.exportReactModel(FirstAdminRecord.class,targetDir);
         /*
-        String targetDir = "/Users/duncandwdi.DECEA/IdeaProjects/PrototipoMentorPG3Next/src/model";
+
         exportEnumsToTypeScript(targetDir,User.class);
 */
     }

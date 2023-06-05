@@ -23,7 +23,14 @@ public class ApiExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?>tratarErro400(MethodArgumentNotValidException ex) {
         var erros = ex.getFieldErrors();
-        return ResponseEntity.badRequest().body(erros.stream().map(DadosErroValidacao::new).toList());
+        StringBuilder sb = new StringBuilder();
+        boolean b = false;
+        for(FieldError fe : erros){
+            if (b) sb.append("\r\n");
+            sb.append(fe.getDefaultMessage());
+            b = true;
+        }
+        return ResponseEntity.badRequest().body(sb.toString());
     }
 
     @ExceptionHandler(MentorValidationException.class)
@@ -48,8 +55,10 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<?>tratarErroAcessoNegado() {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Acesso negado");
+    public ResponseEntity<?>tratarErroAcessoNegado(AccessDeniedException ex) {
+        String msg = ex.getLocalizedMessage();
+        System.out.println(msg);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(msg);
     }
 
     @ExceptionHandler(Exception.class)
@@ -57,11 +66,4 @@ public class ApiExceptionHandler {
         ex.printStackTrace();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro: " +ex.getLocalizedMessage());
     }
-
-    private record DadosErroValidacao(String campo, String mensagem) {
-        public DadosErroValidacao(FieldError erro) {
-            this(erro.getField(), erro.getDefaultMessage());
-        }
-    }
-
 }

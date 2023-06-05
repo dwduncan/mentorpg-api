@@ -1,1 +1,21 @@
+CREATE ROLE mentor_app_access WITH
+    LOGIN
+    NOSUPERUSER
+    CREATEDB
+    NOCREATEROLE
+    INHERIT
+    NOREPLICATION
+    CONNECTION LIMIT -1
+    PASSWORD '123456';
+
+CREATE DATABASE mentor
+    WITH
+    OWNER = mentor_app_access
+    ENCODING = 'UTF8'
+    CONNECTION LIMIT = -1
+    IS_TEMPLATE = False;
+
+CREATE SCHEMA mentorpgapi
+    AUTHORIZATION mentor_app_access;
+
 CREATE EXTENSION unaccent;

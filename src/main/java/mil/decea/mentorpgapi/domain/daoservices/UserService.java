@@ -8,14 +8,18 @@ import mil.decea.mentorpgapi.domain.daoservices.minio.ClientMinioImplemantationE
 import mil.decea.mentorpgapi.domain.daoservices.minio.ClienteMinio;
 import mil.decea.mentorpgapi.domain.daoservices.repositories.UserRepository;
 import mil.decea.mentorpgapi.domain.user.AuthUser;
+import mil.decea.mentorpgapi.domain.user.Roles;
 import mil.decea.mentorpgapi.domain.user.User;
 import mil.decea.mentorpgapi.domain.user.UserRecord;
 import mil.decea.mentorpgapi.domain.user.dto.UserDTO;
+import mil.decea.mentorpgapi.etc.security.FirstAdminRecord;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -153,6 +157,35 @@ public class UserService implements UserDetailsService {
                 .where(cb.and(predicates.toArray(new Predicate[0])));
 
             return entityManager.createQuery(cq).getResultList();
+    }
+
+    public UserRecord createFirstAdmin(FirstAdminRecord usr){
+
+        if (numberOfUsers() != null && numberOfUsers().intValue() != 0) throw new AccessDeniedException("Acesso negado, já existem usuários cadastrados");
+
+        String _encryptPassword = new BCryptPasswordEncoder().encode(usr.senha());
+
+        User _user = new User();
+        _user.setCpf(usr.cpf());
+        _user.setSenha(_encryptPassword);
+        _user.setNomeGuerra(usr.nomeGuerra());
+        _user.setNomeCompleto(usr.nomeCompleto());
+        _user.setCelular(usr.celular());
+        _user.setEmail(usr.email());
+        _user.setRole(Roles.ADMIN.getRoleName());
+
+        _user = repository.save(_user);
+
+        return new UserRecord(_user);
+    }
+
+    public Long numberOfUsers(){
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<User> root = cq.from(User.class);
+        cq.select(cb.count(root.get("id")));
+        return entityManager.createQuery(cq).getSingleResult();
     }
 
 }
