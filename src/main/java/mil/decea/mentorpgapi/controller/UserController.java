@@ -2,17 +2,15 @@ package mil.decea.mentorpgapi.controller;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
-import mil.decea.mentorpgapi.domain.daoservices.UserRepository;
-import mil.decea.mentorpgapi.domain.user.Posto;
+import mil.decea.mentorpgapi.domain.daoservices.minio.ClientMinioImplemantationException;
 import mil.decea.mentorpgapi.domain.user.UserRecord;
+import mil.decea.mentorpgapi.domain.daoservices.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequestMapping("/users")
@@ -20,15 +18,17 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class UserController {
 
     @Autowired
-    private UserRepository repository;
+    private UserService userService;
 
     @PostMapping
     @Transactional
     public ResponseEntity save(@RequestBody @Valid UserRecord dados){
-        var entity = repository.getReferenceById(dados.id());
-        entity.updateValues(dados);
-        entity = repository.save(entity);
-        return ResponseEntity.ok(new UserRecord(entity));
+        try {
+            return ResponseEntity.ok(userService.save(dados));
+        } catch (ClientMinioImplemantationException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro: falha ao atualizar foto");
+        }
     }
 
 
@@ -41,9 +41,15 @@ public class UserController {
     @Transactional
     @Secured({"ADMIN","COORDENADOR"})
     public ResponseEntity delete(@PathVariable Long id){
-        var entity = repository.getReferenceById(id);
-        entity.setAtivo(false);
-        repository.save(entity);
+        userService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/forever/{id}")
+    @Transactional
+    @Secured({"ADMIN"})
+    public ResponseEntity deleteForever(@PathVariable Long id){
+        userService.deleteForever(id);
         return ResponseEntity.noContent().build();
     }
 /*
@@ -58,20 +64,25 @@ public class UserController {
     @GetMapping("/search/{search_name}")
     @Transactional
     public ResponseEntity userSearch(@PathVariable String search_name){
-        var users = repository.findAll(UserRepository.searchUserByNomeCompleto(search_name));
-        return ResponseEntity.ok(users.stream().map(UserRecord::new));
+        return ResponseEntity.ok(userService.searchUsersByName(search_name));
     }
 
     @GetMapping("/{id}")
     @Transactional
     public ResponseEntity getUserByID(@PathVariable Long id){
-        var user = repository.getReferenceById(id);
-        return ResponseEntity.ok(new UserRecord(user));
+        return ResponseEntity.ok(userService.getUserById(id));
+    }
+
+
+    @GetMapping("/cpf/{cpf}")
+    @Transactional
+    public ResponseEntity getUserByCPF(@PathVariable String cpf){
+        return ResponseEntity.ok(userService.getUserByCPF(cpf.replaceAll("\\D","")));
     }
 
     @GetMapping("/error/{code}")
     @Transactional
-    public ResponseEntity getUserByID(@PathVariable Integer code){
+    public ResponseEntity testErrorCode(@PathVariable Integer code){
         return ResponseEntity.status(code).build();
     }
 

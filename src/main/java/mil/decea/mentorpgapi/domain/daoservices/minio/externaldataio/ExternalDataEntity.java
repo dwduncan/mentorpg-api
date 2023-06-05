@@ -1,4 +1,4 @@
-package mil.decea.mentorpgapi.domain.externaldtaio;
+package mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio;
 
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;

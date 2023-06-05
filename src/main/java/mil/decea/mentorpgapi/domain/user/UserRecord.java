@@ -1,7 +1,7 @@
 package mil.decea.mentorpgapi.domain.user;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import jakarta.validation.constraints.NotNull;
-import mil.decea.mentorpgapi.util.ConvertDateToMillis;
+import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
+
 import java.util.List;
 import java.lang.Long;
 
@@ -26,7 +26,6 @@ public record UserRecord(
 	String identidade,
 	String celular,
 	String dataPraca,
-	String senha,
 	List<?> documents,
 	String dataNascimento,
 	String role,
@@ -46,18 +45,17 @@ public record UserRecord(
 			obj.getEspecialidade(),
 			obj.getNomeGuerra(),
 			obj.getSexo(),
-			obj.getUltimaPromocao() == null ? "" : ConvertDateToMillis.converter(obj.getUltimaPromocao()) + "",
+			obj.getUltimaPromocao() == null ? "" : DateTimeAPIHandler.converter(obj.getUltimaPromocao()) + "",
 			obj.getEmail(),
 			obj.isPttc(),
 			obj.getSaram(),
 			obj.getIdentidade(),
 			obj.getCelular(),
-			obj.getDataPraca() == null ? "" : ConvertDateToMillis.converter(obj.getDataPraca()) + "",
-			obj.getSenha(),
+			obj.getDataPraca() == null ? "" : DateTimeAPIHandler.converter(obj.getDataPraca()) + "",
 			obj.getDocuments(),
-			obj.getDataNascimento() == null ? "" : ConvertDateToMillis.converter(obj.getDataNascimento()) + "",
+			obj.getDataNascimento() == null ? "" : DateTimeAPIHandler.converter(obj.getDataNascimento()) + "",
 			obj.getRole(),
-			obj.getProximaPromocao() == null ? "" : ConvertDateToMillis.converter(obj.getProximaPromocao()) + "",
+			obj.getProximaPromocao() == null ? "" : DateTimeAPIHandler.converter(obj.getProximaPromocao()) + "",
 			obj.getObservacoes(),
 			obj.getForcaSingular(),
 			obj.getId(),
@@ -65,4 +63,58 @@ public record UserRecord(
 	}
 
 
+
+	public UserRecord(Long id,
+					  String cpf,
+					  boolean ativo,
+					  Posto posto,
+					  String quadro,
+					  String especialidade,
+					  String nomeGuerra,
+					  String nomeCompleto,
+					  UserImage userImage) {
+		this(0,
+				null,
+				nomeCompleto,
+				cpf,
+				userImage == null ? null : new UserImageRecord(userImage),
+				posto,
+				quadro,
+				especialidade,
+				nomeGuerra,
+				null,
+				null,
+				null,
+				false,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				id,
+				ativo);
+	}
+	public UserRecord(Long id,
+					  String cpf,
+					  boolean ativo,
+					  Posto posto,
+					  String quadro,
+					  String especialidade,
+					  String nomeGuerra,
+					  String nomeCompleto) {
+		this(id,
+				cpf,
+				ativo,
+				posto,
+				quadro,
+				especialidade,
+				nomeGuerra,
+				nomeCompleto,
+				null);
+	}
 }

@@ -5,9 +5,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import mil.decea.mentorpgapi.domain.externaldtaio.ExternalDataEntity;
-import mil.decea.mentorpgapi.domain.externaldtaio.DocumentType;
-import mil.decea.mentorpgapi.domain.externaldtaio.StatusDoc;
+import mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio.ExternalDataEntity;
+import mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio.DocumentType;
+import mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio.StatusDoc;
 
 @Table(name = "userdocs", schema = "mentorpgapi")
 @Entity

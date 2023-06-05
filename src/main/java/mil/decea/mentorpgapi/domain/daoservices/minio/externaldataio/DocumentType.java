@@ -1,4 +1,4 @@
-package mil.decea.mentorpgapi.domain.externaldtaio;
+package mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;

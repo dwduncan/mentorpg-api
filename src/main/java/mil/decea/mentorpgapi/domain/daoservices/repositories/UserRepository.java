@@ -1,4 +1,4 @@
-package mil.decea.mentorpgapi.domain.daoservices;
+package mil.decea.mentorpgapi.domain.daoservices.repositories;
 
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
@@ -24,24 +24,6 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     //@EntityGraph(attributePaths = {"id", "username"})
     //List<User> findAllByAtivoTrue(Pageable pageable);
-    static Specification<User> searchUserByNomeCompleto(String search_name){
-        return (root, cq, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-            String[] tokens = search_name.trim().toLowerCase(Locale.ROOT).split("\\s+");
-            Path<String> p = root.get("nomeCompleto");
-            for(String v : tokens) {
-                predicates.add(cb.like(cb.function("unaccent",String.class, cb.lower(p)), "%" + StringUtils.stripAccents(v.toLowerCase()) + "%"));
-            }
-            cq.multiselect(
-                    root.get("id"),
-                    root.get("ativo"),
-                    root.get("posto"),
-                    root.get("quadro"),
-                    root.get("especialidade"),
-                    root.get("nomeGuerra"),
-                    root.get("nomeCompleto"));
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
-    }
+
 
 }

@@ -1,6 +1,7 @@
 package mil.decea.mentorpgapi.controller;
 
 import jakarta.validation.Valid;
+import mil.decea.mentorpgapi.domain.daoservices.UserService;
 import mil.decea.mentorpgapi.domain.user.LoginRecord;
 import mil.decea.mentorpgapi.domain.user.User;
 import mil.decea.mentorpgapi.etc.security.TokenService;
@@ -19,9 +20,12 @@ public class Authentication {
 
     private final TokenService tokenService;
 
-    public Authentication(@Autowired AuthenticationManager manager, @Autowired TokenService tokenService) {
+    private final UserService userService;
+    @Autowired
+    public Authentication( AuthenticationManager manager, TokenService tokenService, UserService userService) {
         this.manager = manager;
         this.tokenService = tokenService;
+        this.userService = userService;
     }
 
     @PostMapping

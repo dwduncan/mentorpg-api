@@ -1,5 +1,5 @@
 package mil.decea.mentorpgapi.domain.user;
-import mil.decea.mentorpgapi.util.ConvertDateToMillis;
+import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
 
 public record UserImageRecord(
 	String formato,
@@ -10,7 +10,7 @@ public record UserImageRecord(
 	public UserImageRecord(UserImage obj) {
 		this(obj.getFormato(),
 			obj.getNomeArquivo(),
-			ConvertDateToMillis.converter(obj.getDataHoraUpload())+"",
+			DateTimeAPIHandler.converter(obj.getDataHoraUpload())+"",
 			obj.getArquivoUrl(),
 			obj.getBase64Data());
 	}

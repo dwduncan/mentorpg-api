@@ -4,7 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import mil.decea.mentorpgapi.domain.daoservices.UserRepository;
+import mil.decea.mentorpgapi.domain.daoservices.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,12 +18,12 @@ import java.io.IOException;
 public class SecurityFilter extends OncePerRequestFilter {
 
     private final TokenService tokenService;
-    private final UserRepository repository;
+    private final UserService userService;
 
     @Autowired
-    public SecurityFilter(TokenService tokenService, UserRepository repository) {
+    public SecurityFilter(TokenService tokenService, UserService userService) {
         this.tokenService = tokenService;
-        this.repository = repository;
+        this.userService = userService;
     }
 
     @Override
@@ -32,7 +32,7 @@ public class SecurityFilter extends OncePerRequestFilter {
 
         if (tokenJWT != null) {
             var subject = tokenService.getSubject(tokenJWT);
-            var usuario = repository.findByCpf(subject);
+            var usuario = userService.getAuthUser(subject);
 
             var authentication = new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);

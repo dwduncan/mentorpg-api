@@ -1,4 +1,4 @@
-package mil.decea.mentorpgapi.domain.externaldtaio;
+package mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
@@ -7,8 +7,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import mil.decea.mentorpgapi.domain.NotForRecordField;
+import mil.decea.mentorpgapi.domain.daoservices.minio.ExternalData;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @MappedSuperclass
@@ -16,7 +17,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class AbstractExternalData implements Serializable {
+public abstract class AbstractExternalData implements ExternalData {
 
     @Column(columnDefinition = "TEXT")
     protected String formato;
@@ -24,9 +25,19 @@ public abstract class AbstractExternalData implements Serializable {
     protected String nomeArquivo;
     @Column(columnDefinition = "TIMESTAMP")
     protected LocalDateTime dataHoraUpload;
-    @Column(columnDefinition = "TEXT")
+    @Transient
     protected String arquivoUrl = "";
     @Transient
     protected String base64Data;
+
+
+
+    /*@NotForRecordField
+    public String getSuffix(){
+        if (getNomeArquivo() != null && getNomeArquivo().contains(".")){
+            return getNomeArquivo().split("\\.")[1];
+        }
+        return null;
+    }*/
 
 }

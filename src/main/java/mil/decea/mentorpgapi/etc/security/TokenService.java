@@ -17,12 +17,12 @@ public class TokenService {
 
     private final String ISSUER = "MentorPG-API";
 
-    private final int TEMPO_EXPIRACAO_MINUTOS = 30;
+    public static final int EXPIRATION_TIME_IN_MINUTES = 30;
 
     @Value("${mentorapi.security.token.secret}")
     private String secret;
 
-    public DataTokenJWT gerarToken(User usuario) {
+    public UserJWT gerarToken(User usuario) {
 
         try {
 
@@ -36,8 +36,9 @@ public class TokenService {
                 .withClaim("role", usuario.getRole())
                 .sign(algoritmo);
 
-            return new DataTokenJWT(usuario.getId(),
-                    usuario.getNomeCompleto(),
+            return new UserJWT(usuario.getId(),
+                    usuario.getNomeGuerra(),
+                    usuario.getCpf(),
                     token,
                     expireAt.toEpochMilli(),
                     usuario.getUserImage().getArquivoUrl(),
@@ -63,7 +64,7 @@ public class TokenService {
     }
 
     private Instant expireAt() {
-        return LocalDateTime.now().plusMinutes(TEMPO_EXPIRACAO_MINUTOS).toInstant(ZoneOffset.of("-03:00"));
+        return LocalDateTime.now().plusMinutes(EXPIRATION_TIME_IN_MINUTES).toInstant(ZoneOffset.of("-03:00"));
     }
 
 }
