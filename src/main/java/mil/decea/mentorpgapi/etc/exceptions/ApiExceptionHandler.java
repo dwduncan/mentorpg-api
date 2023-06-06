@@ -1,6 +1,7 @@
 package mil.decea.mentorpgapi.etc.exceptions;
 
 import jakarta.persistence.EntityNotFoundException;
+import mil.decea.mentorpgapi.domain.daoservices.minio.ClientMinioImplemantationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -56,6 +57,13 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<?>tratarErroAcessoNegado(AccessDeniedException ex) {
+        String msg = ex.getLocalizedMessage();
+        System.out.println(msg);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(msg);
+    }
+
+    @ExceptionHandler(ClientMinioImplemantationException.class)
+    public ResponseEntity<?>tratarErroClientMinioImplemantationException(ClientMinioImplemantationException ex) {
         String msg = ex.getLocalizedMessage();
         System.out.println(msg);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(msg);

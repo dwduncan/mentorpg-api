@@ -18,32 +18,37 @@ public class RecordUtils {
 
     Set<String> impConf = new HashSet<>();
     StringBuilder constructor;
+    StringBuilder additionalConstructors;
     StringBuilder reverseConstructor;
     StringBuilder imps;
     StringBuilder main;
+
+    List<SimpleParam> fullConstructorFields;
     boolean hasAddedField = false;
     final Class<?> classe;
     public RecordUtils(Class<?> classe) {
         this.classe = classe;
     }
 
+
+
     /**
      *
      * @return o nome da classe record gerada
      */
+
     public String generateRecord() throws IOException {
 
+        fullConstructorFields = new ArrayList<>();
         String recName = classe.getSimpleName() + "Record";
-
+        String prefixObjReference = "obj.";
         imps = new StringBuilder();
         String dir = "./src/main/java/" + classe.getPackage().getName().replaceAll("\\.","/") + "/";
         main = new StringBuilder("package " + classe.getPackage().getName());
         main.append(";\r\n{IMPORTS}\r\npublic record ");
+        String _constructorDeclaration = "\r\n\tpublic " + recName + "(" + classe.getSimpleName() +" obj) {\r\n\t\tthis(";
 
-        constructor = new StringBuilder("\r\n\tpublic ")
-                .append(recName)
-                .append("(")
-                .append(classe.getSimpleName()).append(" obj) {\r\n\t\tthis(");
+        constructor = new StringBuilder(_constructorDeclaration);
 
         reverseConstructor = new StringBuilder("\r\n\t@NotForRecordField\r\n\tpublic void set")
                 .append(classe.getSimpleName())
@@ -52,17 +57,52 @@ public class RecordUtils {
 
         main.append(recName).append("(\r\n");
 
-        appendAttributes(classe,"obj.","rec.");
+        appendAttributes(classe,prefixObjReference,"rec.");
+
+        additionalConstructors = new StringBuilder();
+
+        for(Constructor<?> cttr : classe.getDeclaredConstructors()){
+            if (cttr.getParameterCount() > 0){
+                boolean a = false;
+                additionalConstructors.append("\r\n\tpublic ").append(recName).append("(");
+                List<SimpleParam> subCFields = new ArrayList<>(cttr.getParameterCount());
+                for (Parameter p : cttr.getParameters()){
+                    if  (a) additionalConstructors.append(", ");
+                    subCFields.add(new SimpleParam(p));
+                    additionalConstructors.append(p.getType().getSimpleName()).append(" ").append(p.getName());
+                    a = true;
+                }
+
+                a=false;
+                additionalConstructors.append(") {\r\n\t\tthis(");
+                for(SimpleParam cf : fullConstructorFields){
+                    if (a) additionalConstructors.append(",\r\n\t\t\t");
+                    if (subCFields.contains(cf)) {
+                        additionalConstructors.append(cf.name);
+                    }
+                    else {
+                        if (cf.type.isPrimitive()){
+                            if (boolean.class.isAssignableFrom(cf.type)) additionalConstructors.append("false");
+                            else  additionalConstructors.append("0");
+                        }else{
+                            additionalConstructors.append("null");
+                        }
+                    }
+                    a = true;
+                }
+                additionalConstructors.append(");\r\n\t}\r\n");
+            }
+        }
 
         main.append(") {");
         constructor.append(");\r\n\t}\r\n");
         reverseConstructor.append("\r\n\t}\r\n");
-        main.append(constructor);
+        main.append(constructor).append(additionalConstructors);
         main.append("}");
-        /*String corpo = main.toString().replace("{IMPORTS}",imps.toString());
+        String corpo = main.toString().replace("{IMPORTS}",imps.toString());
         FileWriter arq = new FileWriter(dir + recName + ".java");
         arq.write(corpo);
-        arq.close();*/
+        arq.close();
         System.out.println(reverseConstructor);
 
         return classe.getPackage().getName() + "." + recName;
@@ -77,13 +117,14 @@ public class RecordUtils {
                     Field field = getMethodField(method);
                     if (field != null && !Modifier.isStatic(field.getModifiers()) && !field.isAnnotationPresent(NotForRecordField.class)) {
 
+                        fullConstructorFields.add(new SimpleParam(field));
                         if (method.getReturnType().isRecord()) {
                             new RecordUtils(method.getReturnType()).generateRecord();
                         } else if (field.isAnnotationPresent(Embedded.class)) {
                             String record = new RecordUtils(method.getReturnType()).generateRecord();
                             processAttribute(record, prefixObjReference,prefixRecReference);
                         } else {
-                            processAttribute(method, prefixObjReference,prefixRecReference);
+                            processAttribute(method, field, prefixObjReference,prefixRecReference);
                         }
                     }
                 } catch (Exception ignored) {
@@ -91,17 +132,11 @@ public class RecordUtils {
             }
         }
     }
-    private void processAttribute(Method method, String prefixObjReference, String prefixRecReference){
+    private void processAttribute(Method method, Field field, String prefixObjReference, String prefixRecReference){
 
         String methodName = method.getName();
-        Field field;
-        String fieldName;
-        try {
-            field = getMethodField(method);
-            fieldName = field.getName();
-        } catch (NoSuchFieldException | NullPointerException e) {
-            return;
-        }
+        String fieldName = field.getName();
+
 
         NotNull nnAnnotation = field.getAnnotation(NotNull.class);
         String notNull;
@@ -121,10 +156,12 @@ public class RecordUtils {
         String metodSetName = "this." + (method.getName().startsWith("get") ? method.getName().replaceFirst("get","set") :
                 method.getName().replaceFirst("is","set"))+ "(";
 
+
         if (hasAddedField) {
             main.append(",\r\n");
             constructor.append(",\r\n\t\t\t");
         }
+
 
         if (LocalDate.class.isAssignableFrom(type) || LocalDateTime.class.isAssignableFrom(type)) {
             String c = "mil.decea.mentorpgapi.util.DateTimeAPIHandler";
@@ -154,6 +191,7 @@ public class RecordUtils {
             }
 
         }
+
         hasAddedField = true;
     }
     private void processAttribute(String recordField, String prefixObjReference, String prefixRecReference){
@@ -390,7 +428,42 @@ public class RecordUtils {
 
     }
 
+    static class SimpleParam{
+        public final String name;
+        public final Class<?> type;
 
+        public SimpleParam(Field f){
+            name = f.getName();
+            type = f.getType();
+        }
+        public SimpleParam(String name, Class<?> type) {
+            this.name = name;
+            this.type = type;
+        }
+
+        public SimpleParam(Parameter p) {
+            name = p.getName();
+            type = p.getType();
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            SimpleParam that = (SimpleParam) o;
+            return Objects.equals(name, that.name) && Objects.equals(type, that.type);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(name, type);
+        }
+    }
 
     public static void main(String... args) throws IOException, NoSuchFieldException, IllegalAccessException, NoSuchMethodException {
 
@@ -403,15 +476,16 @@ public class RecordUtils {
         StringBuilder fileBody = new StringBuilder();
 
 
+
+        */
+
         RecordUtils ru = new RecordUtils(User.class);
         ru.generateRecord();
 
 
-        */
-
-        RecordUtils.exportReactModel(FirstAdminRecord.class,targetDir);
         /*
 
+        RecordUtils.exportReactModel(FirstAdminRecord.class,targetDir);
         exportEnumsToTypeScript(targetDir,User.class);
 */
     }

@@ -80,7 +80,10 @@ public class User extends BaseEntity implements UserDetails, MinioStorage<UserIm
     private String observacoes;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserDocument> documents = new ArrayList<>();
+    @Transient
+    private String nomeQualificado;
     public User(Long id,
+                String cpf,
                 boolean ativo,
                 Posto posto,
                 String quadro,
@@ -89,6 +92,7 @@ public class User extends BaseEntity implements UserDetails, MinioStorage<UserIm
                 String nomeCompleto) {
 
         super(id, ativo);
+        this.cpf = cpf;
         this.posto = posto;
         this.quadro = quadro;
         this.especialidade = especialidade;
@@ -136,6 +140,8 @@ public class User extends BaseEntity implements UserDetails, MinioStorage<UserIm
         if (userImage == null) userImage = new UserImage();
         return userImage;
     }
+
+    @NotForRecordField
     @Override
     public String getPassword() {
         return senha;
@@ -144,58 +150,30 @@ public class User extends BaseEntity implements UserDetails, MinioStorage<UserIm
     public void setPassword(String password){
         senha = password;
     }
-
+    @NotForRecordField
     @Override
     public String getUsername() {
         return cpf;
     }
-
+    @NotForRecordField
     @Override
     public boolean isAccountNonExpired() {
         return isAtivo();
     }
-
+    @NotForRecordField
     @Override
     public boolean isAccountNonLocked() {
         return isAtivo();
     }
-
+    @NotForRecordField
     @Override
     public boolean isCredentialsNonExpired() {
         return isAtivo();
     }
-
+    @NotForRecordField
     @Override
     public boolean isEnabled() {
         return isAtivo();
-    }
-    @NotForRecordField
-    public void setUser(UserRecord rec) {
-        this.setAntiguidadeRelativa(rec.antiguidadeRelativa());
-        this.getUserImage().setUserImage(rec.userImageRecord());
-        this.setNomeCompleto(rec.nomeCompleto());
-        this.setEspecialidade(rec.especialidade());
-        this.setTitulacao(rec.titulacao());
-        this.setPosto(rec.posto());
-        this.setCpf(rec.cpf());
-        this.setQuadro(rec.quadro());
-        this.setNomeGuerra(rec.nomeGuerra());
-        this.setSexo(rec.sexo());
-        this.setObservacoes(rec.observacoes());
-        this.setCelular(rec.celular());
-        this.setDataNascimento(DateTimeAPIHandler.converterStringDate(rec.dataNascimento()));
-        this.setPttc(rec.pttc());
-        this.setRole(rec.role());
-        this.setIdentidade(rec.identidade());
-        this.setProximaPromocao(DateTimeAPIHandler.converterStringDate(rec.proximaPromocao()));
-        this.setUltimaPromocao(DateTimeAPIHandler.converterStringDate(rec.ultimaPromocao()));
-        this.setDataPraca(DateTimeAPIHandler.converterStringDate(rec.dataPraca()));
-        this.setSaram(rec.saram());
-        this.setEmail(rec.email());
-        this.setForcaSingular(rec.forcaSingular());
-        //this.setDocuments(rec.documents());
-        this.setId(rec.id());
-        this.setAtivo(rec.ativo());
     }
 
     @NotForRecordField
@@ -213,5 +191,69 @@ public class User extends BaseEntity implements UserDetails, MinioStorage<UserIm
     @NotForRecordField
     public UserImage getExternalData() {
         return getUserImage();
+    }
+
+    public String getNomeQualificado() {
+        if (nomeQualificado == null){
+            nomeQualificado = buildNomeQualificado();
+        }
+        return nomeQualificado;
+    }
+
+    @NotForRecordField
+    public String buildNomeQualificado() {
+
+        if (posto != null && posto != Posto.CIV){
+            String r1 = isPttc() ? " R1 " : " ";
+            String q = getQuadro().isBlank() ? "" : getQuadro() + " ";
+            return posto.getSigla() + r1 + q + nomeGuerra;
+        }
+
+        if (titulacao == null) return sexo == Sexo.FEMININO ? Titulacao.SENHOR.getSiglaFem() : Titulacao.SENHOR.getSigla();
+        return sexo == Sexo.FEMININO ? titulacao.getSiglaFem() : titulacao.getSigla();
+    }
+
+    public void setQuadro(String quadro) {
+        if (quadro == null) quadro = "";
+        quadro = quadro.trim().toUpperCase();
+        this.quadro = quadro.length() > 6 ? quadro.substring(0,7) : quadro;
+    }
+
+    public void setEspecialidade(String especialidade) {
+        if (especialidade == null) especialidade = "";
+        especialidade = especialidade.trim().toUpperCase();
+        this.especialidade = especialidade.length() > 6 ? especialidade.substring(0,7) : especialidade;
+    }
+
+    public void setNomeQualificado(String nomeQualificado) {}
+
+    @NotForRecordField
+    public void setUser(UserRecord rec) {
+        this.setNomeQualificado(rec.nomeQualificado());
+        this.setPttc(rec.pttc());
+        this.setQuadro(rec.quadro());
+        this.setCpf(rec.cpf());
+        //this.setDocuments(rec.documents());
+        this.setSexo(rec.sexo());
+        this.setUltimaPromocao(DateTimeAPIHandler.converterStringDate(rec.ultimaPromocao()));
+        this.setCelular(rec.celular());
+        this.setForcaSingular(rec.forcaSingular());
+        this.setIdentidade(rec.identidade());
+        this.setObservacoes(rec.observacoes());
+        this.setEmail(rec.email());
+        this.setRole(rec.role());
+        this.setDataNascimento(DateTimeAPIHandler.converterStringDate(rec.dataNascimento()));
+        this.setDataPraca(DateTimeAPIHandler.converterStringDate(rec.dataPraca()));
+        this.setEspecialidade(rec.especialidade());
+        this.setNomeCompleto(rec.nomeCompleto());
+        this.setProximaPromocao(DateTimeAPIHandler.converterStringDate(rec.proximaPromocao()));
+        this.setPosto(rec.posto());
+        this.setTitulacao(rec.titulacao());
+        this.setNomeGuerra(rec.nomeGuerra());
+        this.setSaram(rec.saram());
+        this.setAntiguidadeRelativa(rec.antiguidadeRelativa());
+        this.getUserImage().setUserImage(rec.userImageRecord());
+        this.setId(rec.id());
+        this.setAtivo(rec.ativo());
     }
 }

@@ -2,16 +2,16 @@ package mil.decea.mentorpgapi.domain.user;
 import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
 
 public record UserImageRecord(
-	String formato,
-	String nomeArquivo,
-	String dataHoraUpload,
+	String base64Data,
 	String arquivoUrl,
-	String base64Data) {
+	String formato,
+	String dataHoraUpload,
+	String nomeArquivo) {
 	public UserImageRecord(UserImage obj) {
-		this(obj.getFormato(),
-			obj.getNomeArquivo(),
-			DateTimeAPIHandler.converter(obj.getDataHoraUpload())+"",
+		this(obj.getBase64Data(),
 			obj.getArquivoUrl(),
-			obj.getBase64Data());
+			obj.getFormato(),
+			DateTimeAPIHandler.converter(obj.getDataHoraUpload())+"",
+			obj.getNomeArquivo());
 	}
 }

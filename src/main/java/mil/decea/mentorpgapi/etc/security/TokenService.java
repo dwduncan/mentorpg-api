@@ -37,7 +37,7 @@ public class TokenService {
                 .sign(algoritmo);
 
             return new UserJWT(usuario.getId(),
-                    usuario.getNomeGuerra(),
+                    usuario.getNomeQualificado(),
                     usuario.getCpf(),
                     token,
                     expireAt.toEpochMilli(),

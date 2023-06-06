@@ -22,13 +22,13 @@ public class UserController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity save(@RequestBody @Valid UserRecord dados){
-        try {
+    public ResponseEntity save(@RequestBody @Valid UserRecord dados) throws ClientMinioImplemantationException{
+        /*try {
             return ResponseEntity.ok(userService.save(dados));
         } catch (ClientMinioImplemantationException e) {
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro: falha ao atualizar foto");
-        }
+        }*/
+        return ResponseEntity.ok(userService.save(dados));
     }
 
 
