@@ -1,6 +1,8 @@
 package mil.decea.mentorpgapi.etc.exceptions;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import mil.decea.mentorpgapi.domain.daoservices.minio.ClientMinioImplemantationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -58,15 +60,25 @@ public class ApiExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<?>tratarErroAcessoNegado(AccessDeniedException ex) {
         String msg = ex.getLocalizedMessage();
-        System.out.println(msg);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(msg);
     }
 
     @ExceptionHandler(ClientMinioImplemantationException.class)
     public ResponseEntity<?>tratarErroClientMinioImplemantationException(ClientMinioImplemantationException ex) {
         String msg = ex.getLocalizedMessage();
-        System.out.println(msg);
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(msg);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(msg);
+    }
+
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<?>tratarErroConstraintViolationException(ConstraintViolationException ex) {
+        boolean b = false;
+        StringBuilder strBuilder = new StringBuilder();
+        for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
+            strBuilder.append(b ? "\r\n" : "").append(violation.getMessage());
+            b = true;
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(strBuilder.toString());
     }
 
     @ExceptionHandler(Exception.class)
@@ -74,4 +86,5 @@ public class ApiExceptionHandler {
         ex.printStackTrace();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro: " +ex.getLocalizedMessage());
     }
+
 }

@@ -209,8 +209,8 @@ public class User extends BaseEntity implements UserDetails, MinioStorage<UserIm
             return posto.getSigla() + r1 + q + nomeGuerra;
         }
 
-        if (titulacao == null) return sexo == Sexo.FEMININO ? Titulacao.SENHOR.getSiglaFem() : Titulacao.SENHOR.getSigla();
-        return sexo == Sexo.FEMININO ? titulacao.getSiglaFem() : titulacao.getSigla();
+        if (titulacao == null) return (sexo == Sexo.FEMININO ? Titulacao.SENHOR.getSiglaFem() : Titulacao.SENHOR.getSigla()) + " " + nomeGuerra;
+        return (sexo == Sexo.FEMININO ? titulacao.getSiglaFem() : titulacao.getSigla()) + " " + nomeGuerra;
     }
 
     public void setQuadro(String quadro) {
