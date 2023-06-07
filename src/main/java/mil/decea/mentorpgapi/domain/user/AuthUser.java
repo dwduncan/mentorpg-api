@@ -1,6 +1,13 @@
 package mil.decea.mentorpgapi.domain.user;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import mil.decea.mentorpgapi.domain.NotForRecordField;
+import mil.decea.mentorpgapi.domain.ObjectForRecordField;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,14 +18,26 @@ import java.util.Collection;
 import java.util.List;
 
 @Getter
+@Setter
+@NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class AuthUser implements UserDetails {
 
-    private final Long id;
-    private final String cpf;
-    private final String senha;
-    private final String role;
-    private final boolean ativo;
-    List<? extends GrantedAuthority> authorities;
+    @EqualsAndHashCode.Include
+    @NotNull(message = "O id não pode ser nulo")
+    private Long id;
+    @NotNull(message = "O cpf não pode ser nulo")
+    private String cpf;
+    @Size(min = 8, message = "A senha deve possuir no mínimo 8 caractéres")
+    private String senha;
+    private String role;
+    private boolean ativo;
+    @ObjectForRecordField
+    private DataAuthority dataAuthority;
+    //private Roles roles;
+
+    @NotForRecordField
+    private List<SimpleGrantedAuthority> authorities;
 
     public AuthUser(Long id, String cpf, String role, String senha, boolean ativo) {
         this.id = id;
@@ -31,7 +50,7 @@ public class AuthUser implements UserDetails {
     }
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
+    public List<SimpleGrantedAuthority> getAuthorities() {
         return authorities;
     }
 
@@ -64,4 +83,34 @@ public class AuthUser implements UserDetails {
     public boolean isEnabled() {
         return ativo;
     }
+
+    public void addRole(Roles _role){
+        if (role == null || role.isBlank()){
+            role = _role.name();
+        }else{
+            if (!role.contains(_role.name())) role += " " + _role.name();
+        }
+    }
+
+    public void removeRole(Roles _role){
+        if (role != null && role.contains(_role.name())) {
+            role = role.replace(_role.name(), "").replaceAll("\\s\\s+"," ").trim();
+        }
+    }
+
+    public DataAuthority getDataAuthority() {
+        if (dataAuthority == null) dataAuthority = new DataAuthority();
+        return dataAuthority;
+    }
+
+    @NotForRecordField
+    public void setAuthUser(AuthUserRecord rec) {
+        this.setId(rec.id());
+        this.getDataAuthority().setDataAuthority(rec.dataAuthorityRecord());
+        this.setAtivo(rec.ativo());
+        this.setRole(rec.role());
+        this.setCpf(rec.cpf());
+        this.setSenha(rec.senha());
+    }
+
 }

@@ -1,14 +1,16 @@
 package mil.decea.mentorpgapi.util;
 
 import jakarta.persistence.Embedded;
+import jakarta.validation.Constraint;
 import jakarta.validation.constraints.NotNull;
 import mil.decea.mentorpgapi.domain.BaseEntity;
 import mil.decea.mentorpgapi.domain.NotForRecordField;
+import mil.decea.mentorpgapi.domain.ObjectForRecordField;
 import mil.decea.mentorpgapi.domain.user.*;
-import mil.decea.mentorpgapi.etc.security.FirstAdminRecord;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -120,7 +122,7 @@ public class RecordUtils {
                         fullConstructorFields.add(new SimpleParam(field));
                         if (method.getReturnType().isRecord()) {
                             new RecordUtils(method.getReturnType()).generateRecord();
-                        } else if (field.isAnnotationPresent(Embedded.class)) {
+                        } else if (field.isAnnotationPresent(Embedded.class) || field.isAnnotationPresent(ObjectForRecordField.class)) {
                             String record = new RecordUtils(method.getReturnType()).generateRecord();
                             processAttribute(record, prefixObjReference,prefixRecReference);
                         } else {
@@ -137,18 +139,15 @@ public class RecordUtils {
         String methodName = method.getName();
         String fieldName = field.getName();
 
-
-        NotNull nnAnnotation = field.getAnnotation(NotNull.class);
-        String notNull;
-        if (nnAnnotation != null) {
-            notNull = nnAnnotation.message() != null ? "\t@NotNull(message=\"" + nnAnnotation.message() + "\")\r\n\t" : "\t@NotNull\r\n\t";
-            String c = "jakarta.validation.constraints.NotNull";
-            if (!impConf.contains(c)) {
-                impConf.add(c);
-                imps.append("import ").append(c).append(";\r\n");
+        StringBuilder annotations = new StringBuilder();
+        for(Annotation ann : field.getAnnotations()){
+            if (ann.annotationType().getAnnotation(Constraint.class) != null){
+                annotations.append(ann.toString().replace("jakarta.validation.constraints.","")).append("\r\n");
+                if (!impConf.contains(ann.annotationType().getName())) {
+                    impConf.add(ann.annotationType().getName());
+                    imps.append("import ").append(ann.annotationType().getName()).append(";\r\n");
+                }
             }
-        }else{
-            notNull = "\t";
         }
 
         Class<?> type = method.getReturnType();
@@ -173,7 +172,7 @@ public class RecordUtils {
             reverseConstructor.append("\r\n\t\t").append(metodSetName).append("DateTimeAPIHandler.converterStringDate(")
                     .append(prefixRecReference).append(fieldName).append("()));");
             constructor.append("DateTimeAPIHandler.converter(").append(prefixObjReference).append(methodName).append("())+\"\"");
-            main.append(notNull).append("String ").append(fieldName);
+            main.append(annotations).append("String ").append(fieldName);
         } else {
 
             if (!type.isPrimitive() && !(String.class.isAssignableFrom(type))
@@ -185,9 +184,9 @@ public class RecordUtils {
             reverseConstructor.append("\r\n\t\t").append(metodSetName).append(prefixRecReference).append(fieldName).append("());");
             constructor.append(prefixObjReference).append(methodName).append("()");
             if (Collection.class.isAssignableFrom(type)) {
-                main.append(notNull).append(type.getSimpleName()).append("<?> ").append(fieldName);
+                main.append(annotations).append(type.getSimpleName()).append("<?> ").append(fieldName);
             } else {
-                main.append(notNull).append(type.getSimpleName()).append(" ").append(fieldName);
+                main.append(annotations).append(type.getSimpleName()).append(" ").append(fieldName);
             }
 
         }
@@ -251,13 +250,15 @@ public class RecordUtils {
     public static String exportReactModel(Class<?> classe, String targetDir, boolean defaultExport) throws IOException {
 
         String reactInterfaceName = "I" + classe.getSimpleName();
-        StringBuilder interfaceBuilder = new StringBuilder("export ").append(defaultExport ? "default " : "").append("interface ").append(reactInterfaceName).append(" {\r\n");
         StringBuilder fieldsDeclaretionBuilder = new StringBuilder("\r\n");
         StringBuilder defaultValuesBuilder = new StringBuilder("export const default").append(reactInterfaceName).append(" = {\r\n");
 
         StringBuilder classBuilder = new StringBuilder("export class ").append(classe.getSimpleName()).append(" implements ").append(reactInterfaceName).append(" {\r\n");
         StringBuilder classBuilderConstructor = new StringBuilder("\r\n\tpublic constructor(obj?:  ").append(reactInterfaceName).append(") {\r\n\r\n\t\tif (!!obj){\r\n");
         StringBuilder elseBuilderConstructor = new StringBuilder("else{\r\n");
+        StringBuilder interfaceBuilder = new StringBuilder();
+        interfaceBuilder.append(ReactExtrasToExport.getImports(classe));
+        interfaceBuilder.append("export ").append(defaultExport ? "default " : "").append("interface ").append(reactInterfaceName).append(" {\r\n");
 
         boolean b = false;
 
@@ -290,8 +291,6 @@ public class RecordUtils {
             }else if (classe.isRecord() || (!(Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers())))) {
 
                 final String tipoNome = field.getType().getSimpleName();
-                NotNull nnAnnotation = field.getAnnotation(NotNull.class);
-                boolean nullable = nnAnnotation == null;
                 String type;
                 if (Collection.class.isAssignableFrom(field.getType())){
                     type = "[]";
@@ -329,22 +328,15 @@ public class RecordUtils {
             }
         }
 
-        Map<String,String> delaredMethods = ReactMethodDeclaration.getDeclaredMethodsForClass(classe);
+        String functionsToExport = ReactExtrasToExport.getFunctions(classe);
         classBuilderConstructor.append("\r\n\t\t}").append(elseBuilderConstructor).append("\r\n\t\t}\r\n\t}");
         interfaceBuilder.append(fieldsDeclaretionBuilder).append("\r\n");
         classBuilder.append(fieldsDeclaretionBuilder).append("\r\n").append(classBuilderConstructor);
-        if (delaredMethods != null){
-            for(String key : delaredMethods.keySet()){
-                String value = delaredMethods.get(key);
-                classBuilder.append("\t").append(value).append("\r\n");
-                interfaceBuilder.append("\t").append(key);
-            }
-        }
 
         interfaceBuilder.append("\r\n}\r\n");
         classBuilder.append("\r\n}\r\n");
+        if (functionsToExport != null && !functionsToExport.isBlank()) classBuilder.append(functionsToExport);
         System.out.println(interfaceBuilder);
-        //System.out.println(defaultValuesBuilder.append("} as ").append(reactInterfaceName).append(";\r\n\r\n"));
         System.out.println(classBuilder);
 
         if (!interfaceBuilder.toString().isBlank()) {
@@ -368,66 +360,67 @@ public class RecordUtils {
         return null;
     }
     public static void exportEnumsToTypeScript(String targetDir, Class<?> classe) throws IOException {
-
-
-
-        for(Method m : classe.getMethods()){
-            if (m.getReturnType().isEnum()){
-
-                StringBuilder fileBody = new StringBuilder();
-                String enum_name = m.getReturnType().getSimpleName();
-
-                Class<?> enumClass = m.getReturnType();
-
-                fileBody.append("\r\nexport interface ").append(enum_name).append(" {").append("\r\n\tname: string,");
-                Arrays.stream(enumClass.getDeclaredFields())
-                        .filter(f -> f.getType().isPrimitive() || String.class.isAssignableFrom(f.getType()))
-                        .forEach(f->{fileBody
-                                .append("\r\n\t")
-                                .append(f.getName())
-                                .append(": ")
-                                .append(getTypeScript(f.getType()))
-                                .append(",");
-                        });
-
-                fileBody.append("\r\n}\r\n");
-
-                fileBody.append("\r\nexport const enum").append(enum_name).append(": ").append(enum_name).append("[] = [\r\n");
-
-                for(Field enumValue : m.getReturnType().getFields()){
-                    fileBody.append("\t\t{ name: '").append(enumValue.getName()).append("'");
-
-                    for(Field f : m.getReturnType().getDeclaredFields()){
-                        if (f.getType().isPrimitive() || String.class.isAssignableFrom(f.getType())){
-                            try{
-                                Enum _enum = Enum.valueOf((Class<Enum>)enumValue.getType(),enumValue.getName());
-                                f.setAccessible(true);
-                                Object value = f.get(_enum);
-                                String quotes = String.class.isAssignableFrom(f.getType()) ? "'" : "";
-                                fileBody.append(", ").append(f.getName()).append(": ").append(quotes).append(value).append(quotes);
-                            }catch (Exception ex){
-                                throw new RuntimeException(ex);
-                            }
-                        }
-                    }
-
-                    fileBody.append(" },\r\n");
+        if (classe.isEnum()){
+            exportEnum(targetDir, classe);
+        }else {
+            for (Method m : classe.getMethods()) {
+                if (m.getReturnType().isEnum()) {
+                    exportEnum(targetDir, m.getReturnType());
                 }
-                fileBody.append("];\r\n");
-
-                if (!fileBody.toString().isBlank()) {
-                    if (!targetDir.endsWith("/")) targetDir += "/";
-                    FileWriter arq = new FileWriter(targetDir + enum_name + ".ts");
-                    arq.write(fileBody.toString());
-                    arq.close();
-                }
-
-                //System.out.println(fileBody);
             }
+        }
+    }
+
+    private static void exportEnum(String targetDir, Class<?> enumClass) throws IOException{
+
+        StringBuilder fileBody = new StringBuilder();
+        StringBuilder enumTypedScript = new StringBuilder();
+        String enum_name = enumClass.getSimpleName();
+
+
+        fileBody.append("\r\nexport interface ").append(enum_name).append(" {").append("\r\n\tname: string,");
+        Arrays.stream(enumClass.getDeclaredFields())
+                .filter(f -> f.getType().isPrimitive() || String.class.isAssignableFrom(f.getType()))
+                .forEach(f->{
+                    fileBody.append("\r\n\t").append(f.getName()).append(": ").append(getTypeScript(f.getType())).append(",");
+                });
+
+        fileBody.append("\r\n}\r\n");
+
+        fileBody.append("\r\nexport const array").append(enum_name).append(": ").append(enum_name).append("[] = [\r\n");
+
+        enumTypedScript.append("\r\nexport enum ").append(enum_name.toUpperCase()).append(" {");
+
+        for(Field enumValue : enumClass.getFields()){
+            fileBody.append("\t\t{ name: '").append(enumValue.getName()).append("'");
+            enumTypedScript.append("\r\n\t").append(enumValue.getName()).append(" = ").append("'").append(enumValue.getName()).append("',");
+            for(Field f : enumClass.getDeclaredFields()){
+
+                if (f.getType().isPrimitive() || String.class.isAssignableFrom(f.getType())){
+                    try{
+                        Enum _enum = Enum.valueOf((Class<Enum>)enumValue.getType(),enumValue.getName());
+                        f.setAccessible(true);
+                        Object value = f.get(_enum);
+                        String quotes = String.class.isAssignableFrom(f.getType()) ? "'" : "";
+                        fileBody.append(", ").append(f.getName()).append(": ").append(quotes).append(value).append(quotes);
+                    }catch (Exception ex){
+                        throw new RuntimeException(ex);
+                    }
+                }
+            }
+            fileBody.append(" },\r\n");
+        }
+        enumTypedScript.append("\r\n}");
+        fileBody.append("];\r\n").append(enumTypedScript);
+
+        if (!fileBody.toString().isBlank()) {
+            if (!targetDir.endsWith("/")) targetDir += "/";
+            FileWriter arq = new FileWriter(targetDir + enum_name + ".ts");
+            arq.write(fileBody.toString());
+            arq.close();
         }
 
     }
-
     static class SimpleParam{
         public final String name;
         public final Class<?> type;
@@ -476,18 +469,12 @@ public class RecordUtils {
         StringBuilder fileBody = new StringBuilder();
 
 
-
+        RecordUtils ru = new RecordUtils(AuthUser.class);
+        ru.generateRecord();
         */
 
-        RecordUtils ru = new RecordUtils(User.class);
-        ru.generateRecord();
-
-
-        /*
-
-        RecordUtils.exportReactModel(FirstAdminRecord.class,targetDir);
-        exportEnumsToTypeScript(targetDir,User.class);
-*/
+       RecordUtils.exportReactModel(AuthUserRecord.class,targetDir);
+        //exportEnumsToTypeScript(targetDir, User.class);
     }
 
 }

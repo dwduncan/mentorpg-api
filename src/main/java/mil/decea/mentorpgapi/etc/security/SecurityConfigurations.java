@@ -1,5 +1,6 @@
 package mil.decea.mentorpgapi.etc.security;
 
+import mil.decea.mentorpgapi.domain.user.DefaultPasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -49,12 +50,9 @@ public class SecurityConfigurations {
         return configuration.getAuthenticationManager();
     }
 
-    public static void main(String... s){
-        System.out.println(new BCryptPasswordEncoder().encode("123456"));
-    }
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return DefaultPasswordEncoder.getDefaultPasswordEncoder();
     }
     /**
      * CORS (Cross-Origin Resource Sharing)

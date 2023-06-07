@@ -227,6 +227,20 @@ public class User extends BaseEntity implements UserDetails, MinioStorage<UserIm
 
     public void setNomeQualificado(String nomeQualificado) {}
 
+    public void addRole(Roles _role){
+        if (role == null || role.isBlank()){
+            role = _role.name();
+        }else{
+            if (!role.contains(_role.name())) role += " " + _role.name();
+        }
+    }
+
+    public void removeRole(Roles _role){
+        if (role != null && role.contains(_role.name())) {
+            role = role.replace(_role.name(), "").replaceAll("\\s\\s+"," ").trim();
+        }
+    }
+
     @NotForRecordField
     public void setUser(UserRecord rec) {
         this.setNomeQualificado(rec.nomeQualificado());

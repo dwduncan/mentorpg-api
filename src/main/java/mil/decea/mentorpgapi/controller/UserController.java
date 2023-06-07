@@ -2,11 +2,11 @@ package mil.decea.mentorpgapi.controller;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import mil.decea.mentorpgapi.domain.daoservices.minio.ClientMinioImplemantationException;
-import mil.decea.mentorpgapi.domain.user.UserRecord;
 import mil.decea.mentorpgapi.domain.daoservices.UserService;
+import mil.decea.mentorpgapi.domain.daoservices.minio.ClientMinioImplemantationException;
+import mil.decea.mentorpgapi.domain.user.AuthUserRecord;
+import mil.decea.mentorpgapi.domain.user.UserRecord;
 import mil.decea.mentorpgapi.domain.user.validation.annotations.IsValidCpf;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,6 +15,8 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Objects;
 
 @Validated
 @RestController
@@ -28,12 +30,32 @@ public class UserController {
     @PostMapping
     @Transactional
     public ResponseEntity save(@RequestBody @Valid UserRecord dados) throws ClientMinioImplemantationException{
-        /*try {
-            return ResponseEntity.ok(userService.save(dados));
-        } catch (ClientMinioImplemantationException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro: falha ao atualizar foto");
-        }*/
+
         return ResponseEntity.ok(userService.save(dados));
+    }
+
+    @PostMapping("/auth")
+    @Secured({"ADMIN","COORDENADOR"})
+    @Transactional
+    public ResponseEntity changeAuthentication(@RequestBody @Valid AuthUserRecord dados) {
+        userService.changePassword(dados);
+        return ResponseEntity.ok().build();
+    }
+    @PostMapping("/otherpsw")
+    @Secured({"ADMIN","COORDENADOR"})
+    @Transactional
+    public ResponseEntity changeOthersPassword(@RequestBody @Valid AuthUserRecord dados) {
+        if (Objects.equals(dados.id(),dados.dataAuthorityRecord().id())) {
+            ResponseEntity.status(HttpStatus.FORBIDDEN).body("Operação não autorizada!");
+        }
+        userService.changePassword(dados);
+        return ResponseEntity.ok().build();
+    }
+    @PostMapping("/ownpsw")
+    @Transactional
+    public ResponseEntity changeOwnPassword(@RequestBody @Valid AuthUserRecord dados) {
+        userService.changePassword(dados);
+        return ResponseEntity.ok().build();
     }
 
 

@@ -7,11 +7,7 @@ import mil.decea.mentorpgapi.domain.DTOValidator;
 import mil.decea.mentorpgapi.domain.daoservices.minio.ClientMinioImplemantationException;
 import mil.decea.mentorpgapi.domain.daoservices.minio.ClienteMinio;
 import mil.decea.mentorpgapi.domain.daoservices.repositories.UserRepository;
-import mil.decea.mentorpgapi.domain.user.AuthUser;
-import mil.decea.mentorpgapi.domain.user.Roles;
-import mil.decea.mentorpgapi.domain.user.User;
-import mil.decea.mentorpgapi.domain.user.UserRecord;
-import mil.decea.mentorpgapi.domain.user.dto.UserDTO;
+import mil.decea.mentorpgapi.domain.user.*;
 import mil.decea.mentorpgapi.etc.security.FirstAdminRecord;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +15,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -30,13 +25,13 @@ import java.util.Locale;
 public class UserService implements UserDetailsService {
 
     private final UserRepository repository;
-    private final List<DTOValidator<UserDTO>> validators;
+    private final List<DTOValidator<UserRecord>> validators;
     private final EntityManager entityManager;
 
     private final ClienteMinio clienteMinio;
     @Autowired
     public UserService( UserRepository repository,
-                        List<DTOValidator<UserDTO>> validators,
+                        List<DTOValidator<UserRecord>> validators,
                         EntityManager entityManager,
                         ClienteMinio clienteMinio) {
         this.repository = repository;
@@ -79,6 +74,20 @@ public class UserService implements UserDetailsService {
         return usr;
     }
 
+    public void changePassword(AuthUserRecord authUser) {
+        if (authUser.senha() != null && authUser.senha().length() > 7){
+            var entity = repository.getReferenceById(authUser.id());
+            String _encryptPassword = DefaultPasswordEncoder.encode(authUser.senha());
+            entity.setSenha(_encryptPassword);
+            repository.save(entity);
+        }
+    }
+
+    public void changeRoles(AuthUserRecord authUser) {
+        var entity = repository.getReferenceById(authUser.id());
+        entity.setRole(authUser.role());
+        repository.save(entity);
+    }
 
     public UserRecord save(UserRecord dados) throws ClientMinioImplemantationException {
         var entity = repository.getReferenceById(dados.id());
@@ -163,7 +172,7 @@ public class UserService implements UserDetailsService {
 
         if (numberOfUsers() != null && numberOfUsers().intValue() != 0) throw new AccessDeniedException("Acesso negado, já existem usuários cadastrados");
 
-        String _encryptPassword = new BCryptPasswordEncoder().encode(usr.senha());
+        String _encryptPassword = DefaultPasswordEncoder.encode(usr.senha());
 
         User _user = new User();
         _user.setCpf(usr.cpf());
