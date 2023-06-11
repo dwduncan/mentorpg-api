@@ -30,7 +30,6 @@ public class UserController {
     @PostMapping
     @Transactional
     public ResponseEntity save(@RequestBody @Valid UserRecord dados) throws ClientMinioImplemantationException{
-
         return ResponseEntity.ok(userService.save(dados));
     }
 
@@ -54,6 +53,7 @@ public class UserController {
     @PostMapping("/ownpsw")
     @Transactional
     public ResponseEntity changeOwnPassword(@RequestBody @Valid AuthUserRecord dados) {
+        //System.out.println("Alterando senha de " + dados.cpf());
         userService.changePassword(dados);
         return ResponseEntity.ok().build();
     }

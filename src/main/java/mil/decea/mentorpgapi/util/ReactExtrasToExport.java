@@ -13,7 +13,7 @@ public class ReactExtrasToExport {
 
     static {
         mapImports.put(AuthUserRecord.class,"import {Roles} from './Roles';\r\n" +
-                "import {DataAuthorityRecord, IDataAuthorityRecord} from './IDataAuthorityRecord';\r\n\r\n");
+                "import {DataAuthorityRecord, IDataAuthorityRecord} from './IDataAuthorityRecord';\r\nimport IUserRecord from \"./IUserRecord\";\r\n\r\n");
         mapFunctions.put(AuthUserRecord.class,
                  """
                          \r\n
@@ -22,25 +22,39 @@ public class ReactExtrasToExport {
                           	else{
                           		if (!usr.role.includes(role.name)) usr.role = usr.role.concat(' ',role.name);
                           	}
-                          }           
+                         }           
                           
-                          export function removeRole(role: Roles, usr: IAuthUserRecord){
+                         export function removeRole(role: Roles, usr: IAuthUserRecord){
                            	if (!usr?.role && usr.role.includes(role.name)) {
                            		usr.role = usr.role.replace(role.name,'').replaceAll(/\\s(\\s+)/," ").trim();
                            	}
-                           }             
+                         }             
                            
-                           export function checkRoles(user_roles: string | string[] | Roles | Roles[],
+                          export function removeUserRole(role: string, usr: IUserRecord){
+                             if (!usr?.role && usr.role.includes(role)) {
+                                usr.role = usr.role.replace(role,'').replaceAll(/\\s(\\s+)/," ").trim();
+                             }
+                          }
+                           
+                           
+                         export function addUserRole(role: string, usr: IUserRecord){
+                           	 if (!usr?.role || usr.role.trim() === '') usr.role = role;
+                           	 else{
+                           		if (!usr.role.includes(role)) usr.role = usr.role.concat(' ',role);
+                           	 }
+                         }
+                           
+                         export function checkRoles(user_roles: string | string[] | Roles | Roles[],
                                                       required_roles: string | string[] | Roles | Roles[]) {
                            
-                               if (!required_roles) return true;
-                               if (!user_roles) return false;
+                             if (!required_roles) return true;
+                             if (!user_roles) return false;
                            
-                               const owneds = Array.isArray(user_roles) ? Object.values(user_roles) : [user_roles];
-                               const requireds = Array.isArray(required_roles) ?  Object.values(required_roles) : [required_roles];
+                             const owneds = Array.isArray(user_roles) ? Object.values(user_roles) : [user_roles];
+                             const requireds = Array.isArray(required_roles) ?  Object.values(required_roles) : [required_roles];
                            
-                               return owneds.some(own=> requireds.includes(own));
-                           }                                                 
+                             return owneds.some(own=> requireds.includes(own));
+                         }                                                 
                          """);
     }
 

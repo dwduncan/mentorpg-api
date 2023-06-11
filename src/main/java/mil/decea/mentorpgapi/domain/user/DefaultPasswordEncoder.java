@@ -7,11 +7,14 @@ public class DefaultPasswordEncoder {
 
     private static final PasswordEncoder defaultPasswordEncoder = new BCryptPasswordEncoder();
     public static String encode(String notEncodedPassword){
+
         return  getDefaultPasswordEncoder().encode(notEncodedPassword);
     }
 
     public static PasswordEncoder getDefaultPasswordEncoder() {
         return defaultPasswordEncoder;
     }
-
+    public static boolean matchesPasswords(String notEncodedPassword, String encodedPassword){
+        return defaultPasswordEncoder.matches(notEncodedPassword, encodedPassword);
+    }
 }

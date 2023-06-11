@@ -8,6 +8,7 @@ import mil.decea.mentorpgapi.domain.daoservices.minio.ClientMinioImplemantationE
 import mil.decea.mentorpgapi.domain.daoservices.minio.ClienteMinio;
 import mil.decea.mentorpgapi.domain.daoservices.repositories.UserRepository;
 import mil.decea.mentorpgapi.domain.user.*;
+import mil.decea.mentorpgapi.etc.exceptions.MentorValidationException;
 import mil.decea.mentorpgapi.etc.security.FirstAdminRecord;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -75,11 +77,20 @@ public class UserService implements UserDetailsService {
     }
 
     public void changePassword(AuthUserRecord authUser) {
-        if (authUser.senha() != null && authUser.senha().length() > 7){
+        if (authUser.senha() != null && authUser.senha().trim().length() > 7){
             var entity = repository.getReferenceById(authUser.id());
+
+            if (authUser.senhaAntiga() != null && !authUser.senhaAntiga().isBlank()){
+                if (!DefaultPasswordEncoder.matchesPasswords(authUser.senhaAntiga().trim(),entity.getPassword())){
+                    throw new MentorValidationException("Senha atual não confere");
+                }
+            }
+
             String _encryptPassword = DefaultPasswordEncoder.encode(authUser.senha());
             entity.setSenha(_encryptPassword);
             repository.save(entity);
+        }else{
+            throw new MentorValidationException("A senha atual deve possuir no mínimo 8 caractéres");
         }
     }
 
@@ -90,7 +101,7 @@ public class UserService implements UserDetailsService {
     }
 
     public UserRecord save(UserRecord dados) throws ClientMinioImplemantationException {
-        var entity = repository.getReferenceById(dados.id());
+        var entity = dados.id() == null ? new User() : repository.getReferenceById(dados.id());
         entity.setUser(dados);
         try {
             boolean did = clienteMinio.updateObject(entity);

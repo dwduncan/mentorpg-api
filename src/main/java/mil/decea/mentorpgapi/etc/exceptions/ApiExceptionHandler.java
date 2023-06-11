@@ -1,5 +1,7 @@
 package mil.decea.mentorpgapi.etc.exceptions;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -14,6 +16,9 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.NoHandlerFoundException;
+
+import java.io.IOException;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
@@ -37,11 +42,13 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(MentorValidationException.class)
-    public ResponseEntity<?>tratarErroVliadacaoMentor(Exception ex) {
+    public ResponseEntity<?>tratarErroVliadacaoMentor(MentorValidationException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
-
-
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<?>tratarErro404(NoHandlerFoundException ex) {
+        return ResponseEntity.notFound().build();
+    }
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<?>tratarErro400(HttpMessageNotReadableException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
@@ -53,13 +60,22 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<?>tratarErroAuthentication() {
+    public ResponseEntity<?> tratarErroAuthentication() {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("CPF não autorizado ou senha inválida");
     }
 
+    @ExceptionHandler(JWTVerificationException.class)
+    public ResponseEntity<?> tokenExpired(JWTVerificationException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("A validade da conexão expirou");
+    }
+    @ExceptionHandler(TokenExpiredException.class)
+    public ResponseEntity<?> tokenExpired(TokenExpiredException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("A validade da conexão expirou");
+    }
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<?>tratarErroAcessoNegado(AccessDeniedException ex) {
         String msg = ex.getLocalizedMessage();
+        ex.printStackTrace();
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(msg);
     }
 

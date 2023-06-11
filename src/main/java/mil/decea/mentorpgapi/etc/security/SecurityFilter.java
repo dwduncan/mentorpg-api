@@ -1,11 +1,16 @@
 package mil.decea.mentorpgapi.etc.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import mil.decea.mentorpgapi.domain.daoservices.UserService;
+import mil.decea.mentorpgapi.etc.exceptions.MentorTokenException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -27,11 +32,24 @@ public class SecurityFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
+
         var tokenJWT = recuperarToken(request);
 
         if (tokenJWT != null) {
-            var subject = tokenService.getSubject(tokenJWT);
+            String subject = null;
+            try {
+                subject = tokenService.getSubject(tokenJWT);
+            } catch (MentorTokenException e) {
+                response.resetBuffer();
+                response.setStatus(HttpStatus.FORBIDDEN.value());
+                response.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+                response.getOutputStream().print(new ObjectMapper().writeValueAsString("Acesso expirado"));
+                response.flushBuffer();
+                return;
+            }
             var usuario = userService.getAuthUser(subject);
 
             var authentication = new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());

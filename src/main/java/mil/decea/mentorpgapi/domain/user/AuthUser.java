@@ -30,6 +30,7 @@ public class AuthUser implements UserDetails {
     private String cpf;
     @Size(min = 8, message = "A senha deve possuir no mínimo 8 caractéres")
     private String senha;
+    private String senhaAntiga;
     private String role;
     private boolean ativo;
     @ObjectForRecordField
@@ -103,14 +104,16 @@ public class AuthUser implements UserDetails {
         return dataAuthority;
     }
 
+
     @NotForRecordField
     public void setAuthUser(AuthUserRecord rec) {
         this.setId(rec.id());
         this.getDataAuthority().setDataAuthority(rec.dataAuthorityRecord());
-        this.setAtivo(rec.ativo());
         this.setRole(rec.role());
-        this.setCpf(rec.cpf());
+        this.setSenhaAntiga(rec.senhaAntiga());
+        this.setAtivo(rec.ativo());
         this.setSenha(rec.senha());
+        this.setCpf(rec.cpf());
     }
 
 }

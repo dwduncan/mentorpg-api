@@ -50,7 +50,7 @@ public class Authentication {
     }
 
     @GetMapping
-    @Secured({"ROLE_ADMIN","ROLE_USER"})
+    @Secured({"ADMIN","USER"})
     public ResponseEntity<?> checarAutenticado(){
         return ResponseEntity.ok("");
     }

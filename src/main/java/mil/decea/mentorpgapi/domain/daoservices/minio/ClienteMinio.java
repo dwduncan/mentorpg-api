@@ -226,7 +226,7 @@ public class ClienteMinio implements Serializable {
      */
     public void insertSasUrl(MinioStorage<?> source, int expirationTime) throws ClientMinioImplemantationException {
 
-        if (source.getExternalData().getNomeArquivo() == null) return;
+        if (source.getExternalData().getNomeArquivo() == null || source.getExternalData().getNomeArquivo().isBlank()) return;
 
         try {
             MinioClient client = minioClient();

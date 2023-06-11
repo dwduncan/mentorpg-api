@@ -7,13 +7,13 @@ import java.util.Arrays;
 
 public enum Roles {
 
-    USER("USER"),
-    ADMIN("ADMIN"),
-    COORDENADOR("COORDENADOR"),
-    VISITANTE("VISITANTE"),
-    SUPERVISOR("SUPERVISOR"),
-    PROFESSOR("PROFESSOR"),
-    ALUNO("ALUNO");
+    VISITANTE("Visitante"),
+    ALUNO("Aluno"),
+    PROFESSOR("Professor"),
+    SUPERVISOR("Supervisor Externo"),
+    SECRETARIA("Coordenação Administrativa"),
+    COORDENADOR("Coordenação Acadêmica"),
+    ADMIN("Super Usuário");
 
 
     private String roleName;
