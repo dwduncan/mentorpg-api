@@ -1,4 +1,4 @@
-package mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio;
+package mil.decea.mentorpgapi.domain.documents;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import mil.decea.mentorpgapi.domain.BaseEntity;
+import mil.decea.mentorpgapi.domain.NotForRecordField;
 
 @Entity
 @Table(schema = "mentorpgapi", name = "documenttype")
@@ -26,6 +27,19 @@ public class DocumentType extends BaseEntity implements Comparable<DocumentType>
     public int compareTo(DocumentType o) {
         return getTipo().compareToIgnoreCase(o.getTipo());
     }
+    @NotForRecordField
+    public void setDocumentType(DocumentTypeRecord rec) {
+        this.setTipo(rec.tipo());
+        this.setId(rec.id());
+        this.setAtivo(rec.ativo());
+    }
 
+
+    @NotForRecordField
+    public DocumentType(DocumentTypeRecord rec) {
+        this.setTipo(rec.tipo());
+        this.setId(rec.id());
+        this.setAtivo(rec.ativo());
+    }
 
 }

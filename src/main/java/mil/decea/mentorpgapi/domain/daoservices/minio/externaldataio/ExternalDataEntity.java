@@ -18,7 +18,7 @@ public abstract class ExternalDataEntity extends AbstractExternalData {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    protected Long id;
     boolean ativo = true;
 
 }

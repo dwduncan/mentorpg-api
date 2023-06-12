@@ -19,7 +19,7 @@ import java.lang.reflect.Modifier;
 public class BaseEntity implements Serializable {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    protected Long id;
     boolean ativo = true;
 
 }

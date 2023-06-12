@@ -2,8 +2,8 @@ package mil.decea.mentorpgapi.util;
 
 import jakarta.persistence.Embedded;
 import jakarta.validation.Constraint;
-import jakarta.validation.constraints.NotNull;
 import mil.decea.mentorpgapi.domain.BaseEntity;
+import mil.decea.mentorpgapi.domain.CollectionForRecordField;
 import mil.decea.mentorpgapi.domain.NotForRecordField;
 import mil.decea.mentorpgapi.domain.ObjectForRecordField;
 import mil.decea.mentorpgapi.domain.user.*;
@@ -38,9 +38,11 @@ public class RecordUtils {
      *
      * @return o nome da classe record gerada
      */
-
     public String generateRecord() throws IOException {
-
+        return generateRecord(false);
+    }
+    public String generateRecord(boolean hasAdded) throws IOException {
+        hasAddedField = hasAdded;
         fullConstructorFields = new ArrayList<>();
         String recName = classe.getSimpleName() + "Record";
         String prefixObjReference = "obj.";
@@ -52,10 +54,11 @@ public class RecordUtils {
 
         constructor = new StringBuilder(_constructorDeclaration);
 
-        reverseConstructor = new StringBuilder("\r\n\t@NotForRecordField\r\n\tpublic void set")
-                .append(classe.getSimpleName())
-                .append("(")
-                .append(recName).append(" rec) {");
+        String setterWay = "\r\n\t@NotForRecordField\r\n\tpublic void set";
+        String constructorWay = "\r\n\t@NotForRecordField\r\n\tpublic ";
+
+        String declaration = classe.getSimpleName() + "(" + recName + " rec) {";
+        reverseConstructor = new StringBuilder(declaration);
 
         main.append(recName).append("(\r\n");
 
@@ -64,35 +67,36 @@ public class RecordUtils {
         additionalConstructors = new StringBuilder();
 
         for(Constructor<?> cttr : classe.getDeclaredConstructors()){
-            if (cttr.getParameterCount() > 0){
-                boolean a = false;
-                additionalConstructors.append("\r\n\tpublic ").append(recName).append("(");
-                List<SimpleParam> subCFields = new ArrayList<>(cttr.getParameterCount());
-                for (Parameter p : cttr.getParameters()){
-                    if  (a) additionalConstructors.append(", ");
-                    subCFields.add(new SimpleParam(p));
-                    additionalConstructors.append(p.getType().getSimpleName()).append(" ").append(p.getName());
-                    a = true;
-                }
+            if (!cttr.isAnnotationPresent(NotForRecordField.class)) {
+                if (cttr.getParameterCount() > 0) {
+                    boolean a = false;
+                    additionalConstructors.append("\r\n\tpublic ").append(recName).append("(");
+                    List<SimpleParam> subCFields = new ArrayList<>(cttr.getParameterCount());
+                    for (Parameter p : cttr.getParameters()) {
+                        if (a) additionalConstructors.append(", ");
+                        subCFields.add(new SimpleParam(p));
+                        additionalConstructors.append(p.getType().getSimpleName()).append(" ").append(p.getName());
+                        a = true;
+                    }
 
-                a=false;
-                additionalConstructors.append(") {\r\n\t\tthis(");
-                for(SimpleParam cf : fullConstructorFields){
-                    if (a) additionalConstructors.append(",\r\n\t\t\t");
-                    if (subCFields.contains(cf)) {
-                        additionalConstructors.append(cf.name);
-                    }
-                    else {
-                        if (cf.type.isPrimitive()){
-                            if (boolean.class.isAssignableFrom(cf.type)) additionalConstructors.append("false");
-                            else  additionalConstructors.append("0");
-                        }else{
-                            additionalConstructors.append("null");
+                    a = false;
+                    additionalConstructors.append(") {\r\n\t\tthis(");
+                    for (SimpleParam cf : fullConstructorFields) {
+                        if (a) additionalConstructors.append(",\r\n\t\t\t");
+                        if (subCFields.contains(cf)) {
+                            additionalConstructors.append(cf.name);
+                        } else {
+                            if (cf.type.isPrimitive()) {
+                                if (boolean.class.isAssignableFrom(cf.type)) additionalConstructors.append("false");
+                                else additionalConstructors.append("0");
+                            } else {
+                                additionalConstructors.append("null");
+                            }
                         }
+                        a = true;
                     }
-                    a = true;
+                    additionalConstructors.append(");\r\n\t}\r\n");
                 }
-                additionalConstructors.append(");\r\n\t}\r\n");
             }
         }
 
@@ -105,7 +109,8 @@ public class RecordUtils {
         FileWriter arq = new FileWriter(dir + recName + ".java");
         arq.write(corpo);
         arq.close();
-        System.out.println(reverseConstructor);
+        System.out.println(setterWay + reverseConstructor);
+        System.out.println(constructorWay + declaration + "\r\n\t\t set" + classe.getSimpleName() + "(rec);\r\n\t}");
 
         return classe.getPackage().getName() + "." + recName;
     }
@@ -118,11 +123,17 @@ public class RecordUtils {
                 try {
                     Field field = getMethodField(method);
                     if (field != null && !Modifier.isStatic(field.getModifiers()) && !field.isAnnotationPresent(NotForRecordField.class)) {
-
+                        CollectionForRecordField ofrf = field.getAnnotation(CollectionForRecordField.class);
                         fullConstructorFields.add(new SimpleParam(field));
                         if (method.getReturnType().isRecord()) {
                             new RecordUtils(method.getReturnType()).generateRecord();
-                        } else if (field.isAnnotationPresent(Embedded.class) || field.isAnnotationPresent(ObjectForRecordField.class)) {
+                        }else if (ofrf != null && ofrf.elementsOfType() != Object.class) {
+                            String record = new RecordUtils(ofrf.elementsOfType()).generateRecord();
+                            processAttribute(field, prefixObjReference,prefixRecReference, ofrf, false);
+                        } else if (field.isAnnotationPresent(ObjectForRecordField.class)) {
+                            String record = new RecordUtils(method.getReturnType()).generateRecord();
+                            processAttribute(method, prefixObjReference,prefixRecReference);
+                        } else if (field.isAnnotationPresent(Embedded.class)) {
                             String record = new RecordUtils(method.getReturnType()).generateRecord();
                             processAttribute(record, prefixObjReference,prefixRecReference);
                         } else {
@@ -181,7 +192,8 @@ public class RecordUtils {
                 impConf.add(type.getName());
             }
 
-            reverseConstructor.append("\r\n\t\t").append(metodSetName).append(prefixRecReference).append(fieldName).append("());");
+            if (fieldName.equals("id")) reverseConstructor.append("\r\n\t\tif (this.id != null) ").append(metodSetName).append(prefixRecReference).append(fieldName).append("());");
+            else reverseConstructor.append("\r\n\t\t").append(metodSetName).append(prefixRecReference).append(fieldName).append("());");
             constructor.append(prefixObjReference).append(methodName).append("()");
             if (Collection.class.isAssignableFrom(type)) {
                 main.append(annotations).append(type.getSimpleName()).append("<?> ").append(fieldName);
@@ -202,6 +214,11 @@ public class RecordUtils {
         String methodSetName = ".set" + objName;
         String methodGetName = "this.get" + objName + ")";
 
+        if (!impConf.contains(recordField)) {
+            impConf.add(recordField);
+            imps.append("import ").append(recordField).append(";\r\n");
+        }
+
         if (hasAddedField) {
             main.append(",\r\n");
             constructor.append(",\r\n\t\t\t");
@@ -210,6 +227,71 @@ public class RecordUtils {
         main.append("\t").append(name).append(" ").append(fieldName);
         constructor.append("new ").append(name).append("(").append(prefixObjReference).append("get").append(name.replace("Record","")).append("())");
         reverseConstructor.append("\r\n\t\t").append(methodGetName).append(methodSetName).append(prefixRecReference).append(fieldName).append("());");
+        hasAddedField = true;
+    }
+    private void processAttribute(Method method, String prefixObjReference, String prefixRecReference){
+
+        String name = method.getName().replaceFirst("get","");
+        String typeName =  method.getReturnType().getSimpleName() + "Record";
+        String packRec = method.getReturnType().getPackage().getName() + "." + typeName;
+        String fieldName = name.substring(0, 1).toLowerCase() + name.substring(1);
+        String methodSetName = "this.set" + name + "(";
+
+        if (!impConf.contains(packRec)) {
+            impConf.add(packRec);
+            imps.append("import ").append(packRec).append(";\r\n");
+        }
+
+        if (hasAddedField ) {
+            main.append(",\r\n");
+            constructor.append(",\r\n\t\t\t");
+        }
+
+        main.append("\t").append(typeName).append(" ").append(fieldName);
+        constructor.append("new ").append(typeName).append("(").append(prefixObjReference).append(method.getName()).append("())");
+        reverseConstructor.append("\r\n\t\t").append(methodSetName).append("new ").append(method.getReturnType().getSimpleName()).append("(").append(prefixRecReference).append(fieldName).append("()));");
+        hasAddedField = true;
+    }
+
+    private void processAttribute(Field field, String prefixObjReference, String prefixRecReference, CollectionForRecordField annotation, boolean hasAppended){
+
+        String fieldName = field.getName();
+        String suffixMethod =  fieldName.substring(0,1).toUpperCase() + fieldName.substring(1);
+        String methodSetName = ".set" + suffixMethod + "(";
+        String methodGetName = "get" + suffixMethod;
+        String packRec = annotation.elementsOfType().getName() + "Record";
+        String elemRec = annotation.elementsOfType().getSimpleName() + "Record";
+
+        if (hasAddedField || hasAppended) {
+            main.append(",\r\n");
+            constructor.append(",\r\n\t\t\t");
+        }
+
+        String toCollection =".toList()";
+        String collection = "List<"+elemRec+"> ";
+        String toimport = "java.util.List";
+
+        if (annotation.collectionOfType() != List.class){
+            toCollection = ".collect(Collectors.toSet())";
+            collection = "Set<"+elemRec+"> ";
+            toimport = "java.util.Set";
+        }
+
+        if (!impConf.contains(packRec)) {
+            impConf.add(packRec);
+            imps.append("import ").append(packRec).append(";\r\n");
+        }
+
+        if (!impConf.contains(toimport)) {
+            impConf.add(toimport);
+            imps.append("import ").append(toimport).append(";\r\n");
+        }
+
+        String reverseMap = "().stream().map(" + annotation.elementsOfType().getSimpleName() + "::new)" + toCollection + ");";
+        main.append("\t").append(collection).append(" ").append(fieldName);
+        constructor.append(prefixObjReference).append(methodGetName).append("().stream().map(").append(elemRec).append("::new)").append(toCollection);
+        reverseConstructor.append("\r\n\t\tthis").append(methodSetName).append(prefixRecReference).append(fieldName).append(reverseMap);
+        hasAddedField = true;
     }
 
     private String getMethodFieldName(Method method){
@@ -475,7 +557,8 @@ public class RecordUtils {
         */
 
 
-        RecordUtils.exportReactModel(AuthUserRecord.class,targetDirHome);
+        RecordUtils ru = new RecordUtils(User.class);
+        ru.generateRecord();
 
 
     }

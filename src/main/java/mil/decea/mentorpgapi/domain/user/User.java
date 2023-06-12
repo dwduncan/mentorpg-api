@@ -6,8 +6,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import mil.decea.mentorpgapi.domain.BaseEntity;
+import mil.decea.mentorpgapi.domain.CollectionForRecordField;
 import mil.decea.mentorpgapi.domain.NotForRecordField;
 import mil.decea.mentorpgapi.domain.daoservices.minio.MinioStorage;
+import mil.decea.mentorpgapi.domain.documents.UserDocument;
 import mil.decea.mentorpgapi.domain.user.validation.annotations.IsValidCpf;
 import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
 import org.springframework.security.core.GrantedAuthority;
@@ -78,8 +80,11 @@ public class User extends BaseEntity implements UserDetails, MinioStorage<UserIm
     private String saram;
     @Column(columnDefinition = "TEXT")
     private String observacoes;
+
+    @CollectionForRecordField(elementsOfType = UserDocument.class)
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserDocument> documents = new ArrayList<>();
+
     @Transient
     private String nomeQualificado;
     public User(Long id,
@@ -243,31 +248,38 @@ public class User extends BaseEntity implements UserDetails, MinioStorage<UserIm
 
     @NotForRecordField
     public void setUser(UserRecord rec) {
-        this.setNomeQualificado(rec.nomeQualificado());
         this.setPttc(rec.pttc());
         this.setQuadro(rec.quadro());
         this.setCpf(rec.cpf());
-        //this.setDocuments(rec.documents());
-        this.setSexo(rec.sexo());
-        this.setUltimaPromocao(DateTimeAPIHandler.converterStringDate(rec.ultimaPromocao()));
-        this.setCelular(rec.celular());
-        this.setForcaSingular(rec.forcaSingular());
-        this.setIdentidade(rec.identidade());
-        this.setObservacoes(rec.observacoes());
-        this.setEmail(rec.email());
-        this.setRole(rec.role());
-        this.setDataNascimento(DateTimeAPIHandler.converterStringDate(rec.dataNascimento()));
-        this.setDataPraca(DateTimeAPIHandler.converterStringDate(rec.dataPraca()));
-        this.setEspecialidade(rec.especialidade());
-        this.setNomeCompleto(rec.nomeCompleto());
-        this.setProximaPromocao(DateTimeAPIHandler.converterStringDate(rec.proximaPromocao()));
-        this.setPosto(rec.posto());
-        this.setTitulacao(rec.titulacao());
-        this.setNomeGuerra(rec.nomeGuerra());
-        this.setSaram(rec.saram());
-        this.setAntiguidadeRelativa(rec.antiguidadeRelativa());
         this.getUserImage().setUserImage(rec.userImageRecord());
-        this.setId(rec.id());
+        this.setAntiguidadeRelativa(rec.antiguidadeRelativa());
+        this.setTitulacao(rec.titulacao());
+        this.setUltimaPromocao(DateTimeAPIHandler.converterStringDate(rec.ultimaPromocao()));
+        this.setNomeQualificado(rec.nomeQualificado());
+        this.setNomeGuerra(rec.nomeGuerra());
+        this.setNomeCompleto(rec.nomeCompleto());
+        this.setRole(rec.role());
+        this.setForcaSingular(rec.forcaSingular());
+        this.setPosto(rec.posto());
+        this.setCelular(rec.celular());
+        this.setEmail(rec.email());
+        this.setEspecialidade(rec.especialidade());
+        this.setSexo(rec.sexo());
+        this.setDocuments(rec.documents().stream().map(UserDocument::new).toList());
+        this.setDataNascimento(DateTimeAPIHandler.converterStringDate(rec.dataNascimento()));
+        this.setSaram(rec.saram());
+        this.setDataPraca(DateTimeAPIHandler.converterStringDate(rec.dataPraca()));
+        this.setIdentidade(rec.identidade());
+        this.setProximaPromocao(DateTimeAPIHandler.converterStringDate(rec.proximaPromocao()));
+        this.setObservacoes(rec.observacoes());
+        if (this.id != null) this.setId(rec.id());
         this.setAtivo(rec.ativo());
     }
+
+
+    @NotForRecordField
+    public User(UserRecord rec) {
+        setUser(rec);
+    }
+
 }
