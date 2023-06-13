@@ -6,6 +6,7 @@ import mil.decea.mentorpgapi.domain.BaseEntity;
 import mil.decea.mentorpgapi.domain.CollectionForRecordField;
 import mil.decea.mentorpgapi.domain.NotForRecordField;
 import mil.decea.mentorpgapi.domain.ObjectForRecordField;
+import mil.decea.mentorpgapi.domain.documents.UserDocumentRecord;
 import mil.decea.mentorpgapi.domain.user.*;
 
 import java.io.FileWriter;
@@ -334,6 +335,7 @@ public class RecordUtils {
         String reactInterfaceName = "I" + classe.getSimpleName();
         StringBuilder fieldsDeclaretionBuilder = new StringBuilder("\r\n");
         StringBuilder defaultValuesBuilder = new StringBuilder("export const default").append(reactInterfaceName).append(" = {\r\n");
+        StringBuilder imports = new StringBuilder();
 
         StringBuilder classBuilder = new StringBuilder("export class ").append(classe.getSimpleName()).append(" implements ").append(reactInterfaceName).append(" {\r\n");
         StringBuilder classBuilderConstructor = new StringBuilder("\r\n\tpublic constructor(obj?:  ").append(reactInterfaceName).append(") {\r\n\r\n\t\tif (!!obj){\r\n");
@@ -367,9 +369,10 @@ public class RecordUtils {
                 String recordName = exportReactModel(field.getType(), targetDir, false);
                 fieldsDeclaretionBuilder.append("\t").append(campo).append(": ").append(recordName);
                 defaultValuesBuilder.append("\t").append(campo).append(": default").append(recordName).append(";\r\n");
-
+                imports.append("import {").append(recordName).append(", ").append(recordName.substring(1)).append("} from './").append(recordName).append("';\r\n");
                 classBuilderConstructor.append("\t\t\tthis.").append(campo).append(" = obj.").append(campo).append(";");
                 elseBuilderConstructor.append("\t\t\tthis.").append(campo).append(" = new ").append(field.getType().getSimpleName()).append("();");
+                b = true;
             }else if (classe.isRecord() || (!(Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers())))) {
 
                 final String tipoNome = field.getType().getSimpleName();
@@ -414,7 +417,7 @@ public class RecordUtils {
         classBuilderConstructor.append("\r\n\t\t}").append(elseBuilderConstructor).append("\r\n\t\t}\r\n\t}");
         interfaceBuilder.append(fieldsDeclaretionBuilder).append("\r\n");
         classBuilder.append(fieldsDeclaretionBuilder).append("\r\n").append(classBuilderConstructor);
-
+        imports.append("\r\n");
         interfaceBuilder.append("\r\n}\r\n");
         classBuilder.append("\r\n}\r\n");
         if (functionsToExport != null && !functionsToExport.isBlank()) classBuilder.append(functionsToExport);
@@ -424,6 +427,7 @@ public class RecordUtils {
         if (!interfaceBuilder.toString().isBlank()) {
             if (!targetDir.endsWith("/")) targetDir += "/";
             FileWriter arq = new FileWriter(targetDir + reactInterfaceName + ".ts");
+            arq.write(imports.toString());
             arq.write(interfaceBuilder.toString());
             arq.write(classBuilder.toString());
             arq.close();
@@ -545,20 +549,21 @@ public class RecordUtils {
         String targetDirATD = "/Users/duncandwdi.DECEA/IdeaProjects/PrototipoMentorPG3Next/src/model";
 
         String targetDirHome = "/OneDrive/001_ProjetosPessoais/004_Cursos/PrototipoMentorPG3Next/src/model";
+
         /*
 
         System.out.println(new File(targetDir).exists());
-        RecordUtils ru = new RecordUtils(AuthUser.class);
+        RecordUtils ru = new RecordUtils(User.class);
         ru.generateRecord();
 
         RecordUtils.exportReactModel(AuthUserRecord.class,targetDirHome);
 
-        exportEnumsToTypeScript(targetDir, User.class);
+        exportEnumsToTypeScript(targetDirATD, User.class);
         */
 
 
-        RecordUtils ru = new RecordUtils(User.class);
-        ru.generateRecord();
+
+        RecordUtils.exportReactModel(UserDocumentRecord.class,targetDirHome);
 
 
     }

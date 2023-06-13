@@ -21,8 +21,8 @@ public class UserDocument extends ExternalDataEntity {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
+    @NotForRecordField
     private User user;
-
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @ObjectForRecordField
@@ -41,7 +41,6 @@ public class UserDocument extends ExternalDataEntity {
         this.setObrigatorio(rec.obrigatorio());
         this.setStatusDocumento(rec.statusDocumento());
         this.setMotivoRecusa(rec.motivoRecusa());
-        this.setUser(rec.user());
         this.setIdExigencia(rec.idExigencia());
         this.setAtivo(rec.ativo());
         this.setNomeArquivo(rec.nomeArquivo());
