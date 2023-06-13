@@ -546,7 +546,7 @@ public class RecordUtils {
 
     public static void main(String... args) throws IOException, NoSuchFieldException, IllegalAccessException, NoSuchMethodException {
 
-        String targetDirATD = "/Users/duncandwdi.DECEA/IdeaProjects/PrototipoMentorPG3Next/src/model";
+        String targetDirATD = "/Users/duncandwdi.DECEA/IdeaProjects/PrototipoMentorPG3Next/src/api/model";
 
         String targetDirHome = "/OneDrive/001_ProjetosPessoais/004_Cursos/PrototipoMentorPG3Next/src/model";
 
@@ -561,9 +561,6 @@ public class RecordUtils {
         exportEnumsToTypeScript(targetDirATD, User.class);
         */
 
-
-
-        RecordUtils.exportReactModel(UserDocumentRecord.class,targetDirHome);
 
 
     }

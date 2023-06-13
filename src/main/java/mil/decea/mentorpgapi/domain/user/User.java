@@ -83,7 +83,7 @@ public class User extends BaseEntity implements UserDetails, MinioStorage<UserIm
 
     @CollectionForRecordField(elementsOfType = UserDocument.class)
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<UserDocument> documents = new ArrayList<>();
+    private List<UserDocument> documents;
 
     @Transient
     private String nomeQualificado;
@@ -244,6 +244,16 @@ public class User extends BaseEntity implements UserDetails, MinioStorage<UserIm
         if (role != null && role.contains(_role.name())) {
             role = role.replace(_role.name(), "").replaceAll("\\s\\s+"," ").trim();
         }
+    }
+
+    public List<UserDocument> getDocuments() {
+        if (documents == null) documents = new ArrayList<>();
+        return documents;
+    }
+
+    public void setDocuments(List<UserDocument> documents) {
+        this.documents.clear();
+        if (documents != null) this.documents.addAll(documents);
     }
 
     @NotForRecordField

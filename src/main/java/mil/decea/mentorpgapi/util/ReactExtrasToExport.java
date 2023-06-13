@@ -25,14 +25,14 @@ public class ReactExtrasToExport {
                          }           
                           
                          export function removeRole(role: Roles, usr: IAuthUserRecord){
-                           	if (!usr?.role && usr.role.includes(role.name)) {
-                           		usr.role = usr.role.replace(role.name,'').replaceAll(/\\s(\\s+)/," ").trim();
+                           	if (!!usr?.role && usr.role.includes(role.name)) {
+                           		usr.role = usr.role.replace(role.name,'').replaceAll('\s\s+'," ").trim();
                            	}
                          }             
                            
                           export function removeUserRole(role: string, usr: IUserRecord){
-                             if (!usr?.role && usr.role.includes(role)) {
-                                usr.role = usr.role.replace(role,'').replaceAll(/\\s(\\s+)/," ").trim();
+                             if (!!usr?.role && usr.role.includes(role)) {
+                                usr.role = usr.role.replace(role,'').replaceAll('\s\s+'," ").trim();
                              }
                           }
                            

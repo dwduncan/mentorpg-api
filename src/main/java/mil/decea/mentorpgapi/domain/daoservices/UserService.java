@@ -108,6 +108,9 @@ public class UserService implements UserDetailsService {
             return new UserRecord(entity);
         } catch (ClientMinioImplemantationException e) {
             throw new ClientMinioImplemantationException(e);
+        } catch (Exception e){
+            e.printStackTrace();
+            throw new MentorValidationException("Shit happens!");
         }
     }
 
