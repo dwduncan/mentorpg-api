@@ -22,4 +22,8 @@ public class DocumentsService {
         return repository.findAll().stream().map(DocumentTypeRecord::new).toList();
     }
 
+    public List<DocumentTypeRecord> getAllPersonalDocumentsTypesActives(){
+        return repository.findAllByAtivoTrue().stream().map(DocumentTypeRecord::new).toList();
+    }
+
 }

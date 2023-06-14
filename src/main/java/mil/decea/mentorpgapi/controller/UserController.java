@@ -124,7 +124,7 @@ public class UserController {
     @GetMapping("/personaldocstypes")
     @Transactional
     public ResponseEntity getPersonalDocsTypes(){
-        return ResponseEntity.ok(documentsService.getAllPersonalDocumentsTypes());
+        return ResponseEntity.ok(documentsService.getAllPersonalDocumentsTypesActives());
     }
 
 
