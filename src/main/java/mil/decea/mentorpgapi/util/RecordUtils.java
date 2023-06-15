@@ -2,12 +2,13 @@ package mil.decea.mentorpgapi.util;
 
 import jakarta.persistence.Embedded;
 import jakarta.validation.Constraint;
+import jdk.jshell.Snippet;
 import mil.decea.mentorpgapi.domain.BaseEntity;
 import mil.decea.mentorpgapi.domain.CollectionForRecordField;
 import mil.decea.mentorpgapi.domain.NotForRecordField;
 import mil.decea.mentorpgapi.domain.ObjectForRecordField;
-import mil.decea.mentorpgapi.domain.documents.UserDocumentRecord;
-import mil.decea.mentorpgapi.domain.user.*;
+import mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio.StatusDoc;
+import mil.decea.mentorpgapi.domain.user.UserRecord;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -365,7 +366,16 @@ public class RecordUtils {
                 elseBuilderConstructor.append("\r\n");
             }
 
-            if (field.getType().isRecord()) {
+            if (Collection.class.isAssignableFrom(field.getType())){
+                Class<?> elementClass = ElementsType.getElementType(field);
+                String recordName = "I" + elementClass.getSimpleName();
+                String type = recordName + "[]";
+                fieldsDeclaretionBuilder.append("\t").append(campo).append(": ").append(type);
+                classBuilderConstructor.append("\t\t\tthis.").append(campo).append(" = obj.").append(campo).append(";");
+                elseBuilderConstructor.append("\t\t\tthis.").append(campo).append(" = [];");
+                defaultValuesBuilder.append("\t").append(campo).append(": ").append(type).append(";\r\n");
+                imports.append("import ").append(recordName).append(" from './").append(recordName).append("';\r\n");
+            }else if (field.getType().isRecord()) {
                 String recordName = exportReactModel(field.getType(), targetDir, false);
                 fieldsDeclaretionBuilder.append("\t").append(campo).append(": ").append(recordName);
                 defaultValuesBuilder.append("\t").append(campo).append(": default").append(recordName).append(";\r\n");
@@ -558,10 +568,12 @@ public class RecordUtils {
 
         RecordUtils.exportReactModel(AuthUserRecord.class,targetDirHome);
 
+        RecordUtils.exportReactModel(UserRecord.class,targetDirATD);
+
         exportEnumsToTypeScript(targetDirATD, User.class);
         */
 
-
+        exportEnumsToTypeScript(targetDirATD, StatusDoc.class);
 
     }
 

@@ -34,7 +34,7 @@ String role,
 Sexo sexo,
 String especialidade,
 String celular,
-	List<UserDocumentRecord>  documents,
+List<UserDocumentRecord>  documents,
 Titulacao titulacao,
 Long id,
 boolean ativo) {
