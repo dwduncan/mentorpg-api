@@ -36,18 +36,19 @@ public class UserDocument extends ExternalDataEntity {
 
     @NotForRecordField
     public void setUserDocument(UserDocumentRecord rec) {
-        if (this.id == null) this.setId(rec.id());
         this.setTipoDocumentacao(new DocumentType(rec.tipoDocumentacao()));
-        this.setObrigatorio(rec.obrigatorio());
-        this.setStatusDocumento(rec.statusDocumento());
         this.setMotivoRecusa(rec.motivoRecusa());
+        this.setObrigatorio(rec.obrigatorio());
         this.setIdExigencia(rec.idExigencia());
+        this.setStatusDocumento(rec.statusDocumento());
+        if (this.id != null) this.setId(rec.id());
         this.setAtivo(rec.ativo());
-        this.setNomeArquivo(rec.nomeArquivo());
+        this.setBase64Data(rec.base64Data());
         this.setFormato(rec.formato());
+        this.setNomeArquivo(rec.nomeArquivo());
+        this.setTamanho(rec.tamanho());
         this.setDataHoraUpload(DateTimeAPIHandler.converterStringDate(rec.dataHoraUpload()));
         this.setArquivoUrl(rec.arquivoUrl());
-        this.setBase64Data(rec.base64Data());
     }
     @NotForRecordField
     public UserDocument(UserDocumentRecord rec) {

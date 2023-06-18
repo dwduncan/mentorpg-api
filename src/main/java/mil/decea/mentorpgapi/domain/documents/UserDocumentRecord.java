@@ -1,34 +1,36 @@
 package mil.decea.mentorpgapi.domain.documents;
-import mil.decea.mentorpgapi.domain.documents.DocumentTypeRecord;
 import mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio.StatusDoc;
 import java.lang.Long;
+import mil.decea.mentorpgapi.domain.documents.DocumentTypeRecord;
 import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
 
 public record UserDocumentRecord(
-	DocumentTypeRecord tipoDocumentacao,
+boolean obrigatorio,
 StatusDoc statusDocumento,
 String motivoRecusa,
-boolean obrigatorio,
 Long idExigencia,
+	DocumentTypeRecord tipoDocumentacao,
 Long id,
 boolean ativo,
+String base64Data,
+String arquivoUrl,
 String formato,
 String nomeArquivo,
 String dataHoraUpload,
-String arquivoUrl,
-String base64Data) {
+long tamanho) {
 	public UserDocumentRecord(UserDocument obj) {
-		this(new DocumentTypeRecord(obj.getTipoDocumentacao()),
+		this(obj.isObrigatorio(),
 			obj.getStatusDocumento(),
 			obj.getMotivoRecusa(),
-			obj.isObrigatorio(),
 			obj.getIdExigencia(),
+			new DocumentTypeRecord(obj.getTipoDocumentacao()),
 			obj.getId(),
 			obj.isAtivo(),
+			obj.getBase64Data(),
+			obj.getArquivoUrl(),
 			obj.getFormato(),
 			obj.getNomeArquivo(),
 			DateTimeAPIHandler.converter(obj.getDataHoraUpload())+"",
-			obj.getArquivoUrl(),
-			obj.getBase64Data());
+			obj.getTamanho());
 	}
 }

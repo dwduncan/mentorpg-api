@@ -8,6 +8,10 @@ import mil.decea.mentorpgapi.domain.CollectionForRecordField;
 import mil.decea.mentorpgapi.domain.NotForRecordField;
 import mil.decea.mentorpgapi.domain.ObjectForRecordField;
 import mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio.StatusDoc;
+import mil.decea.mentorpgapi.domain.documents.UserDocument;
+import mil.decea.mentorpgapi.domain.documents.UserDocumentRecord;
+import mil.decea.mentorpgapi.domain.user.AuthUserRecord;
+import mil.decea.mentorpgapi.domain.user.User;
 import mil.decea.mentorpgapi.domain.user.UserRecord;
 
 import java.io.FileWriter;
@@ -263,6 +267,7 @@ public class RecordUtils {
         String methodGetName = "get" + suffixMethod;
         String packRec = annotation.elementsOfType().getName() + "Record";
         String elemRec = annotation.elementsOfType().getSimpleName() + "Record";
+
 
         if (hasAddedField || hasAppended) {
             main.append(",\r\n");
@@ -558,7 +563,7 @@ public class RecordUtils {
 
         String targetDirATD = "/Users/duncandwdi.DECEA/IdeaProjects/PrototipoMentorPG3Next/src/api/model";
 
-        String targetDirHome = "/OneDrive/001_ProjetosPessoais/004_Cursos/PrototipoMentorPG3Next/src/model";
+        String targetDirHome = "/OneDrive/001_ProjetosPessoais/004_Cursos/PrototipoMentorPG3Next/src/api/model";
 
         /*
 
@@ -573,7 +578,7 @@ public class RecordUtils {
         exportEnumsToTypeScript(targetDirATD, User.class);
         */
 
-        exportEnumsToTypeScript(targetDirATD, StatusDoc.class);
+        //exportEnumsToTypeScript(targetDirATD, StatusDoc.class);
 
     }
 

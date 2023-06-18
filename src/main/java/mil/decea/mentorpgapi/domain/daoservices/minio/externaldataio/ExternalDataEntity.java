@@ -21,4 +21,6 @@ public abstract class ExternalDataEntity extends AbstractExternalData {
     protected Long id;
     boolean ativo = true;
 
+
+
 }

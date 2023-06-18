@@ -4,6 +4,7 @@ import jakarta.persistence.Embeddable;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import mil.decea.mentorpgapi.domain.NotForRecordField;
 import mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio.AbstractExternalData;
 import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
 
@@ -13,12 +14,14 @@ import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
 @NoArgsConstructor
 public class UserImage extends AbstractExternalData {
 
+    @NotForRecordField
     public void setUserImage(UserImageRecord rec) {
-        this.setFormato(rec.formato());
         this.setBase64Data(rec.base64Data());
-        this.setNomeArquivo(rec.nomeArquivo());
         this.setArquivoUrl(rec.arquivoUrl());
+        this.setFormato(rec.formato());
+        this.setNomeArquivo(rec.nomeArquivo());
         this.setDataHoraUpload(DateTimeAPIHandler.converterStringDate(rec.dataHoraUpload()));
+        this.setTamanho(rec.tamanho());
     }
 
 }

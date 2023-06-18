@@ -252,8 +252,7 @@ public class User extends BaseEntity implements UserDetails, MinioStorage<UserIm
     }
 
     public void setDocuments(List<UserDocument> documents) {
-        this.documents.clear();
-        if (documents != null) this.documents.addAll(documents);
+        updateDocumentsCollections(getDocuments(), documents);
     }
 
     @NotForRecordField
@@ -285,6 +284,7 @@ public class User extends BaseEntity implements UserDetails, MinioStorage<UserIm
         if (this.id != null) this.setId(rec.id());
         this.setAtivo(rec.ativo());
     }
+
 
 
     @NotForRecordField

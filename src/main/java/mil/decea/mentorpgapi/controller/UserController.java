@@ -6,7 +6,6 @@ import jakarta.validation.constraints.Size;
 import mil.decea.mentorpgapi.domain.daoservices.DocumentsService;
 import mil.decea.mentorpgapi.domain.daoservices.UserService;
 import mil.decea.mentorpgapi.domain.daoservices.minio.ClientMinioImplemantationException;
-import mil.decea.mentorpgapi.domain.daoservices.repositories.DocumentTypeRepository;
 import mil.decea.mentorpgapi.domain.user.AuthUserRecord;
 import mil.decea.mentorpgapi.domain.user.UserRecord;
 import mil.decea.mentorpgapi.domain.user.validation.annotations.IsValidCpf;

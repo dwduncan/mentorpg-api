@@ -19,6 +19,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 @Service
@@ -97,6 +98,8 @@ public class UserService implements UserDetailsService {
         entity.setRole(authUser.role());
         repository.save(entity);
     }
+
+
 
     public UserRecord save(UserRecord dados) throws ClientMinioImplemantationException {
         var entity = dados.id() == null ? new User() : repository.getReferenceById(dados.id());

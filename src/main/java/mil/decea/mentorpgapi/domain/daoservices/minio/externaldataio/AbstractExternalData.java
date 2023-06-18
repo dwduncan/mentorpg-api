@@ -25,6 +25,7 @@ public abstract class AbstractExternalData implements ExternalData {
     protected String nomeArquivo;
     @Column(columnDefinition = "TIMESTAMP")
     protected LocalDateTime dataHoraUpload;
+    protected long tamanho;
     @Transient
     protected String arquivoUrl = "";
     @Transient
