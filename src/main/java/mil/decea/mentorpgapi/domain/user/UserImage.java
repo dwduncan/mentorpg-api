@@ -12,7 +12,7 @@ import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserImage extends AbstractExternalData {
+public class UserImage extends AbstractExternalData<UserImage> {
 
     @NotForRecordField
     public void setUserImage(UserImageRecord rec) {
@@ -24,4 +24,13 @@ public class UserImage extends AbstractExternalData {
         this.setTamanho(rec.tamanho());
     }
 
+    @Override
+    public void copyFields(UserImage previousEntity) {
+        this.setBase64Data(previousEntity.getBase64Data());
+        this.setArquivoUrl(previousEntity.getArquivoUrl());
+        this.setFormato(previousEntity.getFormato());
+        this.setNomeArquivo(previousEntity.getNomeArquivo());
+        this.setDataHoraUpload(previousEntity.getDataHoraUpload());
+        this.setTamanho(previousEntity.getTamanho());
+    }
 }

@@ -192,12 +192,23 @@ public class User extends BaseEntity implements UserDetails, MinioStorage<UserIm
         return getCpf() + "/photo" ;
     }//+ getUserImage().getNomeArquivo()
 
+
+
     @Override
     @NotForRecordField
     public UserImage getExternalData() {
         return getUserImage();
     }
 
+    /**
+     * @return sempre null pois não há necessidade de apagar nenhum arquivo pré-existente uma vez que o atual é sempre
+     * substituído quando salvo
+     */
+    @Override
+    @NotForRecordField
+    public String getPreviousStorageDestinationPath() {
+        return null;
+    }
     public String getNomeQualificado() {
         if (nomeQualificado == null){
             nomeQualificado = buildNomeQualificado();
@@ -251,8 +262,9 @@ public class User extends BaseEntity implements UserDetails, MinioStorage<UserIm
         return documents;
     }
 
-    public void setDocuments(List<UserDocument> documents) {
-        updateDocumentsCollections(getDocuments(), documents);
+    public void setDocuments(List<UserDocument> _documents) {
+        updateDocumentsCollections(getDocuments(), _documents);
+        getDocuments().forEach(d -> d.setUser(this));
     }
 
     @NotForRecordField
@@ -281,7 +293,7 @@ public class User extends BaseEntity implements UserDetails, MinioStorage<UserIm
         this.setIdentidade(rec.identidade());
         this.setProximaPromocao(DateTimeAPIHandler.converterStringDate(rec.proximaPromocao()));
         this.setObservacoes(rec.observacoes());
-        if (this.id != null) this.setId(rec.id());
+        this.setId(rec.id());
         this.setAtivo(rec.ativo());
     }
 

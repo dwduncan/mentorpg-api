@@ -3,6 +3,7 @@ package mil.decea.mentorpgapi.domain.daoservices;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.criteria.*;
+import jakarta.transaction.Transactional;
 import mil.decea.mentorpgapi.domain.DTOValidator;
 import mil.decea.mentorpgapi.domain.daoservices.minio.ClientMinioImplemantationException;
 import mil.decea.mentorpgapi.domain.daoservices.minio.ClienteMinio;
@@ -100,11 +101,12 @@ public class UserService implements UserDetailsService {
     }
 
 
-
+    @Transactional
     public UserRecord save(UserRecord dados) throws ClientMinioImplemantationException {
         var entity = dados.id() == null ? new User() : repository.getReferenceById(dados.id());
         entity.setUser(dados);
         try {
+            clienteMinio.updateObject(entity.getDocuments());
             boolean did = clienteMinio.updateObject(entity);
             entity = repository.save(entity);
             if (did) clienteMinio.insertSasUrl(entity);

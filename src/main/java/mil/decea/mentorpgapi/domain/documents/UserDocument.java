@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import mil.decea.mentorpgapi.domain.NotForRecordField;
 import mil.decea.mentorpgapi.domain.ObjectForRecordField;
+import mil.decea.mentorpgapi.domain.daoservices.minio.MinioStorage;
 import mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio.ExternalDataEntity;
 import mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio.StatusDoc;
 import mil.decea.mentorpgapi.domain.user.User;
@@ -17,7 +18,7 @@ import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserDocument extends ExternalDataEntity {
+public class UserDocument extends ExternalDataEntity<UserDocument> implements MinioStorage<UserDocument> {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -37,17 +38,18 @@ public class UserDocument extends ExternalDataEntity {
     @NotForRecordField
     public void setUserDocument(UserDocumentRecord rec) {
         this.setTipoDocumentacao(new DocumentType(rec.tipoDocumentacao()));
+        this.setPreviousFileName(rec.previousFileName());
         this.setMotivoRecusa(rec.motivoRecusa());
-        this.setObrigatorio(rec.obrigatorio());
         this.setIdExigencia(rec.idExigencia());
+        this.setObrigatorio(rec.obrigatorio());
         this.setStatusDocumento(rec.statusDocumento());
-        if (this.id != null) this.setId(rec.id());
+        this.setId(rec.id());
         this.setAtivo(rec.ativo());
-        this.setBase64Data(rec.base64Data());
-        this.setFormato(rec.formato());
         this.setNomeArquivo(rec.nomeArquivo());
+        this.setFormato(rec.formato());
         this.setTamanho(rec.tamanho());
         this.setDataHoraUpload(DateTimeAPIHandler.converterStringDate(rec.dataHoraUpload()));
+        this.setBase64Data(rec.base64Data());
         this.setArquivoUrl(rec.arquivoUrl());
     }
     @NotForRecordField
@@ -56,4 +58,41 @@ public class UserDocument extends ExternalDataEntity {
     }
 
 
+    @Override
+    public String getBucket() {
+        return "userdocumentse";
+    }
+
+    @Override
+    public String getStorageDestinationPath() {
+        return user.getId() + "/type" + getTipoDocumentacao().getId() + "/" + getNomeArquivo();
+    }
+    @Override
+    @NotForRecordField
+    public String getPreviousStorageDestinationPath() {
+        return user.getId() + "/type" + getTipoDocumentacao().getId() + "/" + previousFileName;
+    }
+    @Override
+    public UserDocument getExternalData() {
+        return this;
+    }
+
+
+    @Override
+    public void copyFields(UserDocument previousEntity) {
+        this.setTipoDocumentacao(previousEntity.getTipoDocumentacao());
+        this.setPreviousFileName(previousEntity.getPreviousFileName());
+        this.setMotivoRecusa(previousEntity.getMotivoRecusa());
+        this.setIdExigencia(previousEntity.getIdExigencia());
+        this.setObrigatorio(previousEntity.isObrigatorio());
+        this.setStatusDocumento(previousEntity.getStatusDocumento());
+        this.setId(previousEntity.getId());
+        this.setAtivo(previousEntity.isAtivo());
+        this.setNomeArquivo(previousEntity.getNomeArquivo());
+        this.setFormato(previousEntity.getFormato());
+        this.setTamanho(previousEntity.getTamanho());
+        this.setDataHoraUpload(previousEntity.getDataHoraUpload());
+        this.setBase64Data(previousEntity.getBase64Data());
+        this.setArquivoUrl(previousEntity.getArquivoUrl());
+    }
 }

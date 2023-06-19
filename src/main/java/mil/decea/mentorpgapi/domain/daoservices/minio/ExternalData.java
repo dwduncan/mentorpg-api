@@ -4,7 +4,7 @@ import mil.decea.mentorpgapi.domain.NotForRecordField;
 
 import java.io.Serializable;
 
-public interface ExternalData extends Serializable {
+public interface ExternalData<T extends ExternalData> extends Serializable {
     String getFormato();
 
     String getNomeArquivo();
@@ -14,6 +14,8 @@ public interface ExternalData extends Serializable {
     String getArquivoUrl();
 
     String getBase64Data();
+
+    String getPreviousFileName();
 
     void setFormato(String formato);
 
@@ -33,6 +35,7 @@ public interface ExternalData extends Serializable {
         return null;
     };
 
+    void copyFields(T previousEntity);
 
 
 }

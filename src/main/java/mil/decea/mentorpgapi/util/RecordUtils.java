@@ -198,7 +198,7 @@ public class RecordUtils {
                 impConf.add(type.getName());
             }
 
-            if (fieldName.equals("id")) reverseConstructor.append("\r\n\t\tif (this.id != null) ").append(metodSetName).append(prefixRecReference).append(fieldName).append("());");
+            if (fieldName.equals("id")) reverseConstructor.append("\r\n\t\t").append(metodSetName).append(prefixRecReference).append(fieldName).append("());");
             else reverseConstructor.append("\r\n\t\t").append(metodSetName).append(prefixRecReference).append(fieldName).append("());");
             constructor.append(prefixObjReference).append(methodName).append("()");
             if (Collection.class.isAssignableFrom(type)) {
@@ -577,6 +577,8 @@ public class RecordUtils {
 
         exportEnumsToTypeScript(targetDirATD, User.class);
         */
+
+        RecordUtils.exportReactModel(UserDocumentRecord.class,targetDirATD);
 
         //exportEnumsToTypeScript(targetDirATD, StatusDoc.class);
 

@@ -1,5 +1,6 @@
 package mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Transient;
@@ -17,7 +18,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class AbstractExternalData implements ExternalData {
+public abstract class AbstractExternalData<T extends ExternalData> implements ExternalData<T> {
 
     @Column(columnDefinition = "TEXT")
     protected String formato;
@@ -30,15 +31,16 @@ public abstract class AbstractExternalData implements ExternalData {
     protected String arquivoUrl = "";
     @Transient
     protected String base64Data;
+    @Transient
+    protected String previousFileName;
 
 
+    @Override
+    public void setNomeArquivo(String nomeArquivo) {
+        if (previousFileName == null) previousFileName = getNomeArquivo();
+        this.nomeArquivo = nomeArquivo;
+    }
 
-    /*@NotForRecordField
-    public String getSuffix(){
-        if (getNomeArquivo() != null && getNomeArquivo().contains(".")){
-            return getNomeArquivo().split("\\.")[1];
-        }
-        return null;
-    }*/
+
 
 }

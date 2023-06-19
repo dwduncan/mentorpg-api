@@ -74,14 +74,27 @@ public class ClienteMinio implements Serializable {
         //base64 is always blank if no data needs to be updated on Minio
         if (base64.isBlank()) return false;
 
+
+
         try {
+
+            MinioClient client = minioClient();
+            //it is necessary to delete the file, otherwise it will become garbage
+            if (source.hasPreviousStorageDestinationPath()){
+                //createBucketIfNotExists(client, bucketName);
+                client.removeObject(RemoveObjectArgs.builder()
+                        .bucket(source.getBucket())
+                        .object(source.getPreviousStorageDestinationPath())
+                        .build());
+            }
+
+
             String[] prefixSuffix = source.getExternalData().getFileNamePrefixSuffix();
             File tempFile = Files.createTempFile(prefixSuffix[0],prefixSuffix[1]).toFile();
             OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(tempFile));
             outputStream.write(DatatypeConverter.parseBase64Binary(base64));
             outputStream.flush();
             outputStream.close();
-            MinioClient client = minioClient();
             createBucketIfNotExists(client, source.getBucket());
             client.uploadObject(
                     UploadObjectArgs.builder()
@@ -110,11 +123,22 @@ public class ClienteMinio implements Serializable {
         if (base64.isBlank()) return false;
 
         try {
+
             MinioClient client = minioClient();
+            //it is necessary to delete the file, otherwise it will become garbage
+            if (source.hasPreviousStorageDestinationPath()){
+                //createBucketIfNotExists(client, bucketName);
+                client.removeObject(RemoveObjectArgs.builder()
+                        .bucket(source.getBucket())
+                        .object(source.getPreviousStorageDestinationPath())
+                        .build());
+            }
+
+
             createBucketIfNotExists(client, source.getBucket());
+
             byte[] data = Base64.getDecoder().decode(base64);
             InputStream is = new BufferedInputStream(new ByteArrayInputStream(data));
-
 
             client.putObject(
                     PutObjectArgs.builder()
@@ -134,6 +158,59 @@ public class ClienteMinio implements Serializable {
             throw new ClientMinioImplemantationException(ex);
         }
     }
+
+    public void updateObject(Collection<? extends MinioStorage<?>> sources) throws ClientMinioImplemantationException {
+        try {
+
+            MinioClient client = minioClient();
+
+            Map<String,Boolean> bucketExists = new HashMap<>();
+
+            for(MinioStorage<?> source : sources) {
+
+                String base64 = source.getExternalData().getBase64Data() == null ? "" : source.getExternalData().getBase64Data();
+
+                //base64 is always blank if no data needs to be updated on Minio
+                if (base64.isBlank()) continue;
+
+                if (bucketExists.get(source.getBucket()) == null){
+                    createBucketIfNotExists(client, source.getBucket());
+                    bucketExists.put(source.getBucket(),true);
+                }
+
+                System.out.println(source.getPreviousStorageDestinationPath() + " / " + source.getStorageDestinationPath());
+                //it is necessary to delete the file, otherwise it will become garbage
+                if (source.hasPreviousStorageDestinationPath()) {
+                    //createBucketIfNotExists(client, bucketName);
+                    client.removeObject(RemoveObjectArgs.builder()
+                            .bucket(source.getBucket())
+                            .object(source.getPreviousStorageDestinationPath())
+                            .build());
+                }
+
+                byte[] data = Base64.getDecoder().decode(base64);
+                InputStream is = new BufferedInputStream(new ByteArrayInputStream(data));
+
+                client.putObject(
+                        PutObjectArgs.builder()
+                                .bucket(source.getBucket())
+                                .object(source.getStorageDestinationPath())
+                                .contentType(source.getExternalData().getFormato())
+                                .stream(is, data.length, -1)//  .stream(is,data.length,-1) .stream(is,-1,10485760)
+                                .build());
+                is.close();
+                source.getExternalData().setBase64Data(null);
+            }
+        }
+        catch(InvalidKeyException | ErrorResponseException | InsufficientDataException
+              | InternalException | InvalidResponseException | NoSuchAlgorithmException
+              | ServerException | XmlParserException | IllegalArgumentException | IOException ex) {
+
+            throw new ClientMinioImplemantationException(ex);
+        }
+
+    }
+
     public boolean download(MinioStorage<?> source) {
         try {
             MinioClient client = minioClient();
@@ -153,6 +230,7 @@ public class ClienteMinio implements Serializable {
             return false;
         }
     }
+
     public GetObjectResponse getObjectResponse(String bucketName, String destPath) throws ClientMinioImplemantationException {
         try {
             return minioClient().getObject(GetObjectArgs.builder()

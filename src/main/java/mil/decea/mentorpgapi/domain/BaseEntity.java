@@ -11,6 +11,9 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @MappedSuperclass
 @Getter
@@ -34,11 +37,20 @@ public class BaseEntity implements Serializable {
         });
     }
 
-    public <T extends ExternalDataEntity> void updateDocumentsCollections(Collection<T> currentCollection, Collection<T> updatedCollection){
+    public <T extends ExternalDataEntity<T>> void updateDocumentsCollections(Collection<T> currentCollection, Collection<T> updatedCollection){
+        Map<Long, T> currentMap = currentCollection.stream().collect(Collectors.toMap(ExternalDataEntity::getId, Function.identity()));
         currentCollection.clear();
         updatedCollection.forEach(e -> {
             if (e.getId() != null && e.getId() < 1) e.setId(null);
-            currentCollection.add(e);
+            var prev = currentMap.get(e.getId());
+            if (prev != null) {
+                String oldFileName = prev.getNomeArquivo();
+                prev.copyFields(e);
+                prev.setPreviousFileName(oldFileName);
+                currentCollection.add(prev);
+            }else{
+                currentCollection.add(e);
+            }
         });
     }
 
