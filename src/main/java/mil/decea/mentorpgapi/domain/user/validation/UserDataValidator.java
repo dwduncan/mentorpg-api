@@ -1,6 +1,6 @@
 package mil.decea.mentorpgapi.domain.user.validation;
 
-import mil.decea.mentorpgapi.domain.DTOValidator;
+import mil.decea.mentorpgapi.domain.daoservices.DTOValidator;
 import mil.decea.mentorpgapi.domain.user.UserRecord;
 import mil.decea.mentorpgapi.domain.user.validation.annotations.CpfConstraint;
 import mil.decea.mentorpgapi.etc.exceptions.MentorValidationException;

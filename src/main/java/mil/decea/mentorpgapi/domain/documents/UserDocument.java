@@ -5,8 +5,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import mil.decea.mentorpgapi.domain.NotForRecordField;
-import mil.decea.mentorpgapi.domain.ObjectForRecordField;
+import mil.decea.mentorpgapi.domain.daoservices.datageneration.MethodDefaultValue;
+import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
+import mil.decea.mentorpgapi.domain.daoservices.datageneration.ObjectForRecordField;
 import mil.decea.mentorpgapi.domain.daoservices.minio.MinioStorage;
 import mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio.ExternalDataEntity;
 import mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio.StatusDoc;
@@ -59,13 +60,16 @@ public class UserDocument extends ExternalDataEntity<UserDocument> implements Mi
 
 
     @Override
+    @MethodDefaultValue(fieldName = "bucket",defaultValue = "\"userdocuments\"")
     public String getBucket() {
-        return "userdocumentse";
+        return "userdocuments";
     }
 
     @Override
+    @MethodDefaultValue(fieldName = "storageDestinationPath",
+            defaultValue = "\"usr_\" + obj.getUser().getId() +\"/type_\"+obj.getTipoDocumentacao().getId()+\"/\"+obj.getNomeArquivo()")
     public String getStorageDestinationPath() {
-        return user.getId() + "/type" + getTipoDocumentacao().getId() + "/" + getNomeArquivo();
+        return "usr_" + getUser().getId() + "/type_" + getTipoDocumentacao().getId() + "/" + getNomeArquivo();
     }
     @Override
     @NotForRecordField

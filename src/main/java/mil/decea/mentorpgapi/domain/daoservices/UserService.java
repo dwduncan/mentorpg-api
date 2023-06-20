@@ -4,7 +4,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.criteria.*;
 import jakarta.transaction.Transactional;
-import mil.decea.mentorpgapi.domain.DTOValidator;
 import mil.decea.mentorpgapi.domain.daoservices.minio.ClientMinioImplemantationException;
 import mil.decea.mentorpgapi.domain.daoservices.minio.ClienteMinio;
 import mil.decea.mentorpgapi.domain.daoservices.repositories.UserRepository;
@@ -20,7 +19,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 @Service

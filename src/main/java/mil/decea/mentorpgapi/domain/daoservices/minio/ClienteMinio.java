@@ -178,7 +178,6 @@ public class ClienteMinio implements Serializable {
                     bucketExists.put(source.getBucket(),true);
                 }
 
-                System.out.println(source.getPreviousStorageDestinationPath() + " / " + source.getStorageDestinationPath());
                 //it is necessary to delete the file, otherwise it will become garbage
                 if (source.hasPreviousStorageDestinationPath()) {
                     //createBucketIfNotExists(client, bucketName);
@@ -302,20 +301,28 @@ public class ClienteMinio implements Serializable {
      *
      * @return uma url com validade para expirar para acessar o arquivo diretamente no minio
      */
-    public void insertSasUrl(MinioStorage<?> source, int expirationTime) throws ClientMinioImplemantationException {
+    public void insertSasUrl(MinioStorage<?> source, int expirationTimeInSeconds) throws ClientMinioImplemantationException {
 
         if (source.getExternalData().getNomeArquivo() == null || source.getExternalData().getNomeArquivo().isBlank()) return;
+        String url = createSasUrl(source.getBucket(), source.getStorageDestinationPath(),expirationTimeInSeconds);
+        source.getExternalData().setArquivoUrl(url);
+    }
+
+    public String createSasUrl(String bucket, String destinationPath) throws ClientMinioImplemantationException {
+        return createSasUrl(bucket, destinationPath, expiraEmSegundos);
+    }
+
+    public String createSasUrl(String bucket, String destinationPath, int expirationTimeInSeconds) throws ClientMinioImplemantationException {
 
         try {
             MinioClient client = minioClient();
-            //createBucketIfNotExists(client, source.getBucket());
-            String url = client.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
+
+            return client.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
                     .method(Method.GET)
-                    .bucket(source.getBucket())
-                    .object(source.getStorageDestinationPath())
-                    .expiry(expirationTime)
+                    .bucket(bucket)
+                    .object(destinationPath)
+                    .expiry(expirationTimeInSeconds)
                     .build());
-            source.getExternalData().setArquivoUrl(url);
         }
         catch(InvalidKeyException | ErrorResponseException | InsufficientDataException
               | InternalException | InvalidResponseException | NoSuchAlgorithmException

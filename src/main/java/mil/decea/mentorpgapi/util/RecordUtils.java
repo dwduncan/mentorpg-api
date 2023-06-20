@@ -2,17 +2,14 @@ package mil.decea.mentorpgapi.util;
 
 import jakarta.persistence.Embedded;
 import jakarta.validation.Constraint;
-import jdk.jshell.Snippet;
 import mil.decea.mentorpgapi.domain.BaseEntity;
-import mil.decea.mentorpgapi.domain.CollectionForRecordField;
-import mil.decea.mentorpgapi.domain.NotForRecordField;
-import mil.decea.mentorpgapi.domain.ObjectForRecordField;
-import mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio.StatusDoc;
+import mil.decea.mentorpgapi.domain.daoservices.datageneration.CollectionForRecordField;
+import mil.decea.mentorpgapi.domain.daoservices.datageneration.MethodDefaultValue;
+import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
+import mil.decea.mentorpgapi.domain.daoservices.datageneration.ObjectForRecordField;
+import mil.decea.mentorpgapi.domain.documents.UrlToDocumentRecord;
 import mil.decea.mentorpgapi.domain.documents.UserDocument;
 import mil.decea.mentorpgapi.domain.documents.UserDocumentRecord;
-import mil.decea.mentorpgapi.domain.user.AuthUserRecord;
-import mil.decea.mentorpgapi.domain.user.User;
-import mil.decea.mentorpgapi.domain.user.UserRecord;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -47,6 +44,8 @@ public class RecordUtils {
     public String generateRecord() throws IOException {
         return generateRecord(false);
     }
+
+
     public String generateRecord(boolean hasAdded) throws IOException {
         hasAddedField = hasAdded;
         fullConstructorFields = new ArrayList<>();
@@ -126,30 +125,53 @@ public class RecordUtils {
         for(Method method: classe.getMethods()){
 
             if (!method.isAnnotationPresent(NotForRecordField.class)) {
+                MethodDefaultValue methodDefaultValue = method.getAnnotation(MethodDefaultValue.class);
                 try {
-                    Field field = getMethodField(method);
-                    if (field != null && !Modifier.isStatic(field.getModifiers()) && !field.isAnnotationPresent(NotForRecordField.class)) {
-                        CollectionForRecordField ofrf = field.getAnnotation(CollectionForRecordField.class);
-                        fullConstructorFields.add(new SimpleParam(field));
-                        if (method.getReturnType().isRecord()) {
-                            new RecordUtils(method.getReturnType()).generateRecord();
-                        }else if (ofrf != null && ofrf.elementsOfType() != Object.class) {
-                            String record = new RecordUtils(ofrf.elementsOfType()).generateRecord();
-                            processAttribute(field, prefixObjReference,prefixRecReference, ofrf, false);
-                        } else if (field.isAnnotationPresent(ObjectForRecordField.class)) {
-                            String record = new RecordUtils(method.getReturnType()).generateRecord();
-                            processAttribute(method, prefixObjReference,prefixRecReference);
-                        } else if (field.isAnnotationPresent(Embedded.class)) {
-                            String record = new RecordUtils(method.getReturnType()).generateRecord();
-                            processAttribute(record, prefixObjReference,prefixRecReference);
-                        } else {
-                            processAttribute(method, field, prefixObjReference,prefixRecReference);
+                    if (methodDefaultValue != null) {
+                        processAttribute(methodDefaultValue, method.getReturnType());
+                    }else{
+                        Field field = getMethodField(method);
+
+                        if (field != null && !Modifier.isStatic(field.getModifiers()) && !field.isAnnotationPresent(NotForRecordField.class)) {
+                            CollectionForRecordField ofrf = field.getAnnotation(CollectionForRecordField.class);
+                            fullConstructorFields.add(new SimpleParam(field));
+                            if (method.getReturnType().isRecord()) {
+                                new RecordUtils(method.getReturnType()).generateRecord();
+                            } else if (ofrf != null && ofrf.elementsOfType() != Object.class) {
+                                String record = new RecordUtils(ofrf.elementsOfType()).generateRecord();
+                                processAttribute(field, prefixObjReference, prefixRecReference, ofrf, false);
+                            } else if (field.isAnnotationPresent(ObjectForRecordField.class)) {
+                                String record = new RecordUtils(method.getReturnType()).generateRecord();
+                                processAttribute(method, prefixObjReference, prefixRecReference);
+                            } else if (field.isAnnotationPresent(Embedded.class)) {
+                                String record = new RecordUtils(method.getReturnType()).generateRecord();
+                                processAttribute(record, prefixObjReference, prefixRecReference);
+                            } else {
+                                processAttribute(method, field, prefixObjReference, prefixRecReference);
+                            }
                         }
                     }
                 } catch (Exception ignored) {
                 }
             }
         }
+    }
+
+    private void processAttribute(MethodDefaultValue methodDefaultValue, Class<?> returnType){
+        if (hasAddedField) {
+            main.append(",\r\n");
+            constructor.append(",\r\n\t\t\t");
+        }
+
+        if (!returnType.isPrimitive() && !(String.class.isAssignableFrom(returnType))
+                && !returnType.getPackage().equals(classe.getPackage()) && !impConf.contains(returnType.getName())) {
+            imps.append("import ").append(returnType.getName()).append(";\r\n");
+            impConf.add(returnType.getName());
+        }
+
+        constructor.append(methodDefaultValue.defaultValue());
+        main.append(returnType.getSimpleName()).append(" ").append(methodDefaultValue.fieldName());
+        hasAddedField = true;
     }
     private void processAttribute(Method method, Field field, String prefixObjReference, String prefixRecReference){
 
@@ -576,9 +598,12 @@ public class RecordUtils {
         RecordUtils.exportReactModel(UserRecord.class,targetDirATD);
 
         exportEnumsToTypeScript(targetDirATD, User.class);
-        */
 
-        RecordUtils.exportReactModel(UserDocumentRecord.class,targetDirATD);
+        */
+        //RecordUtils ru = new RecordUtils(UserDocument.class);
+        //ru.generateRecord();
+
+        RecordUtils.exportReactModel(UrlToDocumentRecord.class,targetDirATD);
 
         //exportEnumsToTypeScript(targetDirATD, StatusDoc.class);
 

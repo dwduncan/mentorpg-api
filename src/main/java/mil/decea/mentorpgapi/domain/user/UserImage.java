@@ -4,7 +4,7 @@ import jakarta.persistence.Embeddable;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import mil.decea.mentorpgapi.domain.NotForRecordField;
+import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
 import mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio.AbstractExternalData;
 import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
 

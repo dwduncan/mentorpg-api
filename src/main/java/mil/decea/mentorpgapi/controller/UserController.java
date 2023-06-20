@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 import mil.decea.mentorpgapi.domain.daoservices.DocumentsService;
 import mil.decea.mentorpgapi.domain.daoservices.UserService;
 import mil.decea.mentorpgapi.domain.daoservices.minio.ClientMinioImplemantationException;
+import mil.decea.mentorpgapi.domain.documents.UserDocumentRecord;
 import mil.decea.mentorpgapi.domain.user.AuthUserRecord;
 import mil.decea.mentorpgapi.domain.user.UserRecord;
 import mil.decea.mentorpgapi.domain.user.validation.annotations.IsValidCpf;
@@ -40,13 +41,6 @@ public class UserController {
         return ResponseEntity.ok(userService.save(dados));
     }
 
-    @PostMapping("/auth")
-    @Secured({"ADMIN","COORDENADOR"})
-    @Transactional
-    public ResponseEntity changeAuthentication(@RequestBody @Valid AuthUserRecord dados) {
-        userService.changePassword(dados);
-        return ResponseEntity.ok().build();
-    }
     @PostMapping("/otherpsw")
     @Secured({"ADMIN","COORDENADOR"})
     @Transactional
@@ -64,7 +58,6 @@ public class UserController {
         userService.changePassword(dados);
         return ResponseEntity.ok().build();
     }
-
 
     /*
        Por padrão esse recurso vem desabilitado no spring Security, sendo que para o utilizar devemos adicionar
@@ -106,6 +99,7 @@ public class UserController {
     public ResponseEntity getUserByID(@PathVariable("id") Long id){
         return ResponseEntity.ok(userService.getUserById(id));
     }
+
 
 
     @GetMapping("/cpf/{cpf}")

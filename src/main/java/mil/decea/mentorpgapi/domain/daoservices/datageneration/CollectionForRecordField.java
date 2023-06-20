@@ -1,4 +1,4 @@
-package mil.decea.mentorpgapi.domain;
+package mil.decea.mentorpgapi.domain.daoservices.datageneration;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

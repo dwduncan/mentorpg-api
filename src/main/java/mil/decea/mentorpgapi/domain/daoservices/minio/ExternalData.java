@@ -1,6 +1,6 @@
 package mil.decea.mentorpgapi.domain.daoservices.minio;
 
-import mil.decea.mentorpgapi.domain.NotForRecordField;
+import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
 
 import java.io.Serializable;
 

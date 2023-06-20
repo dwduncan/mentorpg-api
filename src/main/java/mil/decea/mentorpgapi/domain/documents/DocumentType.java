@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import mil.decea.mentorpgapi.domain.BaseEntity;
-import mil.decea.mentorpgapi.domain.NotForRecordField;
+import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
 
 @Entity
 @Table(schema = "mentorpgapi", name = "documenttype")
