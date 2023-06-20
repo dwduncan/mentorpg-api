@@ -12,7 +12,7 @@ import mil.decea.mentorpgapi.domain.daoservices.minio.ExternalData;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class ExternalDataEntity<T extends ExternalData> extends AbstractExternalData<T> {
+public abstract class ExternalDataEntity<T extends ExternalData<T>> extends AbstractExternalData<T> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

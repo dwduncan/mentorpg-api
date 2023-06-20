@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class AbstractExternalData<T extends ExternalData> implements ExternalData<T> {
+public abstract class AbstractExternalData<T extends ExternalData<T>> implements ExternalData<T> {
 
     @Column(columnDefinition = "TEXT")
     protected String formato;

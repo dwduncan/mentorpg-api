@@ -7,9 +7,7 @@ import mil.decea.mentorpgapi.domain.daoservices.datageneration.CollectionForReco
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.MethodDefaultValue;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.ObjectForRecordField;
-import mil.decea.mentorpgapi.domain.documents.UrlToDocumentRecord;
-import mil.decea.mentorpgapi.domain.documents.UserDocument;
-import mil.decea.mentorpgapi.domain.documents.UserDocumentRecord;
+import mil.decea.mentorpgapi.domain.documents.ViewDocumentRecord;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -603,7 +601,7 @@ public class RecordUtils {
         //RecordUtils ru = new RecordUtils(UserDocument.class);
         //ru.generateRecord();
 
-        RecordUtils.exportReactModel(UrlToDocumentRecord.class,targetDirATD);
+        RecordUtils.exportReactModel(ViewDocumentRecord.class,targetDirHome);
 
         //exportEnumsToTypeScript(targetDirATD, StatusDoc.class);
 
