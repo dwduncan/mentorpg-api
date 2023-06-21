@@ -4,7 +4,7 @@ import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField
 
 import java.io.Serializable;
 
-public interface ExternalData<T extends ExternalData> extends Serializable {
+public interface ExternalData<T extends ExternalData<T>> extends Serializable, MinioStorage<T> {
     String getFormato();
 
     String getNomeArquivo();

@@ -6,7 +6,11 @@ import jakarta.persistence.criteria.*;
 import jakarta.transaction.Transactional;
 import mil.decea.mentorpgapi.domain.daoservices.minio.ClientMinioImplemantationException;
 import mil.decea.mentorpgapi.domain.daoservices.minio.ClienteMinio;
+import mil.decea.mentorpgapi.domain.daoservices.repositories.UserDocumentRepository;
 import mil.decea.mentorpgapi.domain.daoservices.repositories.UserRepository;
+import mil.decea.mentorpgapi.domain.documents.ExternalDocumentRecord;
+import mil.decea.mentorpgapi.domain.documents.UserDocument;
+import mil.decea.mentorpgapi.domain.documents.UserDocumentRecord;
 import mil.decea.mentorpgapi.domain.user.*;
 import mil.decea.mentorpgapi.etc.exceptions.MentorValidationException;
 import mil.decea.mentorpgapi.etc.security.FirstAdminRecord;
@@ -25,16 +29,21 @@ import java.util.Locale;
 public class UserService implements UserDetailsService {
 
     private final UserRepository repository;
+
+    UserDocumentRepository userDocumentRepository;
+
     private final List<DTOValidator<UserRecord>> validators;
     private final EntityManager entityManager;
 
     private final ClienteMinio clienteMinio;
     @Autowired
     public UserService( UserRepository repository,
+                        UserDocumentRepository userDocumentRepository,
                         List<DTOValidator<UserRecord>> validators,
                         EntityManager entityManager,
                         ClienteMinio clienteMinio) {
         this.repository = repository;
+        this.userDocumentRepository = userDocumentRepository;
         this.validators = validators;
         this.entityManager = entityManager;
         this.clienteMinio = clienteMinio;
@@ -114,6 +123,35 @@ public class UserService implements UserDetailsService {
         } catch (Exception e){
             e.printStackTrace();
             throw new MentorValidationException("Shit happens!");
+        }
+    }
+
+    @Transactional
+    public UserDocumentRecord saveUserDocument(UserDocumentRecord dados) throws ClientMinioImplemantationException {
+
+        if (dados.userId() == null){
+            throw new MentorValidationException("É necessário vincular um usuário ao documento!");
+        }
+
+        try {
+
+            var user = repository.getReferenceById(dados.userId());
+            UserDocument userDoc;
+            if (dados.id() == null || dados.id() < 1){
+                userDoc = new UserDocument(user);
+            }else{
+                userDoc = userDocumentRepository.getReferenceById(dados.id());
+            }
+            userDoc.setUserDocument(dados);
+            userDoc = userDocumentRepository.save(userDoc);
+            clienteMinio.updateObject(userDoc);
+
+            return new UserDocumentRecord(userDoc);
+        } catch (ClientMinioImplemantationException e) {
+            throw new ClientMinioImplemantationException(e);
+        } catch (Exception e){
+            e.printStackTrace();
+            throw new MentorValidationException("Falha ao salvar documento pessoal");
         }
     }
 

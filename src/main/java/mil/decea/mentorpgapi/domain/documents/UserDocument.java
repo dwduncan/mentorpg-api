@@ -8,7 +8,6 @@ import lombok.Setter;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.MethodDefaultValue;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.ObjectForRecordField;
-import mil.decea.mentorpgapi.domain.daoservices.minio.MinioStorage;
 import mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio.ExternalDataEntity;
 import mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio.StatusDoc;
 import mil.decea.mentorpgapi.domain.user.User;
@@ -19,7 +18,7 @@ import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserDocument extends ExternalDataEntity<UserDocument> implements MinioStorage<UserDocument> {
+public class UserDocument extends ExternalDataEntity<UserDocument> {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -36,10 +35,14 @@ public class UserDocument extends ExternalDataEntity<UserDocument> implements Mi
     private boolean obrigatorio;
     private Long idExigencia;
 
+    public UserDocument(@NotNull User user){
+        this.user = user;
+    }
+
     @NotForRecordField
     public void setUserDocument(UserDocumentRecord rec) {
+        this.setPreviousFileName(getNomeArquivo());
         this.setTipoDocumentacao(new DocumentType(rec.tipoDocumentacao()));
-        this.setPreviousFileName(rec.previousFileName());
         this.setMotivoRecusa(rec.motivoRecusa());
         this.setIdExigencia(rec.idExigencia());
         this.setObrigatorio(rec.obrigatorio());
@@ -53,6 +56,20 @@ public class UserDocument extends ExternalDataEntity<UserDocument> implements Mi
         this.setBase64Data(rec.base64Data());
         this.setArquivoUrl(rec.arquivoUrl());
     }
+
+    @NotForRecordField
+    public void updateUserDocument(ExternalDocumentRecord rec) {
+        if (rec.documentTypeRecord() != null) this.setTipoDocumentacao(new DocumentType(rec.documentTypeRecord()));
+        if (rec.motivoRecusa() != null && !rec.motivoRecusa().isBlank()) this.setMotivoRecusa(rec.motivoRecusa());
+        if (rec.statusDocumento() != null) this.setStatusDocumento(rec.statusDocumento());
+        if (rec.nomeArquivo() != null && !rec.nomeArquivo().isBlank()) this.setNomeArquivo(rec.nomeArquivo());
+        if (rec.formato() != null && !rec.formato().isBlank()) this.setFormato(rec.formato());
+        if (rec.tamanho() > 0) this.setTamanho(rec.tamanho());
+        if (rec.dataHoraUpload() != null && !rec.dataHoraUpload().isBlank()) this.setDataHoraUpload(DateTimeAPIHandler.converterStringDate(rec.dataHoraUpload()));
+        if (rec.base64Data() != null && !rec.base64Data().isBlank()) this.setBase64Data(rec.base64Data());
+        if (rec.arquivoUrl() != null && !rec.arquivoUrl().isBlank()) this.setArquivoUrl(rec.arquivoUrl());
+    }
+
     @NotForRecordField
     public UserDocument(UserDocumentRecord rec) {
         setUserDocument(rec);
@@ -76,6 +93,12 @@ public class UserDocument extends ExternalDataEntity<UserDocument> implements Mi
     public String getPreviousStorageDestinationPath() {
         return user.getId() + "/type" + getTipoDocumentacao().getId() + "/" + previousFileName;
     }
+
+    @MethodDefaultValue(fieldName = "userId", defaultValue = "obj.getUser().getId()")
+    public Long getUserId() {
+        return getUser().getId();
+    }
+
     @Override
     public UserDocument getExternalData() {
         return this;

@@ -33,4 +33,27 @@ public class UserImage extends AbstractExternalData<UserImage> {
         this.setDataHoraUpload(previousEntity.getDataHoraUpload());
         this.setTamanho(previousEntity.getTamanho());
     }
+
+    @NotForRecordField
+    @Override
+    public String getBucket() {
+        return "userimage";
+    }
+    @NotForRecordField
+    @Override
+    public String getStorageDestinationPath() {
+        return null ;
+    }
+
+    @Override
+    @NotForRecordField
+    public UserImage getExternalData() {
+        return this;
+    }
+
+    @Override
+    @NotForRecordField
+    public String getPreviousStorageDestinationPath() {
+        return null;
+    }
 }
