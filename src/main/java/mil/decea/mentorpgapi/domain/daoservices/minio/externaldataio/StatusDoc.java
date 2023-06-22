@@ -1,5 +1,7 @@
 package mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio;
 
+import mil.decea.mentorpgapi.domain.changewatch.InnerValueChange;
+
 /**
  * Força Aérea Brasileira - (FAB)
  * Instituto Tecnológico de Aeronáutica - (ITA)
@@ -11,20 +13,24 @@ package mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio;
  * Date: 25/03/2021
  * Time: 13:30
  */
+
+@InnerValueChange("getRotulo()")
 public enum StatusDoc {
 
-    NOVO(true,"Nenhum arquivo carregado"),
-    INSERIDO(true,"Carregado"),
-    RECUSADO(true,"O arquivo possui problemas que o impede de ser aceito"),
-    EMANALISE(false,"Documento sob an\u00E1lise"),
-    APROVADO(false,"Aprovado");
+    NOVO(true,"Nenhum arquivo carregado","Rascunho"),
+    INSERIDO(true,"Carregado","Enviado"),
+    RECUSADO(true,"O arquivo possui problemas que o impede de ser aceito","Recusado"),
+    EMANALISE(false,"Documento sob an\u00E1lise","Em análise"),
+    APROVADO(false,"Aprovado","Aprovado");
 
     private boolean habilitarUpload;
     private String mensagem;
+    private String rotulo;
 
-    StatusDoc(boolean habilitarUpload, String mensagem) {
+    StatusDoc(boolean habilitarUpload, String mensagem, String rotulo) {
         this.habilitarUpload = habilitarUpload;
         this.mensagem = mensagem;
+        this.rotulo = rotulo;
     }
 
 
@@ -34,5 +40,9 @@ public enum StatusDoc {
 
     public boolean isHabilitarUpload() {
         return habilitarUpload;
+    }
+
+    public String getRotulo() {
+        return rotulo;
     }
 }

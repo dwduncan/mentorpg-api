@@ -1,6 +1,6 @@
 package mil.decea.mentorpgapi.domain.user;
 
-import mil.decea.mentorpgapi.domain.changewatch.InneValueChange;
+import mil.decea.mentorpgapi.domain.changewatch.InnerValueChange;
 
 import java.util.Arrays;
 
@@ -16,7 +16,7 @@ import java.util.Arrays;
  * Time: 14:59
  */
 
-@InneValueChange("getSigla()")
+@InnerValueChange("getSigla()")
 public enum Titulacao {
 
     SENHOR("Senhor", "Sr.", "Sra."),

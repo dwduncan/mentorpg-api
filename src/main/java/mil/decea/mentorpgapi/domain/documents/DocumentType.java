@@ -6,9 +6,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import mil.decea.mentorpgapi.domain.BaseEntity;
+import mil.decea.mentorpgapi.domain.SequenceIdEntity;
+import mil.decea.mentorpgapi.domain.changewatch.FieldChanged;
+import mil.decea.mentorpgapi.domain.changewatch.ObjectChangesChecker;
 import mil.decea.mentorpgapi.domain.changewatch.TrackChange;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
+
+import java.util.List;
 
 @Entity
 @Table(schema = "mentorpgapi", name = "documenttype")
@@ -17,7 +21,7 @@ import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField
 @NoArgsConstructor
 @AllArgsConstructor
 @TrackChange(recordClass = DocumentTypeRecord.class)
-public class DocumentType extends BaseEntity<DocumentType,DocumentTypeRecord> implements Comparable<DocumentType> {
+public class DocumentType extends SequenceIdEntity<DocumentTypeRecord> implements Comparable<DocumentType> {
 
     private String tipo;
     @Override
@@ -30,10 +34,15 @@ public class DocumentType extends BaseEntity<DocumentType,DocumentTypeRecord> im
         return getTipo().compareToIgnoreCase(o.getTipo());
     }
     @NotForRecordField
-    public void updateValues(DocumentTypeRecord rec) {
+    public List<FieldChanged> onValuesUpdated(DocumentTypeRecord rec) {
+
+        List<FieldChanged> changes = new ObjectChangesChecker<>(this, rec).getChangesList();
+
         this.setTipo(rec.tipo());
         this.setId(rec.id());
         this.setAtivo(rec.ativo());
+
+        return changes;
     }
 
 

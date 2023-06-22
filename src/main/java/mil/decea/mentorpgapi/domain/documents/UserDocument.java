@@ -5,8 +5,10 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import mil.decea.mentorpgapi.domain.changewatch.FieldChanged;
 import mil.decea.mentorpgapi.domain.changewatch.IgnoreTrackChange;
 import mil.decea.mentorpgapi.domain.changewatch.TrackChange;
+import mil.decea.mentorpgapi.domain.changewatch.TrackedElementCollection;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.MethodDefaultValue;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.ObjectForRecordField;
@@ -16,13 +18,17 @@ import mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio.StatusDoc;
 import mil.decea.mentorpgapi.domain.user.User;
 import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Table(name = "userdocs", schema = "mentorpgapi")
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
-@TrackChange(recordClass = UserDocumentRecord.class)
-public class UserDocument extends ExternalDataEntity<UserDocument, UserDocumentRecord> implements MinioStorage<UserDocument> {
+@TrackChange(recordClass = UserDocumentRecord.class, onlyWithFieldsName = {"motivoRecusa", "statusDocumento", "nomeArquivo"})
+public class UserDocument extends ExternalDataEntity<UserDocumentRecord> implements MinioStorage<UserDocument>, TrackedElementCollection<UserDocument, UserDocumentRecord> {
+
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -32,6 +38,7 @@ public class UserDocument extends ExternalDataEntity<UserDocument, UserDocumentR
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @ObjectForRecordField
+    @IgnoreTrackChange
     private DocumentType tipoDocumentacao;
     @Enumerated(EnumType.ORDINAL)
     private StatusDoc statusDocumento = StatusDoc.NOVO;
@@ -41,7 +48,8 @@ public class UserDocument extends ExternalDataEntity<UserDocument, UserDocumentR
     private Long idExigencia;
 
     @NotForRecordField
-    public void updateValues(UserDocumentRecord rec) {
+    public List<FieldChanged> onValuesUpdated(UserDocumentRecord rec) {
+
         this.setTipoDocumentacao(new DocumentType(rec.tipoDocumentacao()));
         this.setPreviousFileName(rec.previousFileName());
         this.setMotivoRecusa(rec.motivoRecusa());
@@ -56,10 +64,14 @@ public class UserDocument extends ExternalDataEntity<UserDocument, UserDocumentR
         this.setDataHoraUpload(DateTimeAPIHandler.converterStringDate(rec.dataHoraUpload()));
         this.setBase64Data(rec.base64Data());
         this.setArquivoUrl(rec.arquivoUrl());
+
+        return new ArrayList<>();
     }
+
+
     @NotForRecordField
     public UserDocument(UserDocumentRecord rec) {
-        updateValues(rec);
+        onValuesUpdated(rec);
     }
 
 
@@ -88,6 +100,7 @@ public class UserDocument extends ExternalDataEntity<UserDocument, UserDocumentR
 
     @Override
     public void copyFields(UserDocument previousEntity) {
+
         this.setTipoDocumentacao(previousEntity.getTipoDocumentacao());
         this.setPreviousFileName(previousEntity.getPreviousFileName());
         this.setMotivoRecusa(previousEntity.getMotivoRecusa());
@@ -109,4 +122,5 @@ public class UserDocument extends ExternalDataEntity<UserDocument, UserDocumentR
         return user.getEntityDescriptor() + " - " + getTipoDocumentacao().getTipo()
                 + " - " + getNomeArquivo();
     }
+
 }

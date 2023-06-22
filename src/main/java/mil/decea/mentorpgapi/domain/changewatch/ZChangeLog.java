@@ -21,12 +21,15 @@ public class ZChangeLog implements FieldChangedWatcher{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
 
-    @Column(columnDefinition = "TEXT")
-    protected String before;
     @NotNull
     @Column(columnDefinition = "TEXT")
-    protected String afterOrMessage;
+    protected String previousValueOrMessage;
 
+    @NotNull
+    protected Long parentId;
+    @NotNull
+    @Column(columnDefinition = "TEXT")
+    protected String parentClass;
 
     @NotNull
     protected Long objectId;
@@ -50,12 +53,6 @@ public class ZChangeLog implements FieldChangedWatcher{
 
     protected boolean neverExpires = false;
 
-    @NotNull
-    @Column(columnDefinition = "TEXT")
-    protected Long objectOwnerId;
-    @NotNull
-    @Column(columnDefinition = "TEXT")
-    protected String objectOwnerClass;
 
 
 }

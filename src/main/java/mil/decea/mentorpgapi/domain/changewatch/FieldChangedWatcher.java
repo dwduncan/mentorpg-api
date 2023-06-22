@@ -9,13 +9,13 @@ public interface FieldChangedWatcher {
 
     String getFieldType();
 
-    String getBefore();
+    String getPreviousValueOrMessage();
 
-    String getAfterOrMessage();
+    Long getParentId();
 
-    Long getObjectOwnerId();
+    String getParentClass();
 
-    String getObjectOwnerClass();
+    boolean isNeverExpires();
 
     void setObjectId(Long objectId);
 
@@ -25,11 +25,11 @@ public interface FieldChangedWatcher {
 
     void setFieldType(String fieldType);
 
-    void setBefore(String before);
+    void setPreviousValueOrMessage(String previousValueOrMessage);
 
-    void setAfterOrMessage(String afterOrMessage);
+    void setParentId(Long objectOwnerId);
 
-    void setObjectOwnerId(Long objectOwnerId);
+    void setParentClass(String objectOwnerClass);
 
-    void setObjectOwnerClass(String objectOwnerClass);
+    void setNeverExpires(boolean neverExpires);
 }

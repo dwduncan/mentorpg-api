@@ -5,9 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import mil.decea.mentorpgapi.domain.BaseEntity;
-import mil.decea.mentorpgapi.domain.changewatch.NoValueTrack;
-import mil.decea.mentorpgapi.domain.changewatch.TrackChange;
+import mil.decea.mentorpgapi.domain.SequenceIdEntity;
+import mil.decea.mentorpgapi.domain.changewatch.*;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.CollectionForRecordField;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
 import mil.decea.mentorpgapi.domain.daoservices.minio.MinioStorage;
@@ -31,7 +30,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @TrackChange(recordClass = UserRecord.class)
-public class User extends BaseEntity<User, UserRecord> implements UserDetails, MinioStorage<UserImage> {
+public class User extends SequenceIdEntity<UserRecord> implements UserDetails, MinioStorage<UserImage> {
 
     @IsValidCpf
     @NotNull(message = "Informe um CPF válido")
@@ -272,11 +271,14 @@ public class User extends BaseEntity<User, UserRecord> implements UserDetails, M
     }
 
     @NotForRecordField
-    public void updateValues(UserRecord rec) {
+    public List<FieldChanged> onValuesUpdated(UserRecord rec) {
+
+        List<FieldChanged> changes = new ObjectChangesChecker<>(this, rec).getChangesList();
+
         this.setPttc(rec.pttc());
         this.setQuadro(rec.quadro());
         this.setCpf(rec.cpf());
-        this.getUserImage().setUserImage(rec.userImageRecord());
+        this.getUserImage().onValuesUpdated(rec.userImageRecord());
         this.setAntiguidadeRelativa(rec.antiguidadeRelativa());
         this.setTitulacao(rec.titulacao());
         this.setUltimaPromocao(DateTimeAPIHandler.converterStringDate(rec.ultimaPromocao()));
@@ -299,13 +301,15 @@ public class User extends BaseEntity<User, UserRecord> implements UserDetails, M
         this.setObservacoes(rec.observacoes());
         this.setId(rec.id());
         this.setAtivo(rec.ativo());
+
+        return changes;
     }
 
 
 
     @NotForRecordField
     public User(UserRecord rec) {
-        updateValues(rec);
+        onValuesUpdated(rec);
     }
 
     @Override

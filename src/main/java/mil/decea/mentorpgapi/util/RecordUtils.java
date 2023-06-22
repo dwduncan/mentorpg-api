@@ -2,10 +2,9 @@ package mil.decea.mentorpgapi.util;
 
 import jakarta.persistence.Embedded;
 import jakarta.validation.Constraint;
-import mil.decea.mentorpgapi.domain.BaseEntity;
+import mil.decea.mentorpgapi.domain.SequenceIdEntity;
+import mil.decea.mentorpgapi.domain.changewatch.TrackChange;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.*;
-import mil.decea.mentorpgapi.domain.documents.ExternalDocumentRecord;
-import mil.decea.mentorpgapi.domain.documents.UserDocument;
 import mil.decea.mentorpgapi.domain.documents.UserDocumentRecord;
 
 import java.io.FileWriter;
@@ -56,11 +55,17 @@ public class RecordUtils {
 
         constructor = new StringBuilder(_constructorDeclaration);
 
-        String setterWay = "\r\n\t@NotForRecordField\r\n\tpublic void ";
-        String constructorWay = "\r\n\t@NotForRecordField\r\n\tpublic ";
+        String setterWay = "\r\n\t@NotForRecordField\r\n\tpublic List<FieldChanged> ";
 
-        String declaration = "updateValues(" + recName + " rec) {";
-        reverseConstructor = new StringBuilder(declaration);
+        String c = "mil.decea.mentorpgapi.domain.IdentifiedRecord";
+        impConf.add(c);
+        imps.append("import ").append(c).append(";\r\n");
+        boolean isTracked = classe.isAnnotationPresent(TrackChange.class);
+
+        reverseConstructor = new StringBuilder().append("onValuesUpdated(").append(recName).append(" rec) {\r\n\r\n");
+        String _changes = isTracked ? "List<FieldChanged> changes = new ObjectChangesChecker<>(this, rec).getChangesList();\r\n\r\n" :
+                "List<FieldChanged> changes = new ArrayList();\r\n\r\n";
+        reverseConstructor.append(_changes);
 
         main.append(recName).append("(\r\n");
 
@@ -102,16 +107,10 @@ public class RecordUtils {
             }
         }
 
-        String c = "mil.decea.mentorpgapi.domain.IdentifiedRecord";
-
-        if (!impConf.contains(c)) {
-            impConf.add(c);
-            imps.append("import ").append(c).append(";\r\n");
-        }
 
         main.append(") implements IdentifiedRecord {");
         constructor.append(");\r\n\t}\r\n");
-        reverseConstructor.append("\r\n\t}\r\n");
+        reverseConstructor.append("\r\n\r\n\t\treturn changes;").append("\r\n\t}\r\n");
         main.append(constructor).append(additionalConstructors);
         main.append("}");
         String corpo = main.toString().replace("{IMPORTS}",imps.toString());
@@ -119,7 +118,6 @@ public class RecordUtils {
         arq.write(corpo);
         arq.close();
         System.out.println(setterWay + reverseConstructor);
-        System.out.println(constructorWay + declaration + "\r\n\t\t set" + classe.getSimpleName() + "(rec);\r\n\t}");
 
         return classe.getPackage().getName() + "." + recName;
     }
@@ -243,7 +241,7 @@ public class RecordUtils {
         String name = pack[pack.length-1];
         String objName =  name.replace("Record","(");
         String fieldName = name.substring(0, 1).toLowerCase() + name.substring(1);
-        String methodSetName = ".set" + objName;
+        String methodSetName = ".onValuesUpdated";//"".set" + objName;
         String methodGetName = "this.get" + objName + ")";
 
         if (!impConf.contains(recordField)) {
@@ -380,7 +378,7 @@ public class RecordUtils {
 
         boolean b = false;
 
-        if (BaseEntity.class.isAssignableFrom(classe)){
+        if (SequenceIdEntity.class.isAssignableFrom(classe)){
             b = true;
             fieldsDeclaretionBuilder.append("\r\n\tid:\tstring;");
             classBuilderConstructor.append("\t\t\tthis.id = obj.id;");
@@ -404,7 +402,7 @@ public class RecordUtils {
             }
 
             if (Collection.class.isAssignableFrom(field.getType())){
-                Class<?> elementClass = ElementsType.getElementType(field);
+                Class<?> elementClass = ReflectionUtils.getElementType(field);
                 String recordName = "I" + elementClass.getSimpleName();
                 String type = recordName + "[]";
                 fieldsDeclaretionBuilder.append("\t").append(campo).append(optional ? "?" : "").append(": ").append(type);

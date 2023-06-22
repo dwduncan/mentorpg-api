@@ -1,7 +1,9 @@
 package mil.decea.mentorpgapi.domain.user;
 
-import java.util.Arrays;
+import mil.decea.mentorpgapi.domain.changewatch.InnerValueChange;
 
+import java.util.Arrays;
+@InnerValueChange("getNome()")
 public enum EstadoCivil {
 
     SOL("Solteiro(a)"),

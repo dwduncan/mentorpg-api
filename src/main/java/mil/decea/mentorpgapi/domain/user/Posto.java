@@ -1,7 +1,7 @@
 
 package mil.decea.mentorpgapi.domain.user;
 
-import mil.decea.mentorpgapi.domain.changewatch.InneValueChange;
+import mil.decea.mentorpgapi.domain.changewatch.InnerValueChange;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  * Time: 19:24
  */
 
-@InneValueChange("getSigla()")
+@InnerValueChange("getSigla()")
 public enum Posto {
 
     TB("Ten Brig","Tenente Brigadeiro",2, true, false, false),

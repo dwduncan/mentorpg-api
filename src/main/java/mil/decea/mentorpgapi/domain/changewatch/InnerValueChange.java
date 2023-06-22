@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
-public @interface InneValueChange {
+public @interface InnerValueChange {
 
     /**
      * Se o nome fornecido terminar com (), significa que é o nome de um método, caso contrário refere-se

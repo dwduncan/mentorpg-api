@@ -1,8 +1,9 @@
 package mil.decea.mentorpgapi.domain.changewatch;
 
 import mil.decea.mentorpgapi.domain.IdentifiedRecord;
+import mil.decea.mentorpgapi.domain.TrackedEntity;
 import mil.decea.mentorpgapi.domain.user.User;
-import mil.decea.mentorpgapi.util.ElementsType;
+import mil.decea.mentorpgapi.util.ReflectionUtils;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
@@ -18,7 +19,7 @@ import java.util.stream.Collectors;
 public class WatcherService {
 
 
-    public List<ZChangeLog> checkChanges(ChangeWatcher<?> previousObject, IdentifiedRecord updatedObject, User responsable){
+    public List<ZChangeLog> checkChanges(TrackedEntity<?> previousObject, IdentifiedRecord updatedObject, User responsable){
 
         TrackChange tcAnnotation = previousObject.getClass().getAnnotation(TrackChange.class);
 
@@ -55,7 +56,7 @@ public class WatcherService {
         return null;
     }
 
-    private ZChangeLog createLog(User user, ChangeWatcher<?> previousObject, IdentifiedRecord updatedObject ,Field fieldBefore){
+    private ZChangeLog createLog(User user, TrackedEntity<?> previousObject, IdentifiedRecord updatedObject ,Field fieldBefore){
 
         if (fieldBefore.isAnnotationPresent(IgnoreTrackChange.class)) return null;
 
@@ -63,13 +64,13 @@ public class WatcherService {
 
         NoValueTrack nvTrack = fieldBefore.getAnnotation(NoValueTrack.class);
         if (nvTrack != null){
-            zlog.setAfterOrMessage(nvTrack.value());
+            zlog.setPreviousValueOrMessage(nvTrack.value());
         }else{
 
             try{
                 Field fieldAfter = updatedObject.getClass().getDeclaredField(fieldBefore.getName());
                 zlog.setBefore(getFieldValue(fieldBefore, previousObject));
-                zlog.setAfterOrMessage(getFieldValue(fieldAfter, updatedObject));
+                zlog.setPreviousValueOrMessage(getFieldValue(fieldAfter, updatedObject));
             }catch (Exception ex){
                 ex.printStackTrace();
                 return null;
@@ -78,11 +79,11 @@ public class WatcherService {
         return zlog;
     }
 
-    private ZChangeLog createBasicLog(User user, ChangeWatcher<?> previousObject, Field fieldBefore){
+    private ZChangeLog createBasicLog(User user, TrackedEntity<?> previousObject, Field fieldBefore){
         ZChangeLog zlog = new ZChangeLog();
         zlog.setResponsableId(user.getId());
         zlog.setResponsableName(user.getNomeQualificado() + " / " + user.getNomeCompleto());
-        zlog.setObjectClass(previousObject.getChangingObject().getClass().getName());
+        zlog.setObjectClass(previousObject.getClass().getName());
         zlog.setFieldName(fieldBefore.getName());
         zlog.setObjectId(previousObject.getId());
         zlog.setFieldType(fieldBefore.getType().getName());
@@ -92,9 +93,9 @@ public class WatcherService {
     }
 
 
-    private List<ZChangeLog> checkField(User user, ChangeWatcher<?> previousObject, IdentifiedRecord updatedObject ,Field fieldBefore){
+    private List<ZChangeLog> checkField(User user, TrackedEntity<?> previousObject, IdentifiedRecord updatedObject ,Field fieldBefore){
 
-        Class<?> elementType = ElementsType.getElementTypeOrNull(fieldBefore);
+        Class<?> elementType = ReflectionUtils.getElementTypeOrNull(fieldBefore);
 
         if (elementType == null) {
             ZChangeLog _log = createLog(user, previousObject, updatedObject, fieldBefore);
@@ -104,7 +105,7 @@ public class WatcherService {
             if (elementTC != null){
                 try{
                     Field fieldAfter = elementTC.recordClass().getDeclaredField(fieldBefore.getName());
-                    List<? extends ChangeWatcher<?>> beforeList = (List<? extends ChangeWatcher<?>>) fieldBefore.get(previousObject);
+                    List<? extends TrackedEntity<?>> beforeList = (List<? extends TrackedEntity<?>>) fieldBefore.get(previousObject);
                     List<? extends IdentifiedRecord> afterList = (List<? extends IdentifiedRecord>) fieldAfter.get(updatedObject);
                     Map<Long, IdentifiedRecord> afterMap = new HashMap<>();
                     if (afterList != null) {
@@ -114,7 +115,7 @@ public class WatcherService {
                             }
                         }
                     }
-                    Map<Long, ? extends ChangeWatcher<?>> beforeMap = beforeList.stream().collect(Collectors.toMap(ChangeWatcher::getId, Function.identity()));
+                    Map<Long, ? extends TrackedEntity<?>> beforeMap = beforeList.stream().collect(Collectors.toMap(TrackedEntity::getId, Function.identity()));
 
                 }catch (Exception ignore){}
             }
@@ -128,7 +129,7 @@ public class WatcherService {
 
 
     private String getFieldValue(Field field, Object obj) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, NoSuchFieldException {
-        InneValueChange ivc = field.getType().getAnnotation(InneValueChange.class);
+        InnerValueChange ivc = field.getType().getAnnotation(InnerValueChange.class);
         if (ivc != null){
             boolean isMethod = ivc.value().endsWith("()");
             Object value;

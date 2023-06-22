@@ -6,14 +6,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import mil.decea.mentorpgapi.domain.IdentifiedRecord;
-import mil.decea.mentorpgapi.domain.daoservices.minio.ExternalData;
+import mil.decea.mentorpgapi.domain.changewatch.TrackedElementCollection;
 
 @MappedSuperclass
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class ExternalDataEntity<T extends ExternalDataEntity<T, Z>, Z extends IdentifiedRecord> extends AbstractExternalData<T,Z> {
+public abstract class ExternalDataEntity<Z extends IdentifiedRecord> extends AbstractExternalData<Z> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

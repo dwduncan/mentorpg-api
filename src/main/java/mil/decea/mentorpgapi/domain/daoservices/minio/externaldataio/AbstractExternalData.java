@@ -7,10 +7,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import mil.decea.mentorpgapi.domain.BaseEntity;
 import mil.decea.mentorpgapi.domain.IdentifiedRecord;
+import mil.decea.mentorpgapi.domain.TrackedEntity;
 import mil.decea.mentorpgapi.domain.daoservices.minio.ExternalData;
-import mil.decea.mentorpgapi.domain.daoservices.minio.MinioStorage;
 
 import java.time.LocalDateTime;
 
@@ -19,7 +18,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class AbstractExternalData<T extends AbstractExternalData<T, Z>, Z extends IdentifiedRecord> implements ExternalData<T,Z> {
+public abstract class AbstractExternalData<Z extends IdentifiedRecord> extends TrackedEntity<Z> implements ExternalData {
 
     @Column(columnDefinition = "TEXT")
     protected String formato;
@@ -42,10 +41,6 @@ public abstract class AbstractExternalData<T extends AbstractExternalData<T, Z>,
         this.nomeArquivo = nomeArquivo;
     }
 
-    @Override
-    public AbstractExternalData<T,Z> getChangingObject() {
-        return this;
-    }
 
 //@MethodDefaultValue(fieldName = "bucket",defaultValue = "\"userdocuments\"")
 

@@ -10,5 +10,5 @@ import java.lang.annotation.*;
 public @interface TrackChange {
 
     Class<? extends Record> recordClass() default EmptyRecord.class;
-
+    String[] onlyWithFieldsName() default {};
 }

@@ -8,7 +8,6 @@ import mil.decea.mentorpgapi.domain.daoservices.minio.ClientMinioImplemantationE
 import mil.decea.mentorpgapi.domain.daoservices.minio.ClienteMinio;
 import mil.decea.mentorpgapi.domain.daoservices.repositories.UserDocumentRepository;
 import mil.decea.mentorpgapi.domain.daoservices.repositories.UserRepository;
-import mil.decea.mentorpgapi.domain.documents.ExternalDocumentRecord;
 import mil.decea.mentorpgapi.domain.documents.UserDocument;
 import mil.decea.mentorpgapi.domain.documents.UserDocumentRecord;
 import mil.decea.mentorpgapi.domain.user.*;
@@ -111,7 +110,7 @@ public class UserService implements UserDetailsService {
     @Transactional
     public UserRecord save(UserRecord dados) throws ClientMinioImplemantationException {
         var entity = dados.id() == null ? new User() : repository.getReferenceById(dados.id());
-        entity.updateValues(dados);
+        entity.onValuesUpdated(dados);
         try {
             clienteMinio.updateObject(entity.getDocuments());
             boolean did = clienteMinio.updateObject(entity);
