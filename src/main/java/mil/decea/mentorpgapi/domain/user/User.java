@@ -5,8 +5,12 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import mil.decea.mentorpgapi.domain.IdentifiedRecord;
 import mil.decea.mentorpgapi.domain.SequenceIdEntity;
-import mil.decea.mentorpgapi.domain.changewatch.*;
+import mil.decea.mentorpgapi.domain.changewatch.ObjectChangesChecker;
+import mil.decea.mentorpgapi.domain.changewatch.logs.FieldChangedWatcher;
+import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.NoValueTrack;
+import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.TrackChange;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.CollectionForRecordField;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
 import mil.decea.mentorpgapi.domain.daoservices.minio.MinioStorage;
@@ -29,8 +33,8 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@TrackChange(recordClass = UserRecord.class)
-public class User extends SequenceIdEntity<UserRecord> implements UserDetails, MinioStorage<UserImage> {
+@TrackChange
+public class User extends SequenceIdEntity implements UserDetails, MinioStorage {
 
     @IsValidCpf
     @NotNull(message = "Informe um CPF válido")
@@ -265,15 +269,20 @@ public class User extends SequenceIdEntity<UserRecord> implements UserDetails, M
         return documents;
     }
 
-    public void setDocuments(List<UserDocument> _documents) {
-        updateDocumentsCollections(getDocuments(), _documents);
-        getDocuments().forEach(d -> d.setUser(this));
-    }
-
     @NotForRecordField
-    public List<FieldChanged> onValuesUpdated(UserRecord rec) {
+    public List<FieldChangedWatcher> onValuesUpdated(IdentifiedRecord incomingData) {
 
-        List<FieldChanged> changes = new ObjectChangesChecker<>(this, rec).getChangesList();
+        UserRecord rec = (UserRecord) incomingData;
+
+        List<FieldChangedWatcher> changes = new ObjectChangesChecker<>(this, rec).getChangesList();
+
+        List<FieldChangedWatcher> docs_changes = updateDocumentsCollections(getDocuments(),
+                rec.documents().stream().map(UserDocument::new).toList(),
+                UserDocument.class,
+                true);
+
+        getDocuments().forEach(d -> d.setUser(this));
+        changes.addAll(docs_changes);
 
         this.setPttc(rec.pttc());
         this.setQuadro(rec.quadro());
@@ -292,7 +301,6 @@ public class User extends SequenceIdEntity<UserRecord> implements UserDetails, M
         this.setEmail(rec.email());
         this.setEspecialidade(rec.especialidade());
         this.setSexo(rec.sexo());
-        this.setDocuments(rec.documents().stream().map(UserDocument::new).toList());
         this.setDataNascimento(DateTimeAPIHandler.converterStringDate(rec.dataNascimento()));
         this.setSaram(rec.saram());
         this.setDataPraca(DateTimeAPIHandler.converterStringDate(rec.dataPraca()));

@@ -4,8 +4,11 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.criteria.*;
 import jakarta.transaction.Transactional;
+import mil.decea.mentorpgapi.domain.changewatch.logs.ChangeLog;
+import mil.decea.mentorpgapi.domain.changewatch.logs.FieldChangedWatcher;
 import mil.decea.mentorpgapi.domain.daoservices.minio.ClientMinioImplemantationException;
 import mil.decea.mentorpgapi.domain.daoservices.minio.ClienteMinio;
+import mil.decea.mentorpgapi.domain.daoservices.repositories.ChangeLogRepository;
 import mil.decea.mentorpgapi.domain.daoservices.repositories.UserDocumentRepository;
 import mil.decea.mentorpgapi.domain.daoservices.repositories.UserRepository;
 import mil.decea.mentorpgapi.domain.documents.UserDocument;
@@ -16,6 +19,7 @@ import mil.decea.mentorpgapi.etc.security.FirstAdminRecord;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -30,20 +34,23 @@ public class UserService implements UserDetailsService {
     private final UserRepository repository;
 
     UserDocumentRepository userDocumentRepository;
+    ChangeLogRepository changeLogRepository;
 
-    private final List<DTOValidator<UserRecord>> validators;
+    //private final List<DTOValidator<UserRecord>> validators;
     private final EntityManager entityManager;
 
     private final ClienteMinio clienteMinio;
     @Autowired
     public UserService( UserRepository repository,
+                        ChangeLogRepository changeLogRepository,
                         UserDocumentRepository userDocumentRepository,
-                        List<DTOValidator<UserRecord>> validators,
+                        //List<DTOValidator<UserRecord>> validators,
                         EntityManager entityManager,
                         ClienteMinio clienteMinio) {
         this.repository = repository;
+        this.changeLogRepository = changeLogRepository;
         this.userDocumentRepository = userDocumentRepository;
-        this.validators = validators;
+        //this.validators = validators;
         this.entityManager = entityManager;
         this.clienteMinio = clienteMinio;
     }
@@ -57,6 +64,7 @@ public class UserService implements UserDetailsService {
                         root.get("cpf"),
                         root.get("role"),
                         root.get("senha"),
+                        root.get("nomeCompleto"),
                         root.get("ativo"))
                 .where(cb.equal(root.get("cpf"),cpf));
 
@@ -76,14 +84,15 @@ public class UserService implements UserDetailsService {
         if (usr != null) {
             try {
                 clienteMinio.insertSasUrl(usr);
-            } catch (ClientMinioImplemantationException e) {
-            }
+            } catch (ClientMinioImplemantationException ignore) {}
         }
         return usr;
     }
 
     public void changePassword(AuthUserRecord authUser) {
+
         if (authUser.senha() != null && authUser.senha().trim().length() > 7){
+
             var entity = repository.getReferenceById(authUser.id());
 
             if (authUser.senhaAntiga() != null && !authUser.senhaAntiga().isBlank()){
@@ -95,33 +104,35 @@ public class UserService implements UserDetailsService {
             String _encryptPassword = DefaultPasswordEncoder.encode(authUser.senha());
             entity.setSenha(_encryptPassword);
             repository.save(entity);
+
         }else{
             throw new MentorValidationException("A senha atual deve possuir no mínimo 8 caractéres");
         }
     }
 
-    public void changeRoles(AuthUserRecord authUser) {
-        var entity = repository.getReferenceById(authUser.id());
-        entity.setRole(authUser.role());
-        repository.save(entity);
-    }
-
-
     @Transactional
     public UserRecord save(UserRecord dados) throws ClientMinioImplemantationException {
+
+        AuthUser ausr = (AuthUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        String nome = ausr.getCpf() + " " + ausr.getNome();
+
         var entity = dados.id() == null ? new User() : repository.getReferenceById(dados.id());
-        entity.onValuesUpdated(dados);
+
+        List<FieldChangedWatcher> changes = entity.onValuesUpdated(dados);
+
         try {
             clienteMinio.updateObject(entity.getDocuments());
             boolean did = clienteMinio.updateObject(entity);
             entity = repository.save(entity);
             if (did) clienteMinio.insertSasUrl(entity);
+            changeLogRepository.saveAll(changes.stream().map(w -> new ChangeLog(w, ausr.getId(), nome)).toList());
             return new UserRecord(entity);
         } catch (ClientMinioImplemantationException e) {
             throw new ClientMinioImplemantationException(e);
         } catch (Exception e){
             e.printStackTrace();
-            throw new MentorValidationException("Shit happens!");
+            throw new MentorValidationException("Erro no servidor ao tentar salvar");
         }
     }
 
@@ -141,7 +152,7 @@ public class UserService implements UserDetailsService {
             }else{
                 userDoc = userDocumentRepository.getReferenceById(dados.id());
             }
-            userDoc.setUserDocument(dados);
+            userDoc.onValuesUpdated(dados);
             userDoc = userDocumentRepository.save(userDoc);
             clienteMinio.updateObject(userDoc);
 

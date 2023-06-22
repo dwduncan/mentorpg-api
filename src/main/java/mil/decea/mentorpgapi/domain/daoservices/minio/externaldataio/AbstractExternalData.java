@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import mil.decea.mentorpgapi.domain.IdentifiedRecord;
-import mil.decea.mentorpgapi.domain.TrackedEntity;
 import mil.decea.mentorpgapi.domain.daoservices.minio.ExternalData;
 
 import java.time.LocalDateTime;
@@ -18,7 +17,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class AbstractExternalData<Z extends IdentifiedRecord> extends TrackedEntity<Z> implements ExternalData {
+public abstract class AbstractExternalData implements ExternalData {
 
     @Column(columnDefinition = "TEXT")
     protected String formato;

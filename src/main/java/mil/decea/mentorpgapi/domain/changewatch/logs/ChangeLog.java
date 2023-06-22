@@ -1,21 +1,22 @@
-package mil.decea.mentorpgapi.domain.changewatch;
+package mil.decea.mentorpgapi.domain.changewatch.logs;
 
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import mil.decea.mentorpgapi.domain.user.User;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@EqualsAndHashCode(of = "id")
-@Table(name = "zchangelogs", schema = "mentorpgapi",
+@Table(name = "changelogs", schema = "mentorpgapi",
     indexes = {@Index(name = "class_id_index", columnList = "objectClass, objectId")})
-public class ZChangeLog implements FieldChangedWatcher{
+public class ChangeLog implements FieldChangedWatcher{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -53,6 +54,28 @@ public class ZChangeLog implements FieldChangedWatcher{
 
     protected boolean neverExpires = false;
 
+    public ChangeLog(FieldChangedWatcher o, Long idUser, String nome){
+        previousValueOrMessage = o.getPreviousValueOrMessage();
+        parentId = o.getParentId();
+        parentClass = o.getParentClass();
+        objectId = o.getObjectId();
+        objectClass = o.getObjectClass();
+        fieldName = o.getFieldName();
+        fieldType = o.getFieldType();
+        responsableId = idUser;
+        responsableName = nome;
+        occurrenceTime = LocalDateTime.now();
+        neverExpires = o.isNeverExpires();
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ChangeLog changeLog)) return false;
+        return Objects.equals(id, changeLog.id);
+    }
 
-
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

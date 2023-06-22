@@ -1,4 +1,4 @@
-package mil.decea.mentorpgapi.domain.changewatch;
+package mil.decea.mentorpgapi.domain.changewatch.trackdefiners;
 
 
 import java.lang.annotation.ElementType;

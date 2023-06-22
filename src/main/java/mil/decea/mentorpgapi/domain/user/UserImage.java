@@ -4,8 +4,8 @@ import jakarta.persistence.Embeddable;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import mil.decea.mentorpgapi.domain.IdentifiedRecord;
-import mil.decea.mentorpgapi.domain.changewatch.FieldChanged;
+import mil.decea.mentorpgapi.domain.changewatch.logs.FieldChangedLog;
+import mil.decea.mentorpgapi.domain.changewatch.logs.FieldChangedWatcher;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
 import mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio.AbstractExternalData;
 import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
@@ -17,10 +17,10 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserImage extends AbstractExternalData<UserImageRecord, UserImage> {
+public class UserImage extends AbstractExternalData {
 
     @NotForRecordField
-    public List<FieldChanged> onValuesUpdated(UserImageRecord rec) {
+    public List<FieldChangedWatcher> onValuesUpdated(UserImageRecord rec) {
         this.setBase64Data(rec.base64Data());
         this.setArquivoUrl(rec.arquivoUrl());
         this.setFormato(rec.formato());
@@ -30,7 +30,6 @@ public class UserImage extends AbstractExternalData<UserImageRecord, UserImage> 
         return new ArrayList<>();
     }
 
-    @Override
     public void copyFields(UserImage previousEntity) {
         this.setBase64Data(previousEntity.getBase64Data());
         this.setArquivoUrl(previousEntity.getArquivoUrl());
@@ -39,12 +38,6 @@ public class UserImage extends AbstractExternalData<UserImageRecord, UserImage> 
         this.setDataHoraUpload(previousEntity.getDataHoraUpload());
         this.setTamanho(previousEntity.getTamanho());
     }
-
-    @Override
-    public String getEntityDescriptor() {
-        return "foto alterada";
-    }
-
 
 
     public Long getId(){

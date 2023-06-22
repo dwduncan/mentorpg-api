@@ -68,16 +68,14 @@ public class UserController {
     @Transactional
     @Secured({"ADMIN","COORDENADOR"})
     public ResponseEntity delete(@PathVariable("id") Long id){
-        userService.delete(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(userService.delete(id));
     }
 
     @DeleteMapping("/forever/{id}")
     @Transactional
     @Secured({"ADMIN"})
     public ResponseEntity deleteForever(@PathVariable("id") Long id){
-        userService.deleteForever(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(userService.deleteForever(id));
     }
 /*
 

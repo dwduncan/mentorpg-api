@@ -4,40 +4,29 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
-import lombok.*;
-import mil.decea.mentorpgapi.domain.changewatch.CollectionChanged;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import mil.decea.mentorpgapi.domain.changewatch.CollectionsChangesChecker;
-import mil.decea.mentorpgapi.domain.changewatch.FieldChangedWatcher;
-import mil.decea.mentorpgapi.domain.changewatch.TrackedElementCollection;
-import mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio.ExternalDataEntity;
+import mil.decea.mentorpgapi.domain.changewatch.logs.FieldChangedWatcher;
+import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.TrackedElementCollection;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 @MappedSuperclass
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(of = "id")
-public abstract class SequenceIdEntity<Z extends IdentifiedRecord> implements TrackedEntity<Z> {
+@SuppressWarnings("unused")
+public abstract class SequenceIdEntity implements TrackedEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
     boolean ativo = true;
-
-
-
-    /*public <T extends BaseEntity> void updateCollections(Collection<T> currentCollection, Collection<T> updatedCollection){
-        currentCollection.clear();
-        updatedCollection.forEach(e -> {
-            if (e.getId() != null && e.getId() < 1) e.setId(null);
-            currentCollection.add(e);
-        });
-    }*/
 
     public <T extends TrackedElementCollection<T>> List<FieldChangedWatcher> updateDocumentsCollections(Collection<T> currentCollection, Collection<T> updatedCollection, Class<?> elementType, boolean updateCurrentList){
 
@@ -46,6 +35,17 @@ public abstract class SequenceIdEntity<Z extends IdentifiedRecord> implements Tr
     }
 
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SequenceIdEntity sequenceIdEntity)) return false;
+        return Objects.equals(id, sequenceIdEntity.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 
 
 }

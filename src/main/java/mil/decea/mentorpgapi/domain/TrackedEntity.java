@@ -1,14 +1,14 @@
 package mil.decea.mentorpgapi.domain;
 
 import jakarta.persistence.MappedSuperclass;
-import mil.decea.mentorpgapi.domain.changewatch.FieldChanged;
+import mil.decea.mentorpgapi.domain.changewatch.logs.FieldChangedWatcher;
 
 import java.util.List;
 
 @MappedSuperclass
-public interface TrackedEntity<Z extends IdentifiedRecord> {
+public interface TrackedEntity {
 
-    public abstract Long getId();
+    Long getId();
     void setId(Long id);
 
     /**
@@ -31,7 +31,7 @@ public interface TrackedEntity<Z extends IdentifiedRecord> {
      * @param record objeto DTO com os valores a serem alterados na entidade ao qual se refere.
      * @return a lista de mudanças caso tenham ocorrido ou um array sempre vazio quando não houver controle de mudanças
      */
-    List<FieldChanged> onValuesUpdated(Z record);
+    List<FieldChangedWatcher> onValuesUpdated(IdentifiedRecord incomingData);
 
 
 }

@@ -1,6 +1,6 @@
 package mil.decea.mentorpgapi.domain.user;
 
-import mil.decea.mentorpgapi.domain.changewatch.InnerValueChange;
+import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.InnerValueChange;
 
 import java.util.Arrays;
 @InnerValueChange("getNome()")

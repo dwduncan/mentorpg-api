@@ -1,6 +1,6 @@
 package mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio;
 
-import mil.decea.mentorpgapi.domain.changewatch.InnerValueChange;
+import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.InnerValueChange;
 
 /**
  * Força Aérea Brasileira - (FAB)

@@ -1,5 +1,6 @@
-package mil.decea.mentorpgapi.domain.changewatch;
+package mil.decea.mentorpgapi.domain.changewatch.logs;
 
+@SuppressWarnings({"unused"})
 public interface FieldChangedWatcher {
     Long getObjectId();
 

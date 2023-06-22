@@ -1,4 +1,4 @@
-package mil.decea.mentorpgapi.domain.changewatch;
+package mil.decea.mentorpgapi.domain.changewatch.trackdefiners;
 
 
 import java.lang.annotation.*;
@@ -8,7 +8,5 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
 public @interface TrackChange {
-
-    Class<? extends Record> recordClass() default EmptyRecord.class;
     String[] onlyWithFieldsName() default {};
 }

@@ -1,24 +1,18 @@
-package mil.decea.mentorpgapi.domain.changewatch;
+package mil.decea.mentorpgapi.domain.changewatch.logs;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import mil.decea.mentorpgapi.domain.IdentifiedRecord;
 import mil.decea.mentorpgapi.domain.TrackedEntity;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Collection;
-import java.util.Objects;
 
 @SuppressWarnings("unchecked")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CollectionChanged implements FieldChangedWatcher {
+public class CollectionChangedLog implements FieldChangedWatcher {
 
     @NotNull
     protected Long objectId;
@@ -40,11 +34,11 @@ public class CollectionChanged implements FieldChangedWatcher {
 
     private boolean changed;
 
-    public CollectionChanged(TrackedEntity<?> beforeObj, TrackedEntity<?> afterObj, TrackedEntity<?> parentObject){
+    public CollectionChangedLog(TrackedEntity beforeObj, TrackedEntity afterObj, TrackedEntity parentObject){
         setValue(beforeObj,afterObj, parentObject);
     }
 
-    void setValue(TrackedEntity<?> beforeObj, TrackedEntity<?> afterObj, TrackedEntity<?> parentObject){
+    void setValue(TrackedEntity beforeObj, TrackedEntity afterObj, TrackedEntity parentObject){
 
         if ((beforeObj == null && afterObj == null) || (beforeObj != null && afterObj != null)) return;
 

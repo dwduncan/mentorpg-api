@@ -1,4 +1,4 @@
-package mil.decea.mentorpgapi.domain.changewatch;
+package mil.decea.mentorpgapi.domain.changewatch.trackdefiners;
 
 
 import java.lang.annotation.ElementType;
@@ -12,5 +12,6 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.METHOD})
-public @interface IgnoreTrackChange {
+public @interface NoValueTrack {
+    String value();
 }

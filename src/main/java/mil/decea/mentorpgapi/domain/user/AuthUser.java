@@ -30,6 +30,7 @@ public class AuthUser implements UserDetails {
     private String senha;
     private String senhaAntiga;
     private String role;
+    private String nome;
     private boolean ativo;
     @ObjectForRecordField
     private DataAuthority dataAuthority;
@@ -38,12 +39,13 @@ public class AuthUser implements UserDetails {
     @NotForRecordField
     private List<SimpleGrantedAuthority> authorities;
 
-    public AuthUser(Long id, String cpf, String role, String senha, boolean ativo) {
+    public AuthUser(Long id, String cpf, String role, String senha, String nome, boolean ativo) {
         this.id = id;
         this.cpf = cpf;
         this.senha = senha;
         this.ativo = ativo;
         this.role = role;
+        this.nome = nome;
         this.authorities = role == null || role.isBlank() ? new ArrayList<>() :
                 Arrays.stream(role.split("\\s")).map(SimpleGrantedAuthority::new).toList();
     }

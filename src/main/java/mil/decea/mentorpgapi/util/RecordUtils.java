@@ -3,7 +3,7 @@ package mil.decea.mentorpgapi.util;
 import jakarta.persistence.Embedded;
 import jakarta.validation.Constraint;
 import mil.decea.mentorpgapi.domain.SequenceIdEntity;
-import mil.decea.mentorpgapi.domain.changewatch.TrackChange;
+import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.TrackChange;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.*;
 import mil.decea.mentorpgapi.domain.documents.UserDocumentRecord;
 
@@ -55,16 +55,18 @@ public class RecordUtils {
 
         constructor = new StringBuilder(_constructorDeclaration);
 
-        String setterWay = "\r\n\t@NotForRecordField\r\n\tpublic List<FieldChanged> ";
+        String setterWay = "\r\n\t@NotForRecordField\r\n\tpublic List<FieldChangedLog> ";
 
         String c = "mil.decea.mentorpgapi.domain.IdentifiedRecord";
         impConf.add(c);
         imps.append("import ").append(c).append(";\r\n");
         boolean isTracked = classe.isAnnotationPresent(TrackChange.class);
 
-        reverseConstructor = new StringBuilder().append("onValuesUpdated(").append(recName).append(" rec) {\r\n\r\n");
-        String _changes = isTracked ? "List<FieldChanged> changes = new ObjectChangesChecker<>(this, rec).getChangesList();\r\n\r\n" :
-                "List<FieldChanged> changes = new ArrayList();\r\n\r\n";
+        reverseConstructor = new StringBuilder().append("onValuesUpdated(IdentifiedRecord incomingData) {\r\n\r\n");
+        reverseConstructor.append("\t\t").append(recName).append(" rec = (").append(recName).append(") incomingData;");
+
+        String _changes = isTracked ? "List<FieldChangedLog> changes = new ObjectChangesChecker<>(this, rec).getChangesList();\r\n\r\n" :
+                "List<FieldChangedLog> changes = new ArrayList();\r\n\r\n";
         reverseConstructor.append(_changes);
 
         main.append(recName).append("(\r\n");

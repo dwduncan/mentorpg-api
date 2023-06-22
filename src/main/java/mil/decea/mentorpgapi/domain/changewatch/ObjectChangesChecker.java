@@ -3,6 +3,11 @@ package mil.decea.mentorpgapi.domain.changewatch;
 import lombok.Getter;
 import mil.decea.mentorpgapi.domain.IdentifiedRecord;
 import mil.decea.mentorpgapi.domain.TrackedEntity;
+import mil.decea.mentorpgapi.domain.changewatch.logs.FieldChangedLog;
+import mil.decea.mentorpgapi.domain.changewatch.logs.FieldChangedWatcher;
+import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.IgnoreTrackChange;
+import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.InnerValueChange;
+import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.TrackChange;
 import mil.decea.mentorpgapi.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
@@ -10,17 +15,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-public class ObjectChangesChecker<T extends TrackedEntity<Z>, Z extends IdentifiedRecord> {
+public class ObjectChangesChecker<T extends TrackedEntity> {
 
 
     private final T trackedObject;
-    private Z changedRecord;
+    private IdentifiedRecord changedRecord;
     private T changedObject;
-    TrackedEntity<?> parentObject;
-    private final List<FieldChanged> changesList;
+    TrackedEntity parentObject;
+    private final List<FieldChangedWatcher> changesList;
     String[] onlyFieldsName;
 
-    public ObjectChangesChecker(T trackedObject, Z changedRecord){
+    public ObjectChangesChecker(T trackedObject, IdentifiedRecord changedRecord){
         this(trackedObject, changedRecord, null);
     }
 
@@ -28,7 +33,7 @@ public class ObjectChangesChecker<T extends TrackedEntity<Z>, Z extends Identifi
         this(trackedObject, changedObject, null);
     }
 
-    public ObjectChangesChecker(T trackedObject, Z changedRecord, TrackedEntity<?> parentObject){
+    public ObjectChangesChecker(T trackedObject, IdentifiedRecord changedRecord, TrackedEntity parentObject){
         this.trackedObject = trackedObject;
         this.changedRecord = changedRecord;
         this.parentObject = parentObject;
@@ -41,7 +46,7 @@ public class ObjectChangesChecker<T extends TrackedEntity<Z>, Z extends Identifi
         }
     }
 
-    public ObjectChangesChecker(T trackedObject, T changedObject, TrackedEntity<?> parentObject){
+    public ObjectChangesChecker(T trackedObject, T changedObject, TrackedEntity parentObject){
         this.trackedObject = trackedObject;
         this.changedObject = changedObject;
         this.parentObject = parentObject;
@@ -72,16 +77,16 @@ public class ObjectChangesChecker<T extends TrackedEntity<Z>, Z extends Identifi
     private void trackField(Field field){
 
         if (isReadable(field)){
-            FieldChanged fc = new FieldChanged(field, trackedObject, changedRecord, parentObject);
+            FieldChangedLog fc = new FieldChangedLog(field, trackedObject, changedRecord, parentObject);
             if (fc.isChanged()) changesList.add(fc);
         }else{
             try{
                 Object _trackValue = field.get(trackedObject);
                 Object _chgRec = changedRecord.getClass().getDeclaredField(field.getName()).get(changedRecord);
                 
-                if ((_chgRec instanceof IdentifiedRecord) && (_trackValue instanceof TrackedEntity<?>)) {
-                    TrackedEntity<?> _parentObject = parentObject == null ? trackedObject : parentObject;
-                    ObjectChangesChecker<?,?> ocb = new ObjectChangesChecker((TrackedEntity<?>) _trackValue,(IdentifiedRecord) _chgRec, _parentObject);
+                if ((_chgRec instanceof IdentifiedRecord) && (_trackValue instanceof TrackedEntity)) {
+                    TrackedEntity _parentObject = parentObject == null ? trackedObject : parentObject;
+                    ObjectChangesChecker<?> ocb = new ObjectChangesChecker((TrackedEntity) _trackValue,(IdentifiedRecord) _chgRec, _parentObject);
                     changesList.addAll(ocb.changesList);
                 }
             }catch (Exception ex){
@@ -93,16 +98,16 @@ public class ObjectChangesChecker<T extends TrackedEntity<Z>, Z extends Identifi
     private void trackField(Field previousField, Field updatedField){
 
         if (isReadable(previousField)){
-            FieldChanged fc = new FieldChanged(previousField, trackedObject, changedObject, parentObject);
+            FieldChangedLog fc = new FieldChangedLog(previousField, trackedObject, changedObject, parentObject);
             if (fc.isChanged()) changesList.add(fc);
         }else{
             try{
                 Object _trackValue = previousField.get(trackedObject);
                 Object _chgRec = updatedField.get(changedObject);
 
-                if ((_chgRec instanceof TrackedEntity<?>) && (_trackValue instanceof TrackedEntity<?>)) {
-                    TrackedEntity<?> _parentObject = parentObject == null ? trackedObject : parentObject;
-                    ObjectChangesChecker<?,?> ocb = new ObjectChangesChecker((TrackedEntity<?>) _trackValue,(TrackedEntity) _chgRec, _parentObject);
+                if ((_chgRec instanceof TrackedEntity) && (_trackValue instanceof TrackedEntity)) {
+                    TrackedEntity _parentObject = parentObject == null ? trackedObject : parentObject;
+                    ObjectChangesChecker<?> ocb = new ObjectChangesChecker((TrackedEntity) _trackValue,(TrackedEntity) _chgRec, _parentObject);
                     changesList.addAll(ocb.changesList);
                 }
             }catch (Exception ex){

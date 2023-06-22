@@ -1,4 +1,4 @@
-package mil.decea.mentorpgapi.domain.changewatch;
+package mil.decea.mentorpgapi.domain.changewatch.logs;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import mil.decea.mentorpgapi.domain.IdentifiedRecord;
 import mil.decea.mentorpgapi.domain.TrackedEntity;
+import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.InnerValueChange;
+import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.NeverExpires;
+import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.NoValueTrack;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -18,7 +21,7 @@ import java.util.Objects;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class FieldChanged implements FieldChangedWatcher {
+public class FieldChangedLog implements FieldChangedWatcher {
 
     @NotNull
     protected Long objectId;
@@ -40,15 +43,15 @@ public class FieldChanged implements FieldChangedWatcher {
 
     private boolean changed;
 
-    public FieldChanged(Field field, TrackedEntity<?> beforeObj, IdentifiedRecord afterObj, TrackedEntity<?> parentObject){
+    public FieldChangedLog(Field field, TrackedEntity beforeObj, IdentifiedRecord afterObj, TrackedEntity parentObject){
         setValue(field,beforeObj,afterObj, parentObject);
     }
 
-    public FieldChanged(Field field, TrackedEntity<?> beforeObj, TrackedEntity<?> afterObj, TrackedEntity<?> parentObject){
+    public FieldChangedLog(Field field, TrackedEntity beforeObj, TrackedEntity afterObj, TrackedEntity parentObject){
         setValue(field,beforeObj,afterObj, parentObject);
     }
 
-    void setValue(Field field, TrackedEntity<?> beforeObj, IdentifiedRecord afterObj, TrackedEntity<?> parentObject){
+    void setValue(Field field, TrackedEntity beforeObj, IdentifiedRecord afterObj, TrackedEntity parentObject){
 
         if (field == null || Collection.class.isAssignableFrom(field.getType())){
             return;
@@ -86,7 +89,7 @@ public class FieldChanged implements FieldChangedWatcher {
         }catch (Exception ex){ex.printStackTrace();}
     }
 
-    void setValue(Field field, TrackedEntity<?> beforeObj, TrackedEntity<?> afterObj, TrackedEntity<?> parentObject){
+    void setValue(Field field, TrackedEntity beforeObj, TrackedEntity afterObj, TrackedEntity parentObject){
 
         if (field == null || Collection.class.isAssignableFrom(field.getType())){
             return;

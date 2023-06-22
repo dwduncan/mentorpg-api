@@ -8,6 +8,7 @@ import mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio.StatusDoc;
 import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
 
 public record UserDocumentRecord(
+Long userId,
 String storageDestinationPath,
 DocumentTypeRecord tipoDocumentacao,
 Long idExigencia,
@@ -25,7 +26,8 @@ String base64Data,
 String nomeArquivo,
 String arquivoUrl) implements IdentifiedRecord {
 	public UserDocumentRecord(UserDocument obj) {
-		this("usr_" + obj.getUser().getId() +"/type_"+obj.getTipoDocumentacao().getId()+"/"+obj.getNomeArquivo(),
+		this(obj.getUserId(),
+				"usr_" + obj.getUser().getId() +"/type_"+obj.getTipoDocumentacao().getId()+"/"+obj.getNomeArquivo(),
 			new DocumentTypeRecord(obj.getTipoDocumentacao()),
 			obj.getIdExigencia(),
 			obj.getStatusDocumento(),

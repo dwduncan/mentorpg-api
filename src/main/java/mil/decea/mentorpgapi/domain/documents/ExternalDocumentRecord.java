@@ -26,7 +26,7 @@ StatusDoc statusDocumento,
 String motivoRecusa,
 DocumentTypeRecord documentTypeRecord,
 Long userId) {
-	public ExternalDocumentRecord(ExternalDataEntity<?> obj) {
+	public ExternalDocumentRecord(ExternalDataEntity obj) {
 		this(obj.getId(),
 			obj.isAtivo(),
 			obj.getPreviousFileName(),

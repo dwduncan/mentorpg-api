@@ -66,7 +66,7 @@ public class ClienteMinio implements Serializable {
      * @return true if any change is detected inside the source and the update is successful, false if update was not necessary
      * @throws ClientMinioImplemantationException if any problem/exception occurs during the attempt/transaction/operation with the Minio server
      */
-    public boolean updateBucket(MinioStorage<?> source) throws ClientMinioImplemantationException {
+    public boolean updateBucket(MinioStorage source) throws ClientMinioImplemantationException {
 
 
         String base64 = source.getExternalData().getBase64Data() == null ? "" : source.getExternalData().getBase64Data();
@@ -114,7 +114,7 @@ public class ClienteMinio implements Serializable {
             throw new ClientMinioImplemantationException(ex);
         }
     }
-    public boolean updateObject(MinioStorage<?> source) throws ClientMinioImplemantationException {
+    public boolean updateObject(MinioStorage source) throws ClientMinioImplemantationException {
 
 
         String base64 = source.getExternalData().getBase64Data() == null ? "" : source.getExternalData().getBase64Data();
@@ -159,14 +159,14 @@ public class ClienteMinio implements Serializable {
         }
     }
 
-    public void updateObject(Collection<? extends MinioStorage<?>> sources) throws ClientMinioImplemantationException {
+    public void updateObject(Collection<? extends MinioStorage> sources) throws ClientMinioImplemantationException {
         try {
 
             MinioClient client = minioClient();
 
             Map<String,Boolean> bucketExists = new HashMap<>();
 
-            for(MinioStorage<?> source : sources) {
+            for(MinioStorage source : sources) {
 
                 String base64 = source.getExternalData().getBase64Data() == null ? "" : source.getExternalData().getBase64Data();
 
@@ -210,7 +210,7 @@ public class ClienteMinio implements Serializable {
 
     }
 
-    public boolean download(MinioStorage<?> source) {
+    public boolean download(MinioStorage source) {
         try {
             MinioClient client = minioClient();
             //createBucketIfNotExists(client, bucketName);
@@ -246,7 +246,7 @@ public class ClienteMinio implements Serializable {
             throw new ClientMinioImplemantationException(ex);
         }
     }
-    public boolean remove(MinioStorage<?> source) throws ClientMinioImplemantationException {
+    public boolean remove(MinioStorage source) throws ClientMinioImplemantationException {
         try {
             MinioClient client = minioClient();
             //createBucketIfNotExists(client, bucketName);
@@ -293,7 +293,7 @@ public class ClienteMinio implements Serializable {
         }
     }
 
-    public void insertSasUrl(MinioStorage<?> source) throws ClientMinioImplemantationException {
+    public void insertSasUrl(MinioStorage source) throws ClientMinioImplemantationException {
         insertSasUrl(source, expiraEmSegundos);
     }
 
@@ -301,7 +301,7 @@ public class ClienteMinio implements Serializable {
      *
      * @return uma url com validade para expirar para acessar o arquivo diretamente no minio
      */
-    public void insertSasUrl(MinioStorage<?> source, int expirationTimeInSeconds) throws ClientMinioImplemantationException {
+    public void insertSasUrl(MinioStorage source, int expirationTimeInSeconds) throws ClientMinioImplemantationException {
 
         if (source.getExternalData().getNomeArquivo() == null || source.getExternalData().getNomeArquivo().isBlank()) return;
         String url = createSasUrl(source.getBucket(), source.getStorageDestinationPath(),expirationTimeInSeconds);
