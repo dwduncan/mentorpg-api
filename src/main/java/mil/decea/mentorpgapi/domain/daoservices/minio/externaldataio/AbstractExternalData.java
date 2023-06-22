@@ -10,6 +10,7 @@ import lombok.Setter;
 import mil.decea.mentorpgapi.domain.BaseEntity;
 import mil.decea.mentorpgapi.domain.IdentifiedRecord;
 import mil.decea.mentorpgapi.domain.daoservices.minio.ExternalData;
+import mil.decea.mentorpgapi.domain.daoservices.minio.MinioStorage;
 
 import java.time.LocalDateTime;
 
@@ -46,5 +47,6 @@ public abstract class AbstractExternalData<T extends AbstractExternalData<T, Z>,
         return this;
     }
 
+//@MethodDefaultValue(fieldName = "bucket",defaultValue = "\"userdocuments\"")
 
 }

@@ -1,12 +1,15 @@
 package mil.decea.mentorpgapi.domain.daoservices.minio;
 
+import mil.decea.mentorpgapi.domain.daoservices.datageneration.MethodDefaultValue;
+
 import java.util.Objects;
 
 public interface MinioStorage<T extends ExternalData> {
-
     String getBucket();
+
     String getStorageDestinationPath();
     T getExternalData();
+
     String getPreviousStorageDestinationPath();
 
     /**

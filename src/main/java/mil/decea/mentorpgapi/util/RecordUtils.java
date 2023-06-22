@@ -3,11 +3,10 @@ package mil.decea.mentorpgapi.util;
 import jakarta.persistence.Embedded;
 import jakarta.validation.Constraint;
 import mil.decea.mentorpgapi.domain.BaseEntity;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.CollectionForRecordField;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.MethodDefaultValue;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.ObjectForRecordField;
-import mil.decea.mentorpgapi.domain.documents.ViewDocumentRecord;
+import mil.decea.mentorpgapi.domain.daoservices.datageneration.*;
+import mil.decea.mentorpgapi.domain.documents.ExternalDocumentRecord;
+import mil.decea.mentorpgapi.domain.documents.UserDocument;
+import mil.decea.mentorpgapi.domain.documents.UserDocumentRecord;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -377,6 +376,8 @@ public class RecordUtils {
         interfaceBuilder.append(ReactExtrasToExport.getImports(classe));
         interfaceBuilder.append("export ").append(defaultExport ? "default " : "").append("interface ").append(reactInterfaceName).append(" {\r\n");
 
+        boolean allFieldsAreOptional = classe.isAnnotationPresent(OptionalsRecordField.class);
+
         boolean b = false;
 
         if (BaseEntity.class.isAssignableFrom(classe)){
@@ -390,6 +391,10 @@ public class RecordUtils {
 
             if (field.isAnnotationPresent(NotForRecordField.class)) continue;
 
+            boolean thisFieldsIsOptional = field.isAnnotationPresent(OptionalsRecordField.class);
+
+            boolean optional = allFieldsAreOptional || thisFieldsIsOptional;
+
             String campo = field.getName();
 
             if (b) {
@@ -402,14 +407,14 @@ public class RecordUtils {
                 Class<?> elementClass = ElementsType.getElementType(field);
                 String recordName = "I" + elementClass.getSimpleName();
                 String type = recordName + "[]";
-                fieldsDeclaretionBuilder.append("\t").append(campo).append(": ").append(type);
+                fieldsDeclaretionBuilder.append("\t").append(campo).append(optional ? "?" : "").append(": ").append(type);
                 classBuilderConstructor.append("\t\t\tthis.").append(campo).append(" = obj.").append(campo).append(";");
                 elseBuilderConstructor.append("\t\t\tthis.").append(campo).append(" = [];");
                 defaultValuesBuilder.append("\t").append(campo).append(": ").append(type).append(";\r\n");
                 imports.append("import ").append(recordName).append(" from './").append(recordName).append("';\r\n");
             }else if (field.getType().isRecord()) {
                 String recordName = exportReactModel(field.getType(), targetDir, false);
-                fieldsDeclaretionBuilder.append("\t").append(campo).append(": ").append(recordName);
+                fieldsDeclaretionBuilder.append("\t").append(campo).append(optional ? "?" : "").append(": ").append(recordName);
                 defaultValuesBuilder.append("\t").append(campo).append(": default").append(recordName).append(";\r\n");
                 imports.append("import {").append(recordName).append(", ").append(recordName.substring(1)).append("} from './").append(recordName).append("';\r\n");
                 classBuilderConstructor.append("\t\t\tthis.").append(campo).append(" = obj.").append(campo).append(";");
@@ -433,12 +438,12 @@ public class RecordUtils {
                 }
 
                 if (campo.equals("id")) {
-                    fieldsDeclaretionBuilder.append("\tid: string");
+                    fieldsDeclaretionBuilder.append("\tid").append(optional ? "?" : "").append(": string");
                     defaultValuesBuilder.append("\tid: '';\r\n");
                     classBuilderConstructor.append("\t\t\tthis.id").append(" = obj.id;");
                     elseBuilderConstructor.append("\t\t\tthis.id = '';");
                 } else {
-                    fieldsDeclaretionBuilder.append("\t").append(campo).append(": ").append(type);
+                    fieldsDeclaretionBuilder.append("\t").append(campo).append(optional ? "?" : "").append(": ").append(type);
                     var val = switch (type){
                         case "string","string | null" -> "''";
                         case "number" -> "0";
@@ -605,10 +610,9 @@ public class RecordUtils {
         exportEnumsToTypeScript(targetDirATD, User.class);
 
         */
-        //RecordUtils ru = new RecordUtils(UserDocument.class);
-        //ru.generateRecord();
 
-        RecordUtils.exportReactModel(ViewDocumentRecord.class,targetDirHome);
+
+        RecordUtils.exportReactModel(UserDocumentRecord.class,targetDirATD);
 
         //exportEnumsToTypeScript(targetDirATD, StatusDoc.class);
 
