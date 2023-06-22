@@ -102,7 +102,7 @@ public class UserService implements UserDetailsService {
     @Transactional
     public UserRecord save(UserRecord dados) throws ClientMinioImplemantationException {
         var entity = dados.id() == null ? new User() : repository.getReferenceById(dados.id());
-        entity.setUser(dados);
+        entity.updateValues(dados);
         try {
             clienteMinio.updateObject(entity.getDocuments());
             boolean did = clienteMinio.updateObject(entity);

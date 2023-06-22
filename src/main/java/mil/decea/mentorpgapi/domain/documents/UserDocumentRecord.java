@@ -1,12 +1,15 @@
 package mil.decea.mentorpgapi.domain.documents;
+import mil.decea.mentorpgapi.domain.IdentifiedRecord;
 import mil.decea.mentorpgapi.domain.documents.DocumentTypeRecord;
+
+import java.io.Serializable;
 import java.lang.Long;
 import mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio.StatusDoc;
 import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
 
 public record UserDocumentRecord(
 String storageDestinationPath,
-	DocumentTypeRecord tipoDocumentacao,
+DocumentTypeRecord tipoDocumentacao,
 Long idExigencia,
 StatusDoc statusDocumento,
 String motivoRecusa,
@@ -20,7 +23,7 @@ String formato,
 String dataHoraUpload,
 String base64Data,
 String nomeArquivo,
-String arquivoUrl) {
+String arquivoUrl) implements IdentifiedRecord {
 	public UserDocumentRecord(UserDocument obj) {
 		this("usr_" + obj.getUser().getId() +"/type_"+obj.getTipoDocumentacao().getId()+"/"+obj.getNomeArquivo(),
 			new DocumentTypeRecord(obj.getTipoDocumentacao()),

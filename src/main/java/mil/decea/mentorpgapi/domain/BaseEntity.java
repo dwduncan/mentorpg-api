@@ -5,6 +5,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import lombok.*;
+import mil.decea.mentorpgapi.domain.changewatch.ChangeWatcher;
 import mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio.ExternalDataEntity;
 
 import java.io.Serializable;
@@ -21,7 +22,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
-public class BaseEntity implements Serializable {
+public abstract class BaseEntity<T extends BaseEntity<T, Z>, Z extends IdentifiedRecord> implements ChangeWatcher<BaseEntity<T, Z>,Z> {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
@@ -37,7 +38,7 @@ public class BaseEntity implements Serializable {
         });
     }
 
-    public <T extends ExternalDataEntity<T>> void updateDocumentsCollections(Collection<T> currentCollection, Collection<T> updatedCollection){
+    public <T extends ExternalDataEntity<T,Z>> void updateDocumentsCollections(Collection<T> currentCollection, Collection<T> updatedCollection){
         Map<Long, T> currentMap = currentCollection.stream().collect(Collectors.toMap(ExternalDataEntity::getId, Function.identity()));
         currentCollection.clear();
         updatedCollection.forEach(e -> {
@@ -54,4 +55,9 @@ public class BaseEntity implements Serializable {
         });
     }
 
+
+    @Override
+    public BaseEntity<T,Z> getChangingObject() {
+        return this;
+    }
 }

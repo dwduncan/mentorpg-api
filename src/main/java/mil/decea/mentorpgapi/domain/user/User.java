@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import mil.decea.mentorpgapi.domain.BaseEntity;
+import mil.decea.mentorpgapi.domain.changewatch.NoValueTrack;
+import mil.decea.mentorpgapi.domain.changewatch.TrackChange;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.CollectionForRecordField;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
 import mil.decea.mentorpgapi.domain.daoservices.minio.MinioStorage;
@@ -28,8 +30,8 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class User extends BaseEntity implements UserDetails, MinioStorage<UserImage> {
-
+@TrackChange(recordClass = UserRecord.class)
+public class User extends BaseEntity<User, UserRecord> implements UserDetails, MinioStorage<UserImage> {
 
     @IsValidCpf
     @NotNull(message = "Informe um CPF válido")
@@ -59,6 +61,7 @@ public class User extends BaseEntity implements UserDetails, MinioStorage<UserIm
     private int antiguidadeRelativa;
     @NotForRecordField
     @Column(columnDefinition = "TEXT")
+    @NoValueTrack("Alterou a senha")
     private String senha;
     @Column(columnDefinition = "TEXT")
     private String role;
@@ -67,6 +70,7 @@ public class User extends BaseEntity implements UserDetails, MinioStorage<UserIm
     @Column(columnDefinition = "TEXT")
     private String email;
     @Embedded
+    @NoValueTrack("Alterou a foto do perfil")
     private UserImage userImage;
     @Column(columnDefinition = "TEXT")
     private String identidade;
@@ -268,7 +272,7 @@ public class User extends BaseEntity implements UserDetails, MinioStorage<UserIm
     }
 
     @NotForRecordField
-    public void setUser(UserRecord rec) {
+    public void updateValues(UserRecord rec) {
         this.setPttc(rec.pttc());
         this.setQuadro(rec.quadro());
         this.setCpf(rec.cpf());
@@ -301,7 +305,11 @@ public class User extends BaseEntity implements UserDetails, MinioStorage<UserIm
 
     @NotForRecordField
     public User(UserRecord rec) {
-        setUser(rec);
+        updateValues(rec);
     }
 
+    @Override
+    public String getEntityDescriptor() {
+        return getCpf() + " - " + getNomeCompleto();
+    }
 }

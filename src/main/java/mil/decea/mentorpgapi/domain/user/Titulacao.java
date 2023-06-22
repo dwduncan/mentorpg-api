@@ -1,5 +1,7 @@
 package mil.decea.mentorpgapi.domain.user;
 
+import mil.decea.mentorpgapi.domain.changewatch.InneValueChange;
+
 import java.util.Arrays;
 
 /**
@@ -13,6 +15,8 @@ import java.util.Arrays;
  * Date: 10/04/2021
  * Time: 14:59
  */
+
+@InneValueChange("getSigla()")
 public enum Titulacao {
 
     SENHOR("Senhor", "Sr.", "Sra."),

@@ -1,6 +1,8 @@
 
 package mil.decea.mentorpgapi.domain.user;
 
+import mil.decea.mentorpgapi.domain.changewatch.InneValueChange;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
  * Date: 03/03/2021
  * Time: 19:40
  */
+@InneValueChange("getSigla()")
 public enum ForcaSingular {
 
     CIV("Civil", "Civil",3),

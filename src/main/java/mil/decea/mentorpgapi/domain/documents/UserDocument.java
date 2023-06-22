@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import mil.decea.mentorpgapi.domain.changewatch.IgnoreTrackChange;
+import mil.decea.mentorpgapi.domain.changewatch.TrackChange;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.MethodDefaultValue;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.ObjectForRecordField;
@@ -19,11 +21,13 @@ import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserDocument extends ExternalDataEntity<UserDocument> implements MinioStorage<UserDocument> {
+@TrackChange(recordClass = UserDocumentRecord.class)
+public class UserDocument extends ExternalDataEntity<UserDocument, UserDocumentRecord> implements MinioStorage<UserDocument> {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @NotForRecordField
+    @IgnoreTrackChange
     private User user;
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -37,7 +41,7 @@ public class UserDocument extends ExternalDataEntity<UserDocument> implements Mi
     private Long idExigencia;
 
     @NotForRecordField
-    public void setUserDocument(UserDocumentRecord rec) {
+    public void updateValues(UserDocumentRecord rec) {
         this.setTipoDocumentacao(new DocumentType(rec.tipoDocumentacao()));
         this.setPreviousFileName(rec.previousFileName());
         this.setMotivoRecusa(rec.motivoRecusa());
@@ -55,7 +59,7 @@ public class UserDocument extends ExternalDataEntity<UserDocument> implements Mi
     }
     @NotForRecordField
     public UserDocument(UserDocumentRecord rec) {
-        setUserDocument(rec);
+        updateValues(rec);
     }
 
 
@@ -98,5 +102,11 @@ public class UserDocument extends ExternalDataEntity<UserDocument> implements Mi
         this.setDataHoraUpload(previousEntity.getDataHoraUpload());
         this.setBase64Data(previousEntity.getBase64Data());
         this.setArquivoUrl(previousEntity.getArquivoUrl());
+    }
+
+    @Override
+    public String getEntityDescriptor() {
+        return user.getEntityDescriptor() + " - " + getTipoDocumentacao().getTipo()
+                + " - " + getNomeArquivo();
     }
 }

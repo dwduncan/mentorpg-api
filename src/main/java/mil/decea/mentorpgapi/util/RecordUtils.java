@@ -57,10 +57,10 @@ public class RecordUtils {
 
         constructor = new StringBuilder(_constructorDeclaration);
 
-        String setterWay = "\r\n\t@NotForRecordField\r\n\tpublic void set";
+        String setterWay = "\r\n\t@NotForRecordField\r\n\tpublic void ";
         String constructorWay = "\r\n\t@NotForRecordField\r\n\tpublic ";
 
-        String declaration = classe.getSimpleName() + "(" + recName + " rec) {";
+        String declaration = "updateValues(" + recName + " rec) {";
         reverseConstructor = new StringBuilder(declaration);
 
         main.append(recName).append("(\r\n");
@@ -103,7 +103,14 @@ public class RecordUtils {
             }
         }
 
-        main.append(") {");
+        String c = "mil.decea.mentorpgapi.domain.IdentifiedRecord";
+
+        if (!impConf.contains(c)) {
+            impConf.add(c);
+            imps.append("import ").append(c).append(";\r\n");
+        }
+
+        main.append(") implements IdentifiedRecord {");
         constructor.append(");\r\n\t}\r\n");
         reverseConstructor.append("\r\n\t}\r\n");
         main.append(constructor).append(additionalConstructors);

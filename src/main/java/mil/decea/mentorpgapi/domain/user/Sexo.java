@@ -1,6 +1,8 @@
 
 package mil.decea.mentorpgapi.domain.user;
 
+import mil.decea.mentorpgapi.domain.changewatch.InneValueChange;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
  */
 
 @SuppressWarnings("unused")
+@InneValueChange("getDescricao()")
 public enum Sexo {
     MASCULINO("Masculino","Masc"),
     FEMININO("Feminino","Fem");

@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import mil.decea.mentorpgapi.domain.BaseEntity;
+import mil.decea.mentorpgapi.domain.changewatch.TrackChange;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
 
 @Entity
@@ -15,7 +16,8 @@ import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DocumentType extends BaseEntity implements Comparable<DocumentType> {
+@TrackChange(recordClass = DocumentTypeRecord.class)
+public class DocumentType extends BaseEntity<DocumentType,DocumentTypeRecord> implements Comparable<DocumentType> {
 
     private String tipo;
     @Override
@@ -28,7 +30,7 @@ public class DocumentType extends BaseEntity implements Comparable<DocumentType>
         return getTipo().compareToIgnoreCase(o.getTipo());
     }
     @NotForRecordField
-    public void setDocumentType(DocumentTypeRecord rec) {
+    public void updateValues(DocumentTypeRecord rec) {
         this.setTipo(rec.tipo());
         this.setId(rec.id());
         this.setAtivo(rec.ativo());
@@ -42,4 +44,8 @@ public class DocumentType extends BaseEntity implements Comparable<DocumentType>
         this.setAtivo(rec.ativo());
     }
 
+    @Override
+    public String getEntityDescriptor() {
+        return getTipo();
+    }
 }

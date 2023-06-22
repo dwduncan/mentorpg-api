@@ -1,11 +1,11 @@
 package mil.decea.mentorpgapi.domain.user;
-import mil.decea.mentorpgapi.domain.documents.UserDocumentRecord;
-import java.util.List;
-import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
+
 import jakarta.validation.constraints.NotNull;
-import mil.decea.mentorpgapi.domain.user.validation.annotations.IsValidCpf;
-import mil.decea.mentorpgapi.domain.user.UserImageRecord;
-import java.lang.Long;
+import mil.decea.mentorpgapi.domain.IdentifiedRecord;
+import mil.decea.mentorpgapi.domain.documents.UserDocumentRecord;
+import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
+
+import java.util.List;
 
 public record UserRecord(
 Titulacao titulacao,
@@ -37,7 +37,7 @@ String cpf,
 boolean pttc,
 String quadro,
 Long id,
-boolean ativo) {
+boolean ativo) implements IdentifiedRecord {
 	public UserRecord(User obj) {
 		this(obj.getTitulacao(),
 			obj.getPosto(),
