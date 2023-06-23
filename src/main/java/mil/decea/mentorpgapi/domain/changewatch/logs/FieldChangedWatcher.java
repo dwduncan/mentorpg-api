@@ -5,13 +5,7 @@ public interface FieldChangedWatcher {
     Long getObjectId();
 
     String getObjectClass();
-
-    String getFieldName();
-
-    String getFieldType();
-
-    String getPreviousValueOrMessage();
-
+    String getChangeMessage();
     Long getParentId();
 
     String getParentClass();
@@ -22,11 +16,7 @@ public interface FieldChangedWatcher {
 
     void setObjectClass(String objectClass);
 
-    void setFieldName(String fieldName);
-
-    void setFieldType(String fieldType);
-
-    void setPreviousValueOrMessage(String previousValueOrMessage);
+    void setChangeMessage(String previousValueOrMessage);
 
     void setParentId(Long objectOwnerId);
 

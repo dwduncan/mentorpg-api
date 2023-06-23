@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import mil.decea.mentorpgapi.domain.TrackedEntity;
 
-@SuppressWarnings("unchecked")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,13 +21,8 @@ public class CollectionChangedLog implements FieldChangedWatcher {
     protected Long parentId;
     @NotNull
     protected String parentClass;
-    @NotNull
-    protected String fieldName;
-    @NotNull
-    protected String fieldType;
 
-    protected String previousValueOrMessage;
-
+    protected String changeMessage;
 
     protected boolean neverExpires;
 
@@ -44,24 +38,22 @@ public class CollectionChangedLog implements FieldChangedWatcher {
 
         if (beforeObj != null){
             //removed case
-            previousValueOrMessage = "removeu " + beforeObj.getEntityDescriptor();
+            changeMessage = "removeu " + beforeObj.getEntityDescriptor();
             changed = true;
         }else{
             //inserted case
-            previousValueOrMessage = "inseriu " + afterObj.getEntityDescriptor();
+            changeMessage = "inseriu " + afterObj.getEntityDescriptor();
             changed = true;
         }
 
         if (changed){
-
             this.objectClass = beforeObj.getClass().getName();
             this.objectId = beforeObj.getId();
             this.parentId = parentObject.getId();
             this.parentClass = parentObject.getClass().getName();
-            this.fieldName = "java.util.Collection";
 
         }else{
-            previousValueOrMessage = null;
+            changeMessage = null;
         }
 
     }

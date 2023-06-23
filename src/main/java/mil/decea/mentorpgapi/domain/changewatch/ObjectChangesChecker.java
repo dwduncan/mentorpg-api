@@ -29,10 +29,6 @@ public class ObjectChangesChecker<T extends TrackedEntity> {
         this(trackedObject, changedRecord, null);
     }
 
-    public ObjectChangesChecker(T trackedObject, T changedObject){
-        this(trackedObject, changedObject, null);
-    }
-
     public ObjectChangesChecker(T trackedObject, IdentifiedRecord changedRecord, TrackedEntity parentObject){
         this.trackedObject = trackedObject;
         this.changedRecord = changedRecord;
@@ -65,7 +61,7 @@ public class ObjectChangesChecker<T extends TrackedEntity> {
 
         if (changedObject == null) {
             allFields.stream()
-                    .filter(f -> !f.isAnnotationPresent(IgnoreTrackChange.class))
+                    .filter(f -> !f.isAnnotationPresent(IgnoreTrackChange.class) && !f.isAnnotationPresent(IgnoreTrackChange.class))
                     .forEach(this::trackField);
         }else{
             allFields.stream()
@@ -86,7 +82,7 @@ public class ObjectChangesChecker<T extends TrackedEntity> {
                 
                 if ((_chgRec instanceof IdentifiedRecord) && (_trackValue instanceof TrackedEntity)) {
                     TrackedEntity _parentObject = parentObject == null ? trackedObject : parentObject;
-                    ObjectChangesChecker<?> ocb = new ObjectChangesChecker((TrackedEntity) _trackValue,(IdentifiedRecord) _chgRec, _parentObject);
+                    ObjectChangesChecker<?> ocb = new ObjectChangesChecker<>((TrackedEntity) _trackValue,(IdentifiedRecord) _chgRec, _parentObject);
                     changesList.addAll(ocb.changesList);
                 }
             }catch (Exception ex){
@@ -107,7 +103,7 @@ public class ObjectChangesChecker<T extends TrackedEntity> {
 
                 if ((_chgRec instanceof TrackedEntity) && (_trackValue instanceof TrackedEntity)) {
                     TrackedEntity _parentObject = parentObject == null ? trackedObject : parentObject;
-                    ObjectChangesChecker<?> ocb = new ObjectChangesChecker((TrackedEntity) _trackValue,(TrackedEntity) _chgRec, _parentObject);
+                    ObjectChangesChecker<?> ocb = new ObjectChangesChecker<>((TrackedEntity) _trackValue,(TrackedEntity) _chgRec, _parentObject);
                     changesList.addAll(ocb.changesList);
                 }
             }catch (Exception ex){

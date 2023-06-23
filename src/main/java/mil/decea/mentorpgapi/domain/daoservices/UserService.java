@@ -5,10 +5,12 @@ import jakarta.persistence.NoResultException;
 import jakarta.persistence.criteria.*;
 import jakarta.transaction.Transactional;
 import mil.decea.mentorpgapi.domain.changewatch.logs.ChangeLog;
+import mil.decea.mentorpgapi.domain.changewatch.logs.FieldChangedLog;
 import mil.decea.mentorpgapi.domain.changewatch.logs.FieldChangedWatcher;
+import mil.decea.mentorpgapi.domain.changewatch.logs.ObjecCreatedLog;
+import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.NoValueTrack;
 import mil.decea.mentorpgapi.domain.daoservices.minio.ClientMinioImplemantationException;
 import mil.decea.mentorpgapi.domain.daoservices.minio.ClienteMinio;
-import mil.decea.mentorpgapi.domain.daoservices.repositories.ChangeLogRepository;
 import mil.decea.mentorpgapi.domain.daoservices.repositories.UserDocumentRepository;
 import mil.decea.mentorpgapi.domain.daoservices.repositories.UserRepository;
 import mil.decea.mentorpgapi.domain.documents.UserDocument;
@@ -32,9 +34,8 @@ import java.util.Locale;
 public class UserService implements UserDetailsService {
 
     private final UserRepository repository;
-
+    ChangeLogService changeLogService;
     UserDocumentRepository userDocumentRepository;
-    ChangeLogRepository changeLogRepository;
 
     //private final List<DTOValidator<UserRecord>> validators;
     private final EntityManager entityManager;
@@ -42,13 +43,13 @@ public class UserService implements UserDetailsService {
     private final ClienteMinio clienteMinio;
     @Autowired
     public UserService( UserRepository repository,
-                        ChangeLogRepository changeLogRepository,
+                        ChangeLogService changeLogService,
                         UserDocumentRepository userDocumentRepository,
                         //List<DTOValidator<UserRecord>> validators,
                         EntityManager entityManager,
                         ClienteMinio clienteMinio) {
         this.repository = repository;
-        this.changeLogRepository = changeLogRepository;
+        this.changeLogService = changeLogService;
         this.userDocumentRepository = userDocumentRepository;
         //this.validators = validators;
         this.entityManager = entityManager;
@@ -105,6 +106,10 @@ public class UserService implements UserDetailsService {
             entity.setSenha(_encryptPassword);
             repository.save(entity);
 
+            AuthUser ausr = (AuthUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            FieldChangedLog log = new FieldChangedLog("senha", entity, entity);
+            if (log.isChanged()) changeLogService.saveLog(log, ausr);
+
         }else{
             throw new MentorValidationException("A senha atual deve possuir no mínimo 8 caractéres");
         }
@@ -115,18 +120,23 @@ public class UserService implements UserDetailsService {
 
         AuthUser ausr = (AuthUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        String nome = ausr.getCpf() + " " + ausr.getNome();
+        boolean newUser = dados.id() == null;
 
-        var entity = dados.id() == null ? new User() : repository.getReferenceById(dados.id());
+        var entity = newUser ? new User() : repository.getReferenceById(dados.id());
 
-        List<FieldChangedWatcher> changes = entity.onValuesUpdated(dados);
+        List<FieldChangedWatcher> changes = newUser ? List.of(new ObjecCreatedLog(entity,null)) : entity.onValuesUpdated(dados);
 
         try {
             clienteMinio.updateObject(entity.getDocuments());
+
             boolean did = clienteMinio.updateObject(entity);
+
             entity = repository.save(entity);
+
             if (did) clienteMinio.insertSasUrl(entity);
-            changeLogRepository.saveAll(changes.stream().map(w -> new ChangeLog(w, ausr.getId(), nome)).toList());
+
+            changeLogService.insertLogs(changes, ausr);
+
             return new UserRecord(entity);
         } catch (ClientMinioImplemantationException e) {
             throw new ClientMinioImplemantationException(e);

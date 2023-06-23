@@ -4,7 +4,6 @@ package mil.decea.mentorpgapi.domain.changewatch.logs;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import mil.decea.mentorpgapi.domain.user.User;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -14,8 +13,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "changelogs", schema = "mentorpgapi",
-    indexes = {@Index(name = "class_id_index", columnList = "objectClass, objectId")})
+@Table(name = "changelogs", schema = "mentorpgapi")
 public class ChangeLog implements FieldChangedWatcher{
 
     @Id
@@ -24,7 +22,7 @@ public class ChangeLog implements FieldChangedWatcher{
 
     @NotNull
     @Column(columnDefinition = "TEXT")
-    protected String previousValueOrMessage;
+    protected String changeMessage;
 
     @NotNull
     protected Long parentId;
@@ -34,34 +32,30 @@ public class ChangeLog implements FieldChangedWatcher{
 
     @NotNull
     protected Long objectId;
+
     @NotNull
     @Column(columnDefinition = "TEXT")
     protected String objectClass;
-    @NotNull
-    @Column(columnDefinition = "TEXT")
-    protected String fieldName;
-    @NotNull
-    @Column(columnDefinition = "TEXT")
-    protected String fieldType;
 
-    protected long responsableId;
+    @NotNull
+    protected Long responsableId;
+
+    @NotNull
     @Column(columnDefinition = "TEXT")
-    @NotNull
     protected String responsableName;
-    @Column(columnDefinition = "TIMESTAMP")
+
     @NotNull
+    @Column(columnDefinition = "TIMESTAMP")
     protected LocalDateTime occurrenceTime;
 
     protected boolean neverExpires = false;
 
-    public ChangeLog(FieldChangedWatcher o, Long idUser, String nome){
-        previousValueOrMessage = o.getPreviousValueOrMessage();
+    public ChangeLog(FieldChangedWatcher o, @NotNull Long idUser,  @NotNull String nome){
+        changeMessage = o.getChangeMessage();
         parentId = o.getParentId();
         parentClass = o.getParentClass();
         objectId = o.getObjectId();
         objectClass = o.getObjectClass();
-        fieldName = o.getFieldName();
-        fieldType = o.getFieldType();
         responsableId = idUser;
         responsableName = nome;
         occurrenceTime = LocalDateTime.now();

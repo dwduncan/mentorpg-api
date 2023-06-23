@@ -16,7 +16,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.Objects;
 
-@SuppressWarnings("unchecked")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -31,12 +30,8 @@ public class FieldChangedLog implements FieldChangedWatcher {
     protected Long parentId;
     @NotNull
     protected String parentClass;
-    @NotNull
-    protected String fieldName;
-    @NotNull
-    protected String fieldType;
 
-    protected String previousValueOrMessage;
+    protected String changeMessage;
 
 
     protected boolean neverExpires;
@@ -51,6 +46,12 @@ public class FieldChangedLog implements FieldChangedWatcher {
         setValue(field,beforeObj,afterObj, parentObject);
     }
 
+
+    public FieldChangedLog(String fieldName, TrackedEntity beforeObj, TrackedEntity parentObject){
+        setValue(fieldName,beforeObj, parentObject);
+    }
+
+
     void setValue(Field field, TrackedEntity beforeObj, IdentifiedRecord afterObj, TrackedEntity parentObject){
 
         if (field == null || Collection.class.isAssignableFrom(field.getType())){
@@ -61,29 +62,27 @@ public class FieldChangedLog implements FieldChangedWatcher {
         neverExpires = field.isAnnotationPresent(NeverExpires.class);
 
         try {
-            this.fieldType = field.getType().getName();
             field.setAccessible(true);
-            Field fieldAfter = afterObj.getClass().getDeclaredField(fieldName);
+            Field fieldAfter = afterObj.getClass().getDeclaredField(field.getName());
             fieldAfter.setAccessible(true);
 
             String before = getFieldValue(field, beforeObj);
-            previousValueOrMessage = getFieldValue(fieldAfter, afterObj);
+            changeMessage = getFieldValue(fieldAfter, afterObj);
 
-            changed = Objects.equals(before, previousValueOrMessage);
+            changed = Objects.equals(before, changeMessage);
 
             if (changed){
 
                 if (nvTrack != null){
-                    previousValueOrMessage = nvTrack.value();
+                    changeMessage = nvTrack.value();
                 }
 
                 this.objectClass = beforeObj.getClass().getName();
                 this.objectId = beforeObj.getId();
                 this.parentId = parentObject == null ? objectId : parentObject.getId();
                 this.parentClass = parentObject == null ? objectClass : parentObject.getClass().getName();
-                this.fieldName = field.getName();
             }else{
-                previousValueOrMessage = null;
+                changeMessage = null;
             }
 
         }catch (Exception ex){ex.printStackTrace();}
@@ -99,33 +98,50 @@ public class FieldChangedLog implements FieldChangedWatcher {
         neverExpires = field.isAnnotationPresent(NeverExpires.class);
 
         try {
-            this.fieldType = field.getType().getName();
             field.setAccessible(true);
-            Field fieldAfter = afterObj.getClass().getDeclaredField(fieldName);
+            Field fieldAfter = afterObj.getClass().getDeclaredField(field.getName());
             fieldAfter.setAccessible(true);
 
             String before = getFieldValue(field, beforeObj);
-            previousValueOrMessage = getFieldValue(fieldAfter, afterObj);
+            changeMessage = getFieldValue(fieldAfter, afterObj);
 
-            changed = Objects.equals(before, previousValueOrMessage);
+            changed = Objects.equals(before, changeMessage);
 
             if (changed){
 
                 if (nvTrack != null){
-                    previousValueOrMessage = nvTrack.value();
+                    changeMessage = nvTrack.value();
                 }
 
                 this.objectClass = beforeObj.getClass().getName();
                 this.objectId = beforeObj.getId();
                 this.parentId = parentObject == null ? objectId : parentObject.getId();
                 this.parentClass = parentObject == null ? objectClass : parentObject.getClass().getName();
-                this.fieldName = field.getName();
             }else{
-                previousValueOrMessage = null;
+                changeMessage = null;
             }
 
         }catch (Exception ex){ex.printStackTrace();}
     }
+
+    void setValue(String fieldName, TrackedEntity beforeObj, TrackedEntity parentObject){
+
+        try{
+            Field f = beforeObj.getClass().getField(fieldName);
+            NoValueTrack nvTrack = f.getAnnotation(NoValueTrack.class);
+            if (nvTrack != null){
+                changed = true;
+                changeMessage = nvTrack.value();
+                this.objectClass = beforeObj.getClass().getName();
+                this.objectId = beforeObj.getId();
+                this.parentId = parentObject == null ? objectId : parentObject.getId();
+                this.parentClass = parentObject == null ? objectClass : parentObject.getClass().getName();
+            }
+        }catch (Exception ex){ex.printStackTrace();}
+
+    }
+
+
 
     private String getFieldValue(Field field, Object obj) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, NoSuchFieldException {
         InnerValueChange ivc = field.getType().getAnnotation(InnerValueChange.class);
