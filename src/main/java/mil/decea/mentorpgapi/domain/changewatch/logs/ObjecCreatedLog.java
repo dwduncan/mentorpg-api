@@ -8,6 +8,7 @@ import lombok.Setter;
 import mil.decea.mentorpgapi.domain.TrackedEntity;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 @SuppressWarnings("unchecked")
 @Getter
@@ -25,7 +26,7 @@ public class ObjecCreatedLog  implements FieldChangedWatcher, Serializable {
     @NotNull
     protected String parentClass;
 
-    protected String changeMessage;
+    protected String previousValue;
 
     protected boolean neverExpires;
 
@@ -34,11 +35,23 @@ public class ObjecCreatedLog  implements FieldChangedWatcher, Serializable {
     public ObjecCreatedLog(TrackedEntity object, TrackedEntity parentObject){
         neverExpires = true;
         changed = true;
-        changeMessage = "Objeto inserido: " + object.getEntityDescriptor();
+        previousValue = "Criado/inserido";
         this.objectClass = object.getClass().getName();
         this.objectId = object.getId();
         this.parentId = parentObject == null ? objectId : parentObject.getId();
         this.parentClass = parentObject == null ? objectClass : parentObject.getClass().getName();
+    }
+
+    /**
+     * Always set the object id like setObjectId does, however it will set the parent id only
+     * if objectClass and parentClass are equal.
+     * @param id
+     */
+    public void setObjectAndParentIdIfEquals(Long id){
+        objectId = id;
+        if (Objects.equals(parentClass, objectClass)){
+            parentId = id;
+        }
     }
 
 }

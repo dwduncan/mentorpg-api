@@ -22,7 +22,7 @@ public class CollectionChangedLog implements FieldChangedWatcher {
     @NotNull
     protected String parentClass;
 
-    protected String changeMessage;
+    protected String previousValue;
 
     protected boolean neverExpires;
 
@@ -36,24 +36,21 @@ public class CollectionChangedLog implements FieldChangedWatcher {
 
         if ((beforeObj == null && afterObj == null) || (beforeObj != null && afterObj != null)) return;
 
+        previousValue = null;
+        this.parentId = parentObject.getId();
+        this.parentClass = parentObject.getClass().getName();
+        changed = true;
+
         if (beforeObj != null){
             //removed case
-            changeMessage = "removeu " + beforeObj.getEntityDescriptor();
-            changed = true;
-        }else{
-            //inserted case
-            changeMessage = "inseriu " + afterObj.getEntityDescriptor();
-            changed = true;
-        }
-
-        if (changed){
+            previousValue = "removeu " + beforeObj.getEntityDescriptor();
             this.objectClass = beforeObj.getClass().getName();
             this.objectId = beforeObj.getId();
-            this.parentId = parentObject.getId();
-            this.parentClass = parentObject.getClass().getName();
-
         }else{
-            changeMessage = null;
+            //inserted case
+            previousValue = "inseriu " + afterObj.getEntityDescriptor();
+            this.objectClass = afterObj.getClass().getName();
+            this.objectId = afterObj.getId();
         }
 
     }

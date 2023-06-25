@@ -1,9 +1,9 @@
 package mil.decea.mentorpgapi.domain.user;
 
-import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.InnerValueChange;
+import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.TrackedByStringComparison;
 
 import java.util.Arrays;
-@InnerValueChange("getNome()")
+@TrackedByStringComparison
 public enum EstadoCivil {
 
     SOL("Solteiro(a)"),

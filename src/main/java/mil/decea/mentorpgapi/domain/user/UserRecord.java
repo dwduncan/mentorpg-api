@@ -11,7 +11,7 @@ public record UserRecord(
 Titulacao titulacao,
 Posto posto,
 String especialidade,
-	List<UserDocumentRecord>  documents,
+List<UserDocumentRecord>  documents,
 String nomeQualificado,
 ForcaSingular forcaSingular,
 String dataNascimento,
@@ -33,7 +33,7 @@ int antiguidadeRelativa,
 @mil.decea.mentorpgapi.domain.user.validation.annotations.IsValidCpf(message="Cpf inv\u00e1lido", payload={}, groups={})
 @NotNull(message="Informe um CPF v\u00e1lido", payload={}, groups={})
 String cpf,
-	UserImageRecord userImageRecord,
+UserImageRecord userImageRecord,
 boolean pttc,
 String quadro,
 Long id,

@@ -1,6 +1,6 @@
 package mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio;
 
-import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.InnerValueChange;
+import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.TrackedByStringComparison;
 
 /**
  * Força Aérea Brasileira - (FAB)
@@ -14,7 +14,7 @@ import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.InnerValueChange;
  * Time: 13:30
  */
 
-@InnerValueChange("getRotulo()")
+@TrackedByStringComparison
 public enum StatusDoc {
 
     NOVO(true,"Nenhum arquivo carregado","Rascunho"),
@@ -43,6 +43,11 @@ public enum StatusDoc {
     }
 
     public String getRotulo() {
+        return rotulo;
+    }
+
+    @Override
+    public String toString() {
         return rotulo;
     }
 }

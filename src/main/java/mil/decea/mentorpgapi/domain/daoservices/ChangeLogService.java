@@ -8,6 +8,7 @@ import mil.decea.mentorpgapi.domain.daoservices.repositories.ChangeLogRepository
 import mil.decea.mentorpgapi.domain.user.AuthUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,24 +27,25 @@ public class ChangeLogService {
         this.saveLogsService = saveLogsService;
     }
 
-    public void saveLog(ChangeLog log){
+    @Async
+    public void insert(ChangeLog log){
         changeLogRepository.save(log);
     }
 
-    public void saveLog(FieldChangedWatcher log, AuthUser authUser){
-        String nome = authUser.getCpf() + " " + authUser.getNome();
-        saveLog(new ChangeLog(log, authUser.getId(), nome));
+    @Async
+    public void insert(FieldChangedWatcher log){//, AuthUser authUser
+        saveLogsService.insert(log);
     }
 
     @Async
-    public void insertLogs(List<ChangeLog> logs){
+    public void insert(List<ChangeLog> logs){
         saveLogsService.saveLogs(logs);
     }
 
     @Async
-    public void insertLogs(Collection<FieldChangedWatcher> logs, AuthUser authUser){
+    public void insert(Collection<FieldChangedWatcher> logs){//, AuthUser authUser
         if (logs != null){
-            saveLogsService.saveLogs(logs,authUser);
+            saveLogsService.saveLogs(logs);
         }
     }
 
@@ -69,15 +71,22 @@ public class ChangeLogService {
             this.changeLogRepository = changeLogRepository;
         }
 
+
+        public void insert(FieldChangedWatcher log){
+            AuthUser authUser = (AuthUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            String nome = authUser.getNome() + " (" + authUser.getCpf() + ")";
+            changeLogRepository.save(new ChangeLog(log, authUser.getId(), nome));
+        }
         @Transactional
         public void saveLogs(List<ChangeLog> logs){
             changeLogRepository.saveAll(logs);
         }
 
         @Transactional
-        public void saveLogs(Collection<FieldChangedWatcher> logs, AuthUser ausr){
-            String nome = ausr.getCpf() + " " + ausr.getNome();
-            saveLogs(logs.stream().map(w -> new ChangeLog(w, ausr.getId(), nome)).toList());
+        public void saveLogs(Collection<FieldChangedWatcher> logs){//, AuthUser authUser
+            AuthUser authUser = (AuthUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            String nome = authUser.getNome() + " (" + authUser.getCpf() + ")";
+            saveLogs(logs.stream().map(w -> new ChangeLog(w, authUser.getId(), nome)).toList());
         }
     }
 

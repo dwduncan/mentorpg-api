@@ -1,7 +1,7 @@
 
 package mil.decea.mentorpgapi.domain.user;
 
-import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.InnerValueChange;
+import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.TrackedByStringComparison;
 
 import java.util.Arrays;
 import java.util.List;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  */
 
 @SuppressWarnings("unused")
-@InnerValueChange("getDescricao()")
+@TrackedByStringComparison
 public enum Sexo {
     MASCULINO("Masculino","Masc"),
     FEMININO("Feminino","Fem");
@@ -42,6 +42,10 @@ public enum Sexo {
         return ts.orElse(null);
     }
 
+    @Override
+    public String toString() {
+        return desc;
+    }
 
     public static List<String> getStringLista(){
         return Arrays.stream(Sexo.values()).map(Sexo::getDescricao).collect(Collectors.toList());

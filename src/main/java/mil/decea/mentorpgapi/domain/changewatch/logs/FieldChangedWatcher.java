@@ -3,20 +3,16 @@ package mil.decea.mentorpgapi.domain.changewatch.logs;
 @SuppressWarnings({"unused"})
 public interface FieldChangedWatcher {
     Long getObjectId();
-
     String getObjectClass();
-    String getChangeMessage();
+    String getPreviousValue();
     Long getParentId();
-
     String getParentClass();
-
     boolean isNeverExpires();
-
     void setObjectId(Long objectId);
 
     void setObjectClass(String objectClass);
 
-    void setChangeMessage(String previousValueOrMessage);
+    void setPreviousValue(String previousValueOrMessage);
 
     void setParentId(Long objectOwnerId);
 

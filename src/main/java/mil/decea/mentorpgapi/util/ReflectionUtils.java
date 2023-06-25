@@ -6,12 +6,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.time.temporal.Temporal;
+import java.util.*;
 
 public class ReflectionUtils {
 
@@ -93,14 +89,17 @@ public class ReflectionUtils {
     }
 
     public static boolean isToStringReadable(Class<?> _class){
-        return  _class.isPrimitive() || String.class.isAssignableFrom(_class) || Number.class.isAssignableFrom(_class)
-                || Boolean.class.isAssignableFrom(_class);
+        return  _class.isPrimitive()
+                || String.class.isAssignableFrom(_class)
+                || Number.class.isAssignableFrom(_class)
+                || Boolean.class.isAssignableFrom(_class)
+                || Temporal.class.isAssignableFrom(_class);
     }
 
-    public static List<Field> getAllNonCollectionsFields(Class<?> _class){
+    public static Set<Field> getAllNonCollectionsFields(Class<?> _class){
 
         Class<?> actual = _class;
-        List<Field> fields = new ArrayList<>(_class.getDeclaredFields().length);
+        Set<Field> fields = new HashSet<>(_class.getDeclaredFields().length);
 
         while (actual != Object.class){
             fields.addAll(Arrays.stream(_class.getDeclaredFields()).filter(f->!Collection.class.isAssignableFrom(f.getType())).toList());
@@ -111,7 +110,7 @@ public class ReflectionUtils {
         return fields;
     }
 
-    public static List<Field> getAllFields(Class<?> _class, boolean excludeCollectionsFields, String[] fieldsNames){
+    public static Set<Field> getAllFields(Class<?> _class, boolean excludeCollectionsFields, String[] fieldsNames){
 
         boolean emptyArgs =  (fieldsNames == null || fieldsNames.length == 0);
 
@@ -120,7 +119,7 @@ public class ReflectionUtils {
         }
 
         Class<?> actual = _class;
-        List<Field> fields = new ArrayList<>(_class.getDeclaredFields().length);
+        Set<Field> fields = new HashSet<>(_class.getDeclaredFields().length);
 
         List<String> _fieldsNames = emptyArgs ? new ArrayList<>() : Arrays.stream(fieldsNames).toList();
 

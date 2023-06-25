@@ -3,9 +3,8 @@ package mil.decea.mentorpgapi.util;
 import jakarta.persistence.Embedded;
 import jakarta.validation.Constraint;
 import mil.decea.mentorpgapi.domain.SequenceIdEntity;
-import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.TrackChange;
+import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.TrackOnlySelectedFields;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.*;
-import mil.decea.mentorpgapi.domain.documents.UserDocumentRecord;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -60,7 +59,7 @@ public class RecordUtils {
         String c = "mil.decea.mentorpgapi.domain.IdentifiedRecord";
         impConf.add(c);
         imps.append("import ").append(c).append(";\r\n");
-        boolean isTracked = classe.isAnnotationPresent(TrackChange.class);
+        boolean isTracked = classe.isAnnotationPresent(TrackOnlySelectedFields.class);
 
         reverseConstructor = new StringBuilder().append("onValuesUpdated(IdentifiedRecord incomingData) {\r\n\r\n");
         reverseConstructor.append("\t\t").append(recName).append(" rec = (").append(recName).append(") incomingData;");
@@ -612,9 +611,9 @@ public class RecordUtils {
         */
 
 
-        RecordUtils.exportReactModel(UserDocumentRecord.class,targetDirATD);
+        //RecordUtils.exportReactModel(UserDocumentRecord.class,targetDirATD);
 
-        //exportEnumsToTypeScript(targetDirATD, StatusDoc.class);
+        //exportEnumsToTypeScript(targetDirHome, Posto.class);
 
     }
 

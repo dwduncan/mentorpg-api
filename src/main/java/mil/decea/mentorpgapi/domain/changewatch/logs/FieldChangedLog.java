@@ -7,12 +7,17 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import mil.decea.mentorpgapi.domain.IdentifiedRecord;
 import mil.decea.mentorpgapi.domain.TrackedEntity;
-import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.InnerValueChange;
 import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.NeverExpires;
-import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.NoValueTrack;
+import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.PreviousValueMessage;
+import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.RecordFieldName;
+import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.TrackedByStringComparison;
+import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
+import mil.decea.mentorpgapi.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.time.temporal.Temporal;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -31,109 +36,123 @@ public class FieldChangedLog implements FieldChangedWatcher {
     @NotNull
     protected String parentClass;
 
-    protected String changeMessage;
-
+    protected String previousValue;
 
     protected boolean neverExpires;
 
     private boolean changed;
 
-    public FieldChangedLog(Field field, TrackedEntity beforeObj, IdentifiedRecord afterObj, TrackedEntity parentObject){
-        setValue(field,beforeObj,afterObj, parentObject);
+    public FieldChangedLog(Field field, TrackedEntity trackedObject, IdentifiedRecord incomingRecord, TrackedEntity parentObject){
+        setValue(field,trackedObject,incomingRecord, parentObject);
     }
 
-    public FieldChangedLog(Field field, TrackedEntity beforeObj, TrackedEntity afterObj, TrackedEntity parentObject){
-        setValue(field,beforeObj,afterObj, parentObject);
+    public FieldChangedLog(Field field, TrackedEntity trackedObject, TrackedEntity incomingObject, TrackedEntity parentObject){
+        setValue(field,trackedObject,incomingObject, parentObject);
+    }
+
+    public FieldChangedLog(String fieldName, TrackedEntity trackedObject, TrackedEntity parentObject){
+        setValue(fieldName,trackedObject, parentObject);
     }
 
 
-    public FieldChangedLog(String fieldName, TrackedEntity beforeObj, TrackedEntity parentObject){
-        setValue(fieldName,beforeObj, parentObject);
-    }
-
-
-    void setValue(Field field, TrackedEntity beforeObj, IdentifiedRecord afterObj, TrackedEntity parentObject){
+    void setValue(Field field,
+                  TrackedEntity trackedObject,
+                  IdentifiedRecord incomingRecord,
+                  TrackedEntity parentObject){
 
         if (field == null || Collection.class.isAssignableFrom(field.getType())){
             return;
         }
-
-        NoValueTrack nvTrack = field.getAnnotation(NoValueTrack.class);
+        
+        PreviousValueMessage pvm = field.getAnnotation(PreviousValueMessage.class);
         neverExpires = field.isAnnotationPresent(NeverExpires.class);
-
+        
         try {
+            RecordFieldName rfn = field.getAnnotation(RecordFieldName.class);
             field.setAccessible(true);
-            Field fieldAfter = afterObj.getClass().getDeclaredField(field.getName());
-            fieldAfter.setAccessible(true);
+            String fieldNameIncoming = rfn == null ? field.getName() : rfn.value();
+            Field fieldIncoming = incomingRecord.getClass().getDeclaredField(fieldNameIncoming);
+            fieldIncoming.setAccessible(true);
 
-            String before = getFieldValue(field, beforeObj);
-            changeMessage = getFieldValue(fieldAfter, afterObj);
+            String before = getFieldValue(field, trackedObject);
+            String incoming = getFieldValue(field, fieldIncoming, incomingRecord);
 
-            changed = Objects.equals(before, changeMessage);
+            changed = !Objects.equals(before, incoming);
 
             if (changed){
 
-                if (nvTrack != null){
-                    changeMessage = nvTrack.value();
+                //System.out.println(field.getName() + " Antes: " + before + "\t\t depois: " + incoming);
+
+                if (pvm != null){
+                    previousValue = pvm.value();
+                }else{
+                    previousValue = field.getName() +  ": " + before;
                 }
 
-                this.objectClass = beforeObj.getClass().getName();
-                this.objectId = beforeObj.getId();
+                this.objectClass = trackedObject.getClass().getName();
+                this.objectId = trackedObject.getId();
                 this.parentId = parentObject == null ? objectId : parentObject.getId();
                 this.parentClass = parentObject == null ? objectClass : parentObject.getClass().getName();
             }else{
-                changeMessage = null;
+                previousValue = null;
             }
 
         }catch (Exception ex){ex.printStackTrace();}
     }
 
-    void setValue(Field field, TrackedEntity beforeObj, TrackedEntity afterObj, TrackedEntity parentObject){
+    void setValue(Field field,
+                  TrackedEntity trackedObject,
+                  TrackedEntity incomingObject,
+                  TrackedEntity parentObject){
 
         if (field == null || Collection.class.isAssignableFrom(field.getType())){
             return;
         }
 
-        NoValueTrack nvTrack = field.getAnnotation(NoValueTrack.class);
+        PreviousValueMessage pvm = field.getAnnotation(PreviousValueMessage.class);
         neverExpires = field.isAnnotationPresent(NeverExpires.class);
 
         try {
+
+            Field fieldIncoming = incomingObject.getClass().getDeclaredField(field.getName());
+            fieldIncoming.setAccessible(true);
             field.setAccessible(true);
-            Field fieldAfter = afterObj.getClass().getDeclaredField(field.getName());
-            fieldAfter.setAccessible(true);
 
-            String before = getFieldValue(field, beforeObj);
-            changeMessage = getFieldValue(fieldAfter, afterObj);
+            String before = getFieldValue(field, trackedObject);
 
-            changed = Objects.equals(before, changeMessage);
+            String incomingValue = getFieldValue(fieldIncoming, incomingObject);
+
+            changed = Objects.equals(before, incomingValue);
 
             if (changed){
 
-                if (nvTrack != null){
-                    changeMessage = nvTrack.value();
+                if (pvm != null){
+                    previousValue = pvm.value();
+                }else{
+                    previousValue = getFieldValue(field, trackedObject);
                 }
 
-                this.objectClass = beforeObj.getClass().getName();
-                this.objectId = beforeObj.getId();
+                this.objectClass = trackedObject.getClass().getName();
+                this.objectId = trackedObject.getId();
                 this.parentId = parentObject == null ? objectId : parentObject.getId();
                 this.parentClass = parentObject == null ? objectClass : parentObject.getClass().getName();
             }else{
-                changeMessage = null;
+                previousValue = null;
             }
 
         }catch (Exception ex){ex.printStackTrace();}
     }
 
-    void setValue(String fieldName, TrackedEntity beforeObj, TrackedEntity parentObject){
+    void setValue(String fieldName, TrackedEntity trackedObject, TrackedEntity parentObject){
 
         try{
-            Field f = beforeObj.getClass().getField(fieldName);
-            NoValueTrack nvTrack = f.getAnnotation(NoValueTrack.class);
-            if (nvTrack != null){
+            Field f = ReflectionUtils.getFieldByNameRecursively(trackedObject.getClass(),fieldName);
+            PreviousValueMessage pvm = f == null ? null : f.getAnnotation(PreviousValueMessage.class);
+            if (pvm != null){
                 changed = true;
-                changeMessage = nvTrack.value();
-                this.objectClass = beforeObj.getClass().getName();
-                this.objectId = beforeObj.getId();
+                previousValue = pvm.value();
+                this.objectClass = trackedObject.getClass().getName();
+                this.objectId = trackedObject.getId();
                 this.parentId = parentObject == null ? objectId : parentObject.getId();
                 this.parentClass = parentObject == null ? objectClass : parentObject.getClass().getName();
             }
@@ -141,22 +160,40 @@ public class FieldChangedLog implements FieldChangedWatcher {
 
     }
 
-
-
     private String getFieldValue(Field field, Object obj) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, NoSuchFieldException {
-        InnerValueChange ivc = field.getType().getAnnotation(InnerValueChange.class);
-        Object value;
-        if (ivc != null){
-            boolean isMethod = ivc.value().endsWith("()");
-            if (isMethod){
-                value = field.getType().getDeclaredMethod(ivc.value()).invoke(obj);
-            }else{
-                value =field.getType().getDeclaredField(ivc.value()).get(obj);
-            }
-        }else{
-            value = field.get(obj);
+        Object value = field.get(obj);
+
+        if (value == null) return "";
+
+        if (Temporal.class.isAssignableFrom(field.getType())){
+            value = DateTimeAPIHandler.converter((Temporal) value);
         }
 
-        return value != null ? value.toString() : null;
+        return value.toString();
+    }
+
+    private String getFieldValue(Field trackedObjectField,Field field, IdentifiedRecord record) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, NoSuchFieldException {
+
+        Object value = field.get(record);
+
+        if (value == null) return "";
+
+        TrackedByStringComparison tbsc = trackedObjectField.getType().getAnnotation(TrackedByStringComparison.class);
+
+        if (tbsc != null && !tbsc.recordFieldToCompare().isBlank()){
+            Method method = value.getClass().getMethod(tbsc.recordFieldToCompare());
+            value = method.invoke(value);
+            if (value == null) return "";
+        }else if (Temporal.class.isAssignableFrom(field.getType())){
+            value = DateTimeAPIHandler.converterStringDate(value.toString());
+        }
+
+        return value.toString();
+    }
+
+
+    @Override
+    public String toString() {
+        return previousValue;
     }
 }

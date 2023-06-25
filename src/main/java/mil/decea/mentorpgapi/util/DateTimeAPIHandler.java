@@ -1,6 +1,8 @@
 package mil.decea.mentorpgapi.util;
 
-import java.time.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.Temporal;
 import java.util.List;
@@ -16,16 +18,39 @@ public class DateTimeAPIHandler {
             new TemporalStringConverter<LocalDateTime>("dd/MM/yyyy HH:mm",Pattern.compile("^\\d{2}/\\d{2}/\\d{4} \\d{2}:\\d{2}$").pattern(), new LocalDateTimeConverter()),
             new TemporalStringConverter<LocalDateTime>("dd/MM/yy HH:mm",Pattern.compile("^\\d{2}/\\d{2}/\\d{2} \\d{2}:\\d{2}$").pattern(), new LocalDateTimeConverter()),
             new TemporalStringConverter<LocalDateTime>("dd/MM/yy HH:mm:ss",Pattern.compile("^\\d{2}/\\d{2}/\\d{2} \\d{2}:\\d{2}:\\d{2}$").pattern(), new LocalDateTimeConverter()),
-            new TemporalStringConverter<LocalDateTime>("dd/MM/yyyy HH:mm:ss",Pattern.compile("^\\d{2}/\\d{2}/\\d{4} \\d{2}:\\d{2}:\\d{2}$").pattern(), new LocalDateTimeConverter()));
+            new TemporalStringConverter<LocalDateTime>("dd/MM/yyyy HH:mm:ss",Pattern.compile("^\\d{2}/\\d{2}/\\d{4} \\d{2}:\\d{2}:\\d{2}$").pattern(), new LocalDateTimeConverter())
+    );
+
     public static String converter(LocalDateTime localDateTime){
         if (localDateTime == null) return "";
         return localDateTime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
     }
 
-
     public static String converter(LocalDate localDate){
         if (localDate == null) return "";
         return localDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+    }
+
+    public static String converter(LocalTime localTime){
+        if (localTime == null) return "";
+        return localTime.format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+    }
+
+    public static String converter(Temporal temporal){
+
+        if (temporal instanceof LocalDate){
+            return converter((LocalDate) temporal);
+        }
+
+        if (temporal instanceof LocalDateTime){
+            return converter((LocalDateTime) temporal);
+        }
+
+        if (temporal instanceof LocalTime){
+            return converter((LocalTime) temporal);
+        }
+
+        return null;
     }
 
     public static <T extends Temporal> T converterStringDate(String date){

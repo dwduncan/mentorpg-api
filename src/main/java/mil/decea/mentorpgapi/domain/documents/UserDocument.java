@@ -7,9 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import mil.decea.mentorpgapi.domain.IdentifiedRecord;
 import mil.decea.mentorpgapi.domain.changewatch.ObjectChangesChecker;
-import mil.decea.mentorpgapi.domain.changewatch.logs.FieldChangedWatcher;
 import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.IgnoreTrackChange;
-import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.TrackChange;
+import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.TrackOnlySelectedFields;
 import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.TrackedElementCollection;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.MethodDefaultValue;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
@@ -20,15 +19,12 @@ import mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio.StatusDoc;
 import mil.decea.mentorpgapi.domain.user.User;
 import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Table(name = "userdocs", schema = "mentorpgapi")
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
-@TrackChange(onlyWithFieldsName = {"motivoRecusa", "statusDocumento", "nomeArquivo"})
+@TrackOnlySelectedFields({"motivoRecusa", "statusDocumento", "nomeArquivo"})
 public class UserDocument extends ExternalDataEntity implements MinioStorage, TrackedElementCollection<UserDocument> {
 
     @NotNull
@@ -49,26 +45,25 @@ public class UserDocument extends ExternalDataEntity implements MinioStorage, Tr
     private Long idExigencia;
 
     @NotForRecordField
-    public List<FieldChangedWatcher> onValuesUpdated(IdentifiedRecord incomingData) {
+    public ObjectChangesChecker onValuesUpdated(IdentifiedRecord incomingData) {
 
         UserDocumentRecord rec = (UserDocumentRecord) incomingData;
 
-        List<FieldChangedWatcher> changes = new ObjectChangesChecker<>(this, rec).getChangesList();
+        ObjectChangesChecker changes = new ObjectChangesChecker(this, rec, user);
 
+        this.setArquivoUrl(rec.arquivoUrl());
         this.setTipoDocumentacao(new DocumentType(rec.tipoDocumentacao()));
         this.setPreviousFileName(rec.previousFileName());
         this.setMotivoRecusa(rec.motivoRecusa());
         this.setIdExigencia(rec.idExigencia());
         this.setObrigatorio(rec.obrigatorio());
         this.setStatusDocumento(rec.statusDocumento());
-        this.setId(rec.id());
         this.setAtivo(rec.ativo());
         this.setNomeArquivo(rec.nomeArquivo());
         this.setFormato(rec.formato());
         this.setTamanho(rec.tamanho());
         this.setDataHoraUpload(DateTimeAPIHandler.converterStringDate(rec.dataHoraUpload()));
         this.setBase64Data(rec.base64Data());
-        this.setArquivoUrl(rec.arquivoUrl());
 
         return changes;
     }
@@ -131,8 +126,7 @@ public class UserDocument extends ExternalDataEntity implements MinioStorage, Tr
 
     @Override
     public String getEntityDescriptor() {
-        return user.getEntityDescriptor() + " - " + getTipoDocumentacao().getTipo()
-                + " - " + getNomeArquivo();
+        return " arquivo: " + getNomeArquivo() + " tipo: " + getTipoDocumentacao().getTipo();
     }
 
 

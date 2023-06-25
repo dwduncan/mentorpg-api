@@ -1,13 +1,14 @@
 package mil.decea.mentorpgapi.domain.changewatch.logs;
 
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,7 +23,7 @@ public class ChangeLog implements FieldChangedWatcher{
 
     @NotNull
     @Column(columnDefinition = "TEXT")
-    protected String changeMessage;
+    protected String previousValue;
 
     @NotNull
     protected Long parentId;
@@ -51,16 +52,17 @@ public class ChangeLog implements FieldChangedWatcher{
     protected boolean neverExpires = false;
 
     public ChangeLog(FieldChangedWatcher o, @NotNull Long idUser,  @NotNull String nome){
-        changeMessage = o.getChangeMessage();
+        previousValue = o.getPreviousValue();
         parentId = o.getParentId();
-        parentClass = o.getParentClass();
+        parentClass = o.getParentClass().replaceFirst("\\$.+","");
         objectId = o.getObjectId();
-        objectClass = o.getObjectClass();
+        objectClass = o.getObjectClass().replaceFirst("\\$.+","");
         responsableId = idUser;
         responsableName = nome;
         occurrenceTime = LocalDateTime.now();
         neverExpires = o.isNeverExpires();
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -72,4 +74,5 @@ public class ChangeLog implements FieldChangedWatcher{
     public int hashCode() {
         return Objects.hash(id);
     }
+
 }

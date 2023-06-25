@@ -28,10 +28,10 @@ public abstract class SequenceIdEntity implements TrackedEntity {
     protected Long id;
     boolean ativo = true;
 
-    public <T extends TrackedElementCollection<T>> List<FieldChangedWatcher> updateDocumentsCollections(Collection<T> currentCollection, Collection<T> updatedCollection, Class<?> elementType, boolean updateCurrentList){
+    public <T extends TrackedElementCollection<T>> CollectionsChangesChecker<T> updateDocumentsCollections(Collection<T> currentCollection, Collection<T> updatedCollection, Class<?> elementType, boolean updateCurrentList){
 
         CollectionsChangesChecker<T> ccc = new CollectionsChangesChecker<>(this, currentCollection, updatedCollection, elementType, updateCurrentList);
-        return ccc.getChangesList();
+        return ccc;
     }
 
 

@@ -8,12 +8,14 @@ import lombok.Setter;
 import mil.decea.mentorpgapi.domain.TrackedEntity;
 
 import java.io.Serializable;
+import java.util.Objects;
 
+@SuppressWarnings("unchecked")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ObjecRemovedLog implements FieldChangedWatcher, Serializable {
+public class ObjectUpdatedLog implements FieldChangedWatcher, Serializable {
 
     @NotNull
     protected Long objectId;
@@ -30,15 +32,26 @@ public class ObjecRemovedLog implements FieldChangedWatcher, Serializable {
 
     private boolean changed;
 
-    public ObjecRemovedLog(TrackedEntity object, TrackedEntity parentObject, boolean removedFromDB){
-        neverExpires = true;
+    public ObjectUpdatedLog(TrackedEntity object, TrackedEntity parentObject, String _previousValue, boolean _neverExpires){
+        neverExpires = _neverExpires;
         changed = true;
-        String rdb = removedFromDB ? "Objeto totalmente removido da base de dados: " : "Objeto removido: ";
-        previousValue = rdb + object.getEntityDescriptor();
+        previousValue = _previousValue;
         this.objectClass = object.getClass().getName();
         this.objectId = object.getId();
         this.parentId = parentObject == null ? objectId : parentObject.getId();
         this.parentClass = parentObject == null ? objectClass : parentObject.getClass().getName();
+    }
+
+    /**
+     * Always set the object id like setObjectId does, however it will set the parent id only
+     * if objectClass and parentClass are equal.
+     * @param id
+     */
+    public void setObjectAndParentIdIfEquals(Long id){
+        objectId = id;
+        if (Objects.equals(parentClass, objectClass)){
+            parentId = id;
+        }
     }
 
 }

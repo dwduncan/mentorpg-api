@@ -1,6 +1,7 @@
 package mil.decea.mentorpgapi.domain;
 
 import jakarta.persistence.MappedSuperclass;
+import mil.decea.mentorpgapi.domain.changewatch.ObjectChangesChecker;
 import mil.decea.mentorpgapi.domain.changewatch.logs.FieldChangedWatcher;
 
 import java.util.List;
@@ -22,7 +23,7 @@ public interface TrackedEntity {
 
     /**
      * <br>
-     * <b>ATENÇÃO: SE A CLASSE NÃO ESTIVER ANOTADA COM <i>@TrackChange</i> AS MUDANÇAS SOMENTE SERÃO COMPUTADAS SE A REFERIDA
+     * <b>ATENÇÃO: SE A CLASSE NÃO ESTIVER ANOTADA COM <i>@TrackOnlySelectedFields</i> AS MUDANÇAS SOMENTE SERÃO COMPUTADAS SE A REFERIDA
      * CLASSE FOR ATRIBUTO DE UMA OUTRA CLASSE QUE POSSUA ESSA ANOTAÇÃO</b>
      * <br> <br>
      * Método que todas as entidades devem implementar caso seja necessário rastrear suas alterações. No caso onde não
@@ -31,7 +32,7 @@ public interface TrackedEntity {
      * @param record objeto DTO com os valores a serem alterados na entidade ao qual se refere.
      * @return a lista de mudanças caso tenham ocorrido ou um array sempre vazio quando não houver controle de mudanças
      */
-    List<FieldChangedWatcher> onValuesUpdated(IdentifiedRecord incomingData);
+    ObjectChangesChecker onValuesUpdated(IdentifiedRecord incomingData);
 
-
+    //ObjectChangesChecker onValuesUpdated(IdentifiedRecord incomingData, TrackedEntity parentObject);
 }

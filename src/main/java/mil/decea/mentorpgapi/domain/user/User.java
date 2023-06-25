@@ -8,9 +8,9 @@ import lombok.Setter;
 import mil.decea.mentorpgapi.domain.IdentifiedRecord;
 import mil.decea.mentorpgapi.domain.SequenceIdEntity;
 import mil.decea.mentorpgapi.domain.changewatch.ObjectChangesChecker;
-import mil.decea.mentorpgapi.domain.changewatch.logs.FieldChangedWatcher;
-import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.NoValueTrack;
-import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.TrackChange;
+import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.PreviousValueMessage;
+import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.NotAutomatedTrack;
+import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.RecordFieldName;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.CollectionForRecordField;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
 import mil.decea.mentorpgapi.domain.daoservices.minio.MinioStorage;
@@ -33,7 +33,6 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@TrackChange
 public class User extends SequenceIdEntity implements UserDetails, MinioStorage {
 
     @IsValidCpf
@@ -42,6 +41,7 @@ public class User extends SequenceIdEntity implements UserDetails, MinioStorage 
     private String cpf;
     @Column @Enumerated(EnumType.STRING)
     private Titulacao titulacao;
+
     @Column @Enumerated(EnumType.STRING)
     private Posto posto;
     @Column(columnDefinition = "TEXT")
@@ -63,8 +63,9 @@ public class User extends SequenceIdEntity implements UserDetails, MinioStorage 
     private boolean pttc = false;
     private int antiguidadeRelativa;
     @NotForRecordField
+    @NotAutomatedTrack
     @Column(columnDefinition = "TEXT")
-    @NoValueTrack("Alterou a senha")
+    @PreviousValueMessage("Senha alterada")
     private String senha;
     @Column(columnDefinition = "TEXT")
     private String role;
@@ -72,9 +73,6 @@ public class User extends SequenceIdEntity implements UserDetails, MinioStorage 
     private String celular;
     @Column(columnDefinition = "TEXT")
     private String email;
-    @Embedded
-    @NoValueTrack("Alterou a foto do perfil")
-    private UserImage userImage;
     @Column(columnDefinition = "TEXT")
     private String identidade;
     @Column(columnDefinition = "DATE")
@@ -88,8 +86,13 @@ public class User extends SequenceIdEntity implements UserDetails, MinioStorage 
     @Column(columnDefinition = "TEXT")
     private String observacoes;
 
+    @Embedded
+    @RecordFieldName("userImageRecord")
+    @PreviousValueMessage("Foto de perfil alterada")
+    private UserImage userImage;
+
     @CollectionForRecordField(elementsOfType = UserDocument.class)
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<UserDocument> documents;
 
     @Transient
@@ -270,24 +273,16 @@ public class User extends SequenceIdEntity implements UserDetails, MinioStorage 
     }
 
     @NotForRecordField
-    public List<FieldChangedWatcher> onValuesUpdated(IdentifiedRecord incomingData) {
+    public ObjectChangesChecker onValuesUpdated(IdentifiedRecord incomingData) {
 
         UserRecord rec = (UserRecord) incomingData;
 
-        List<FieldChangedWatcher> changes = new ObjectChangesChecker<>(this, rec).getChangesList();
+        ObjectChangesChecker changes = new ObjectChangesChecker(this, rec, null);
 
-        List<FieldChangedWatcher> docs_changes = updateDocumentsCollections(getDocuments(),
-                rec.documents().stream().map(UserDocument::new).toList(),
-                UserDocument.class,
-                true);
-
-        getDocuments().forEach(d -> d.setUser(this));
-        changes.addAll(docs_changes);
-
+        this.getUserImage().updateValues(rec.userImageRecord());
         this.setPttc(rec.pttc());
         this.setQuadro(rec.quadro());
         this.setCpf(rec.cpf());
-        this.getUserImage().onValuesUpdated(rec.userImageRecord());
         this.setAntiguidadeRelativa(rec.antiguidadeRelativa());
         this.setTitulacao(rec.titulacao());
         this.setUltimaPromocao(DateTimeAPIHandler.converterStringDate(rec.ultimaPromocao()));

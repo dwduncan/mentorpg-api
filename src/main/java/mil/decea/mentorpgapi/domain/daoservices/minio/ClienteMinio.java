@@ -126,7 +126,8 @@ public class ClienteMinio implements Serializable {
 
             MinioClient client = minioClient();
             //it is necessary to delete the file, otherwise it will become garbage
-            if (source.hasPreviousStorageDestinationPath()){
+            if (source.hasPreviousStorageDestinationPath()
+                    && source.getPreviousStorageDestinationPath() != null){
                 //createBucketIfNotExists(client, bucketName);
                 client.removeObject(RemoveObjectArgs.builder()
                         .bucket(source.getBucket())
@@ -154,7 +155,7 @@ public class ClienteMinio implements Serializable {
         catch(InvalidKeyException | ErrorResponseException | InsufficientDataException
               | InternalException | InvalidResponseException | NoSuchAlgorithmException
               | ServerException | XmlParserException | IllegalArgumentException | IOException ex) {
-
+            ex.printStackTrace();
             throw new ClientMinioImplemantationException(ex);
         }
     }

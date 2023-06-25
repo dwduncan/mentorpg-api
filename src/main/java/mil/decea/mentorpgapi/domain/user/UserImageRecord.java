@@ -3,7 +3,7 @@ import mil.decea.mentorpgapi.domain.IdentifiedRecord;
 import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
 
 public record UserImageRecord(
-		Long id,
+Long id,
 String base64Data,
 String arquivoUrl,
 String formato,

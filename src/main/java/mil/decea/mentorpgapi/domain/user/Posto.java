@@ -1,7 +1,7 @@
 
 package mil.decea.mentorpgapi.domain.user;
 
-import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.InnerValueChange;
+import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.TrackedByStringComparison;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  * Time: 19:24
  */
 
-@InnerValueChange("getSigla()")
+@TrackedByStringComparison
 public enum Posto {
 
     TB("Ten Brig","Tenente Brigadeiro",2, true, false, false),
@@ -44,7 +44,7 @@ public enum Posto {
     CB("Cb","Cabo",16, true, true, true),
     S1("S1","Soldado de 1º Classe",17, true, true, true),
     S2("S2","Soldado de 2º Classe",18, true, true, true),
-    NIL("","",50, true, true, true);
+    NIL("SC","Servidor Civil",50, true, true, true);
 
     private final String sigla;
     private final String extenso;

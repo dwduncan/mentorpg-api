@@ -4,17 +4,14 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.criteria.*;
 import jakarta.transaction.Transactional;
-import mil.decea.mentorpgapi.domain.changewatch.logs.ChangeLog;
+import mil.decea.mentorpgapi.domain.changewatch.ObjectChangesChecker;
 import mil.decea.mentorpgapi.domain.changewatch.logs.FieldChangedLog;
 import mil.decea.mentorpgapi.domain.changewatch.logs.FieldChangedWatcher;
 import mil.decea.mentorpgapi.domain.changewatch.logs.ObjecCreatedLog;
-import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.NoValueTrack;
+import mil.decea.mentorpgapi.domain.changewatch.logs.ObjecRemovedLog;
 import mil.decea.mentorpgapi.domain.daoservices.minio.ClientMinioImplemantationException;
 import mil.decea.mentorpgapi.domain.daoservices.minio.ClienteMinio;
-import mil.decea.mentorpgapi.domain.daoservices.repositories.UserDocumentRepository;
 import mil.decea.mentorpgapi.domain.daoservices.repositories.UserRepository;
-import mil.decea.mentorpgapi.domain.documents.UserDocument;
-import mil.decea.mentorpgapi.domain.documents.UserDocumentRecord;
 import mil.decea.mentorpgapi.domain.user.*;
 import mil.decea.mentorpgapi.etc.exceptions.MentorValidationException;
 import mil.decea.mentorpgapi.etc.security.FirstAdminRecord;
@@ -35,22 +32,18 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository repository;
     ChangeLogService changeLogService;
-    UserDocumentRepository userDocumentRepository;
-
+    private final ClienteMinio clienteMinio;
     //private final List<DTOValidator<UserRecord>> validators;
     private final EntityManager entityManager;
 
-    private final ClienteMinio clienteMinio;
     @Autowired
     public UserService( UserRepository repository,
                         ChangeLogService changeLogService,
-                        UserDocumentRepository userDocumentRepository,
                         //List<DTOValidator<UserRecord>> validators,
                         EntityManager entityManager,
                         ClienteMinio clienteMinio) {
         this.repository = repository;
         this.changeLogService = changeLogService;
-        this.userDocumentRepository = userDocumentRepository;
         //this.validators = validators;
         this.entityManager = entityManager;
         this.clienteMinio = clienteMinio;
@@ -104,11 +97,11 @@ public class UserService implements UserDetailsService {
 
             String _encryptPassword = DefaultPasswordEncoder.encode(authUser.senha());
             entity.setSenha(_encryptPassword);
-            repository.save(entity);
+            entity = repository.save(entity);
 
-            AuthUser ausr = (AuthUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            //AuthUser ausr = (AuthUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             FieldChangedLog log = new FieldChangedLog("senha", entity, entity);
-            if (log.isChanged()) changeLogService.saveLog(log, ausr);
+            if (log.isChanged()) changeLogService.insert(log);
 
         }else{
             throw new MentorValidationException("A senha atual deve possuir no mínimo 8 caractéres");
@@ -120,14 +113,13 @@ public class UserService implements UserDetailsService {
 
         AuthUser ausr = (AuthUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        boolean newUser = dados.id() == null;
+        boolean newEntity = dados.id() == null;
 
-        var entity = newUser ? new User() : repository.getReferenceById(dados.id());
+        var entity = newEntity ? new User() : repository.getReferenceById(dados.id());
 
-        List<FieldChangedWatcher> changes = newUser ? List.of(new ObjecCreatedLog(entity,null)) : entity.onValuesUpdated(dados);
+        ObjectChangesChecker changes = entity.onValuesUpdated(dados);
 
         try {
-            clienteMinio.updateObject(entity.getDocuments());
 
             boolean did = clienteMinio.updateObject(entity);
 
@@ -135,7 +127,9 @@ public class UserService implements UserDetailsService {
 
             if (did) clienteMinio.insertSasUrl(entity);
 
-            changeLogService.insertLogs(changes, ausr);
+            if (newEntity) changes.setObjectAndParentIdIfEquals(entity.getId());
+
+            changeLogService.insert(changes);//, ausr
 
             return new UserRecord(entity);
         } catch (ClientMinioImplemantationException e) {
@@ -146,47 +140,25 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    @Transactional
-    public UserDocumentRecord saveUserDocument(UserDocumentRecord dados) throws ClientMinioImplemantationException {
-
-        if (dados.userId() == null){
-            throw new MentorValidationException("É necessário vincular um usuário ao documento!");
-        }
-
-        try {
-
-            var user = repository.getReferenceById(dados.userId());
-            UserDocument userDoc;
-            if (dados.id() == null || dados.id() < 1){
-                userDoc = new UserDocument(user);
-            }else{
-                userDoc = userDocumentRepository.getReferenceById(dados.id());
-            }
-            userDoc.onValuesUpdated(dados);
-            userDoc = userDocumentRepository.save(userDoc);
-            clienteMinio.updateObject(userDoc);
-
-            return new UserDocumentRecord(userDoc);
-        } catch (ClientMinioImplemantationException e) {
-            throw new ClientMinioImplemantationException(e);
-        } catch (Exception e){
-            e.printStackTrace();
-            throw new MentorValidationException("Falha ao salvar documento pessoal");
-        }
-    }
 
     public UserRecord delete(Long id){
         var entity = repository.getReferenceById(id);
         entity.setAtivo(false);
         repository.save(entity);
+        ObjecRemovedLog log = new ObjecRemovedLog(entity,null,false);
+        changeLogService.insert(log);
         return new UserRecord(entity);
     }
 
     public UserRecord deleteForever(Long id){
         var entity = repository.getReferenceById(id);
         try {
+
             clienteMinio.remove(entity);
             repository.delete(entity);
+            ObjecRemovedLog log = new ObjecRemovedLog(entity,null,true);
+            changeLogService.insert(log);
+
         } catch (ClientMinioImplemantationException e) {
             throw new RuntimeException(e);
         }

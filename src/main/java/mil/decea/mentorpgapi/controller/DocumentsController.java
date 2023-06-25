@@ -2,7 +2,7 @@ package mil.decea.mentorpgapi.controller;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
-import mil.decea.mentorpgapi.domain.daoservices.UserService;
+import mil.decea.mentorpgapi.domain.daoservices.DocumentsService;
 import mil.decea.mentorpgapi.domain.daoservices.minio.ClientMinioImplemantationException;
 import mil.decea.mentorpgapi.domain.daoservices.minio.ClienteMinio;
 import mil.decea.mentorpgapi.domain.documents.ExternalDocumentRecord;
@@ -22,12 +22,15 @@ import org.springframework.web.bind.annotation.RestController;
 @SecurityRequirement(name = "bearer-key")
 public class DocumentsController {
     private final ClienteMinio clienteMinio;
-    private final UserService userService;
+    private final DocumentsService documentsService;
 
     @Autowired
-    public DocumentsController(ClienteMinio clienteMinio, UserService userService) {
+    public DocumentsController(ClienteMinio clienteMinio,
+                               DocumentsService documentsService) {
+
         this.clienteMinio = clienteMinio;
-        this.userService = userService;
+        this.documentsService = documentsService;
+
     }
 
     @PostMapping("/view")
@@ -40,7 +43,7 @@ public class DocumentsController {
     @PostMapping("/savepersonaldoc")
     @Transactional
     public ResponseEntity<?> savePersonalDocument(@RequestBody @Valid UserDocumentRecord doc) throws ClientMinioImplemantationException {
-        return ResponseEntity.ok(userService.saveUserDocument(doc));
+        return ResponseEntity.ok(documentsService.saveUserDocument(doc));
     }
 
 }
