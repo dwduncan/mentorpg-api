@@ -3,10 +3,15 @@ package mil.decea.mentorpgapi.domain.daoservices;
 
 import mil.decea.mentorpgapi.domain.TrackedEntity;
 import mil.decea.mentorpgapi.domain.changewatch.logs.ChangeLog;
+import mil.decea.mentorpgapi.domain.changewatch.logs.ChangeLogRecord;
 import mil.decea.mentorpgapi.domain.changewatch.logs.FieldChangedWatcher;
+import mil.decea.mentorpgapi.domain.changewatch.logs.RequestLogsRecord;
 import mil.decea.mentorpgapi.domain.daoservices.repositories.ChangeLogRepository;
 import mil.decea.mentorpgapi.domain.user.AuthUser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -42,6 +47,14 @@ public class ChangeLogService {
         saveLogsService.saveLogs(logs);
     }
 
+    public Page<ChangeLog> getLogsByParent(String parentClass, Long parentId, Pageable pageable){
+        return changeLogRepository.findByParentClassAndParentId(parentClass, parentId, pageable);
+    }
+
+    public Page<ChangeLog> getLogsByParentAndObject(String parentClass, Long parentId, String objectClass, Long objectId,Pageable pageable){
+        return changeLogRepository.findByParentClassAndParentIdAndObjectClassAndObjectId(parentClass, parentId, objectClass, objectId,pageable);
+    }
+
     @Async
     public void insert(Collection<FieldChangedWatcher> logs){//, AuthUser authUser
         if (logs != null){
@@ -49,18 +62,30 @@ public class ChangeLogService {
         }
     }
 
+    public List<ChangeLog> getAllLogsFor(RequestLogsRecord req){
+        if (req.objectClass() == null){
+            return changeLogRepository.findByParentClassAndParentId(req.parentClass(), req.parentId());
+        }
+        return changeLogRepository.findByParentClassAndParentIdAndObjectClassAndObjectId(req.parentClass(), req.parentId(), req.objectClass(), req.objectId());
+    }
+
+
+    public Page<ChangeLogRecord> getAllLogsFor(RequestLogsRecord req, Pageable pageable){
+        Page<ChangeLog> _page;
+        if (req.objectClass() == null){
+            _page = changeLogRepository.findByParentClassAndParentId(req.parentClass(), req.parentId(), pageable);
+        }else{
+            _page = changeLogRepository.findByParentClassAndParentIdAndObjectClassAndObjectId(req.parentClass(), req.parentId(), req.objectClass(), req.objectId(), pageable);
+        }
+        Page<ChangeLogRecord> p2 = new PageImpl<>(_page.getContent().stream().map(ChangeLogRecord::new).toList(), pageable, _page.getTotalElements());
+
+        return p2;
+    }
+
     public List<ChangeLog> getAllLogsFor(TrackedEntity entity){
         return changeLogRepository.findByParentClassAndParentId(entity.getClass().getName(), entity.getId());
     }
 
-    public List<ChangeLog> getAllLogsFor(TrackedEntity parentEntity, TrackedEntity entity){
-        return changeLogRepository.findByParentClassAndParentIdAndObjectClassAndObjectId(
-                parentEntity.getClass().getName(),
-                parentEntity.getId(),
-                entity.getClass().getName(),
-                entity.getId()
-        );
-    }
 
     @Service
     static class SaveLogsService {

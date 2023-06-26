@@ -3,6 +3,9 @@ package mil.decea.mentorpgapi.util;
 import jakarta.persistence.Embedded;
 import jakarta.validation.Constraint;
 import mil.decea.mentorpgapi.domain.SequenceIdEntity;
+import mil.decea.mentorpgapi.domain.changewatch.logs.ChangeLog;
+import mil.decea.mentorpgapi.domain.changewatch.logs.ChangeLogRecord;
+import mil.decea.mentorpgapi.domain.changewatch.logs.RequestLogsRecord;
 import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.TrackOnlySelectedFields;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.*;
 
@@ -12,6 +15,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.Temporal;
 import java.util.*;
 
 public class RecordUtils {
@@ -79,23 +83,24 @@ public class RecordUtils {
                 if (cttr.getParameterCount() > 0) {
                     boolean a = false;
                     additionalConstructors.append("\r\n\tpublic ").append(recName).append("(");
-                    List<SimpleParam> subCFields = new ArrayList<>(cttr.getParameterCount());
+                    List<SimpleParam> subConstructorFields = new ArrayList<>(cttr.getParameterCount());
                     for (Parameter p : cttr.getParameters()) {
                         if (a) additionalConstructors.append(", ");
-                        subCFields.add(new SimpleParam(p));
-                        additionalConstructors.append(p.getType().getSimpleName()).append(" ").append(p.getName());
+                        subConstructorFields.add(new SimpleParam(p));
+                        String typeName = Temporal.class.isAssignableFrom(p.getType()) ? "String" : p.getType().getSimpleName();
+                        additionalConstructors.append(typeName).append(" ").append(p.getName());
                         a = true;
                     }
 
                     a = false;
                     additionalConstructors.append(") {\r\n\t\tthis(");
-                    for (SimpleParam cf : fullConstructorFields) {
+                    for (SimpleParam constructorField : fullConstructorFields) {
                         if (a) additionalConstructors.append(",\r\n\t\t\t");
-                        if (subCFields.contains(cf)) {
-                            additionalConstructors.append(cf.name);
+                        if (subConstructorFields.contains(constructorField)) {
+                            additionalConstructors.append(constructorField.name);
                         } else {
-                            if (cf.type.isPrimitive()) {
-                                if (boolean.class.isAssignableFrom(cf.type)) additionalConstructors.append("false");
+                            if (constructorField.type.isPrimitive()) {
+                                if (boolean.class.isAssignableFrom(constructorField.type)) additionalConstructors.append("false");
                                 else additionalConstructors.append("0");
                             } else {
                                 additionalConstructors.append("null");
@@ -386,6 +391,7 @@ public class RecordUtils {
             elseBuilderConstructor.append("\t\t\tthis.id = '';");
         }
 
+
         for(Field field: classe.getDeclaredFields()){
 
             if (field.isAnnotationPresent(NotForRecordField.class)) continue;
@@ -393,6 +399,8 @@ public class RecordUtils {
             boolean thisFieldsIsOptional = field.isAnnotationPresent(OptionalsRecordField.class);
 
             boolean optional = allFieldsAreOptional || thisFieldsIsOptional;
+
+            System.out.println(field.getName() + " " + optional + " " + (field.getAnnotations() != null ? field.getAnnotations().length : "0" ));
 
             String campo = field.getName();
 
@@ -611,7 +619,7 @@ public class RecordUtils {
         */
 
 
-        //RecordUtils.exportReactModel(UserDocumentRecord.class,targetDirATD);
+        RecordUtils.exportReactModel(RequestLogsRecord.class,targetDirATD);
 
         //exportEnumsToTypeScript(targetDirHome, Posto.class);
 
