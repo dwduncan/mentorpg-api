@@ -7,10 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import mil.decea.mentorpgapi.domain.IdentifiedRecord;
 import mil.decea.mentorpgapi.domain.TrackedEntity;
-import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.NeverExpires;
-import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.PreviousValueMessage;
-import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.RecordFieldName;
-import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.TrackedByStringComparison;
+import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.*;
 import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
 import mil.decea.mentorpgapi.util.ReflectionUtils;
 
@@ -81,12 +78,25 @@ public class FieldChangedLog implements FieldChangedWatcher {
 
             if (changed){
 
-                //System.out.println(field.getName() + " Antes: " + before + "\t\t depois: " + incoming);
+                AppendFieldLabelDescriptor labelDescriptor = field.getAnnotation(AppendFieldLabelDescriptor.class);
+
+                String appendLabel = "";
+
+                if (labelDescriptor != null){
+                    if (labelDescriptor.valueIsMethod()){
+                        try{
+                            Object v = trackedObject.getClass().getMethod(labelDescriptor.value()).invoke(trackedObject);
+                            appendLabel = v.toString() + " - ";
+                        }catch (Exception ex){ex.printStackTrace();}
+                    }else{
+                        appendLabel = labelDescriptor.value() + " - ";
+                    }
+                }
 
                 if (pvm != null){
-                    previousValue = pvm.value();
+                    previousValue = appendLabel + pvm.value();
                 }else{
-                    previousValue = field.getName() +  ": " + before;
+                    previousValue = appendLabel + field.getName() +  ": " + before;
                 }
 
                 this.objectClass = trackedObject.getClass().getName();
@@ -126,10 +136,24 @@ public class FieldChangedLog implements FieldChangedWatcher {
 
             if (changed){
 
+                AppendFieldLabelDescriptor labelDescriptor = field.getAnnotation(AppendFieldLabelDescriptor.class);
+
+                String appendLabel = "";
+
+                if (labelDescriptor != null){
+                    if (labelDescriptor.valueIsMethod()){
+                        try{
+                            Object v = trackedObject.getClass().getMethod(labelDescriptor.value()).invoke(trackedObject);
+                            appendLabel = v.toString() + " - ";
+                        }catch (Exception ex){ex.printStackTrace();}
+                    }else{
+                        appendLabel = labelDescriptor.value() + " - ";
+                    }
+                }
                 if (pvm != null){
-                    previousValue = pvm.value();
+                    previousValue = appendLabel + pvm.value();
                 }else{
-                    previousValue = getFieldValue(field, trackedObject);
+                    previousValue = appendLabel + getFieldValue(field, trackedObject);
                 }
 
                 this.objectClass = trackedObject.getClass().getName();
@@ -149,8 +173,24 @@ public class FieldChangedLog implements FieldChangedWatcher {
             Field f = ReflectionUtils.getFieldByNameRecursively(trackedObject.getClass(),fieldName);
             PreviousValueMessage pvm = f == null ? null : f.getAnnotation(PreviousValueMessage.class);
             if (pvm != null){
+
+                AppendFieldLabelDescriptor labelDescriptor = f.getAnnotation(AppendFieldLabelDescriptor.class);
+
+                String appendLabel = "";
+
+                if (labelDescriptor != null){
+                    if (labelDescriptor.valueIsMethod()){
+                        try{
+                            Object v = trackedObject.getClass().getMethod(labelDescriptor.value()).invoke(trackedObject);
+                            appendLabel = v.toString() + " - ";
+                        }catch (Exception ex){ex.printStackTrace();}
+                    }else{
+                        appendLabel = labelDescriptor.value() + " - ";
+                    }
+                }
+
                 changed = true;
-                previousValue = pvm.value();
+                previousValue = appendLabel + pvm.value();
                 this.objectClass = trackedObject.getClass().getName();
                 this.objectId = trackedObject.getId();
                 this.parentId = parentObject == null ? objectId : parentObject.getId();

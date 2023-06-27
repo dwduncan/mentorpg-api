@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import mil.decea.mentorpgapi.domain.IdentifiedRecord;
 import mil.decea.mentorpgapi.domain.changewatch.ObjectChangesChecker;
+import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.AppendFieldLabelDescriptor;
 import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.IgnoreTrackChange;
 import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.TrackOnlySelectedFields;
 import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.TrackedElementCollection;
@@ -38,8 +39,10 @@ public class UserDocument extends ExternalDataEntity implements MinioStorage, Tr
     @IgnoreTrackChange
     private DocumentType tipoDocumentacao;
     @Enumerated(EnumType.ORDINAL)
+    @AppendFieldLabelDescriptor(value = "getFieldLabelDescriptor",valueIsMethod = true)
     private StatusDoc statusDocumento = StatusDoc.NOVO;
     @Column(columnDefinition = "TEXT")
+    @AppendFieldLabelDescriptor(value = "getFieldLabelDescriptor",valueIsMethod = true)
     private String motivoRecusa;
     private boolean obrigatorio;
     private Long idExigencia;
@@ -129,6 +132,8 @@ public class UserDocument extends ExternalDataEntity implements MinioStorage, Tr
         return " arquivo: " + getNomeArquivo() + " tipo: " + getTipoDocumentacao().getTipo();
     }
 
-
+    public String getFieldLabelDescriptor() {
+        return getTipoDocumentacao().getTipo();
+    }
 
 }

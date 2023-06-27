@@ -7,6 +7,7 @@ import mil.decea.mentorpgapi.domain.daoservices.ChangeLogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.annotation.Validated;
@@ -27,7 +28,7 @@ public class LogsController {
     }
     @PostMapping("/searchLogs")
     public ResponseEntity<Page<ChangeLogRecord>> searchLogs(@RequestBody RequestLogsRecord req) {
-        return ResponseEntity.ok(changeLogService.getAllLogsFor(req, PageRequest.of(req.page(), req.size())));
+        return ResponseEntity.ok(changeLogService.getAllLogsFor(req, PageRequest.of(req.page(), req.size(), Sort.by("occurrenceTime").descending())));
     }
 
 }
