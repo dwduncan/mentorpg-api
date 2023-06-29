@@ -76,11 +76,9 @@ public class ChangeLogService {
         public SaveLogsService(ChangeLogRepository changeLogRepository) {
             this.changeLogRepository = changeLogRepository;
         }
-
-
         public void insert(FieldChangedWatcher log){
             AuthUser authUser = (AuthUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            String nome = authUser.getNome() + " (" + authUser.getCpf() + ")";
+            String nome = authUser.getDescricao() + " " + authUser.getCpf();
             changeLogRepository.save(new ChangeLog(log, authUser.getId(), nome));
         }
         @Transactional
@@ -91,7 +89,7 @@ public class ChangeLogService {
         @Transactional
         public void saveLogs(Collection<FieldChangedWatcher> logs){//, AuthUser authUser
             AuthUser authUser = (AuthUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            String nome = authUser.getNome() + " (" + authUser.getCpf() + ")";
+            String nome = authUser.getDescricao() +  " " + authUser.getCpf() ;
             saveLogs(logs.stream().map(w -> new ChangeLog(w, authUser.getId(), nome)).toList());
         }
     }

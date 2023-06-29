@@ -31,6 +31,7 @@ public class AuthUser implements UserDetails {
     private String senhaAntiga;
     private String role;
     private String nome;
+    private String descricao;
     private boolean ativo;
     @ObjectForRecordField
     private DataAuthority dataAuthority;
@@ -49,6 +50,24 @@ public class AuthUser implements UserDetails {
         this.authorities = role == null || role.isBlank() ? new ArrayList<>() :
                 Arrays.stream(role.split("\\s")).map(SimpleGrantedAuthority::new).toList();
     }
+
+    public AuthUser(Long id, String cpf, String role, String senha, String nome, boolean ativo, Posto posto, String quadro, String nomeguerra) {
+        this.id = id;
+        this.cpf = cpf;
+        this.senha = senha;
+        this.ativo = ativo;
+        this.role = role;
+        this.nome = nome;
+        this.descricao = createDescriptor(posto,quadro,nomeguerra);
+        this.authorities = role == null || role.isBlank() ? new ArrayList<>() :
+                Arrays.stream(role.split("\\s")).map(SimpleGrantedAuthority::new).toList();
+    }
+
+    private String createDescriptor(Posto posto, String quadro, String nomeguerra){
+        if (posto == null) posto = Posto.NIL;
+        if (quadro == null) quadro = "";
+        return posto.getSigla() + " " + quadro + " " + nomeguerra;
+     }
 
     @Override
     public List<SimpleGrantedAuthority> getAuthorities() {

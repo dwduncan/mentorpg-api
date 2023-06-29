@@ -35,7 +35,7 @@ public class UserController {
         this.documentsService = documentsService;
     }
 
-    @PostMapping
+    @PostMapping("/save")
     @Transactional
     public ResponseEntity save(@RequestBody @Valid UserRecord dados) throws ClientMinioImplemantationException{
         return ResponseEntity.ok(userService.save(dados));
@@ -45,6 +45,7 @@ public class UserController {
     @Secured({"ADMIN","COORDENADOR"})
     @Transactional
     public ResponseEntity changeOthersPassword(@RequestBody @Valid AuthUserRecord dados) {
+
         if (Objects.equals(dados.id(),dados.dataAuthorityRecord().id())) {
             ResponseEntity.status(HttpStatus.FORBIDDEN).body("Operação não autorizada!");
         }

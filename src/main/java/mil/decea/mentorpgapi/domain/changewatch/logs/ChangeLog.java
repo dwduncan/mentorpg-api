@@ -61,6 +61,7 @@ public class ChangeLog implements FieldChangedWatcher{
         responsableName = nome;
         occurrenceTime = LocalDateTime.now();
         neverExpires = o.isNeverExpires();
+
     }
 
     @Override

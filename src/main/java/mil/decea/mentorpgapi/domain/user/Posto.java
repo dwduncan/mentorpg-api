@@ -44,7 +44,7 @@ public enum Posto {
     CB("Cb","Cabo",16, true, true, true),
     S1("S1","Soldado de 1º Classe",17, true, true, true),
     S2("S2","Soldado de 2º Classe",18, true, true, true),
-    NIL("SC","Servidor Civil",50, true, true, true);
+    NIL("Civil","Civil Externo CAer",50, true, true, true);
 
     private final String sigla;
     private final String extenso;

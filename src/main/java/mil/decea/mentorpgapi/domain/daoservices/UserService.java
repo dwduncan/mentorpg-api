@@ -59,7 +59,10 @@ public class UserService implements UserDetailsService {
                         root.get("role"),
                         root.get("senha"),
                         root.get("nomeCompleto"),
-                        root.get("ativo"))
+                        root.get("ativo"),
+                        root.get("posto"),
+                        root.get("quadro"),
+                        root.get("nomeGuerra"))
                 .where(cb.equal(root.get("cpf"),cpf));
 
         try{
