@@ -1,47 +1,45 @@
 package mil.decea.mentorpgapi.domain.documents;
 import mil.decea.mentorpgapi.domain.IdentifiedRecord;
-import mil.decea.mentorpgapi.domain.documents.DocumentTypeRecord;
-
-import java.io.Serializable;
-import java.lang.Long;
 import mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio.StatusDoc;
+import java.lang.Long;
+import mil.decea.mentorpgapi.domain.documents.DocumentTypeRecord;
 import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
 
 public record UserDocumentRecord(
-Long userId,
 String storageDestinationPath,
-DocumentTypeRecord tipoDocumentacao,
-Long idExigencia,
-StatusDoc statusDocumento,
-String motivoRecusa,
-boolean obrigatorio,
 String bucket,
+StatusDoc statusDocumento,
+Long userId,
+boolean obrigatorio,
+String motivoRecusa,
+Long idExigencia,
+	DocumentTypeRecord tipoDocumentacao,
 Long id,
 boolean ativo,
 String previousFileName,
-long tamanho,
-String formato,
+String nomeArquivo,
 String dataHoraUpload,
 String base64Data,
-String nomeArquivo,
-String arquivoUrl) implements IdentifiedRecord {
+String arquivoUrl,
+String formato,
+long tamanho) implements IdentifiedRecord {
 	public UserDocumentRecord(UserDocument obj) {
-		this(obj.getUserId(),
-				"usr_" + obj.getUser().getId() +"/type_"+obj.getTipoDocumentacao().getId()+"/"+obj.getNomeArquivo(),
-			new DocumentTypeRecord(obj.getTipoDocumentacao()),
-			obj.getIdExigencia(),
-			obj.getStatusDocumento(),
-			obj.getMotivoRecusa(),
-			obj.isObrigatorio(),
+		this("usr_" + obj.getUser().getId() +"/type_"+obj.getTipoDocumentacao().getId()+"/"+obj.getNomeArquivo(),
 			"userdocuments",
+			obj.getStatusDocumento(),
+			obj.getUser().getId(),
+			obj.isObrigatorio(),
+			obj.getMotivoRecusa(),
+			obj.getIdExigencia(),
+			new DocumentTypeRecord(obj.getTipoDocumentacao()),
 			obj.getId(),
 			obj.isAtivo(),
 			obj.getPreviousFileName(),
-			obj.getTamanho(),
-			obj.getFormato(),
+			obj.getNomeArquivo(),
 			DateTimeAPIHandler.converter(obj.getDataHoraUpload())+"",
 			obj.getBase64Data(),
-			obj.getNomeArquivo(),
-			obj.getArquivoUrl());
+			obj.getArquivoUrl(),
+			obj.getFormato(),
+			obj.getTamanho());
 	}
 }

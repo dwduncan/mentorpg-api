@@ -80,7 +80,7 @@ public class UserDocument extends ExternalDataEntity implements MinioStorage, Tr
         onValuesUpdated(rec);
     }
 
-    @MethodDefaultValue(fieldName = "userId",defaultValue = "\"obj.getUser().getId()\"")
+    @MethodDefaultValue(fieldName = "userId",defaultValue = "obj.getUser().getId()")
     public Long getUserId(){
         return getUser().getId();
     }

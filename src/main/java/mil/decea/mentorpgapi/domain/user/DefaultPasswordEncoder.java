@@ -17,4 +17,8 @@ public class DefaultPasswordEncoder {
     public static boolean matchesPasswords(String notEncodedPassword, String encodedPassword){
         return defaultPasswordEncoder.matches(notEncodedPassword, encodedPassword);
     }
+
+    public static void main(String[] args){
+        System.out.println(encode("12345678") );
+    }
 }
