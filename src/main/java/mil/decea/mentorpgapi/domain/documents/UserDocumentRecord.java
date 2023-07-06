@@ -1,47 +1,45 @@
 package mil.decea.mentorpgapi.domain.documents;
 import mil.decea.mentorpgapi.domain.IdentifiedRecord;
 import mil.decea.mentorpgapi.domain.documents.DocumentTypeRecord;
-
-import java.io.Serializable;
 import java.lang.Long;
 import mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio.StatusDoc;
 import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
 
 public record UserDocumentRecord(
-Long userId,
 String storageDestinationPath,
-DocumentTypeRecord tipoDocumentacao,
+String bucket,
+	DocumentTypeRecord tipoDocumentacao,
+Long userId,
+String motivoRecusa,
 Long idExigencia,
 StatusDoc statusDocumento,
-String motivoRecusa,
 boolean obrigatorio,
-String bucket,
 Long id,
 boolean ativo,
 String previousFileName,
-long tamanho,
+String nomeArquivo,
 String formato,
 String dataHoraUpload,
 String base64Data,
-String nomeArquivo,
-String arquivoUrl) implements IdentifiedRecord {
+String arquivoUrl,
+long tamanho) implements IdentifiedRecord {
 	public UserDocumentRecord(UserDocument obj) {
-		this(obj.getUserId(),
-				"usr_" + obj.getUser().getId() +"/type_"+obj.getTipoDocumentacao().getId()+"/"+obj.getNomeArquivo(),
+		this("usr_" + obj.getUser().getId() +"/type_"+obj.getTipoDocumentacao().getId()+"/"+obj.getNomeArquivo(),
+			"userdocuments",
 			new DocumentTypeRecord(obj.getTipoDocumentacao()),
+			obj.getUser().getId(),
+			obj.getMotivoRecusa(),
 			obj.getIdExigencia(),
 			obj.getStatusDocumento(),
-			obj.getMotivoRecusa(),
 			obj.isObrigatorio(),
-			"userdocuments",
 			obj.getId(),
 			obj.isAtivo(),
 			obj.getPreviousFileName(),
-			obj.getTamanho(),
+			obj.getNomeArquivo(),
 			obj.getFormato(),
 			DateTimeAPIHandler.converter(obj.getDataHoraUpload())+"",
 			obj.getBase64Data(),
-			obj.getNomeArquivo(),
-			obj.getArquivoUrl());
+			obj.getArquivoUrl(),
+			obj.getTamanho());
 	}
 }

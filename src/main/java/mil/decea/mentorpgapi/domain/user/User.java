@@ -8,8 +8,8 @@ import lombok.Setter;
 import mil.decea.mentorpgapi.domain.IdentifiedRecord;
 import mil.decea.mentorpgapi.domain.SequenceIdEntity;
 import mil.decea.mentorpgapi.domain.changewatch.ObjectChangesChecker;
-import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.PreviousValueMessage;
 import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.NotAutomatedTrack;
+import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.PreviousValueMessage;
 import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.RecordFieldName;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.CollectionForRecordField;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
@@ -22,6 +22,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -106,7 +107,7 @@ public class User extends SequenceIdEntity implements UserDetails, MinioStorage 
                 String nomeGuerra,
                 String nomeCompleto) {
 
-        super(id, ativo);
+        super(id, ativo, LocalDateTime.now());
         this.cpf = cpf;
         this.posto = posto;
         this.quadro = quadro;
@@ -127,7 +128,7 @@ public class User extends SequenceIdEntity implements UserDetails, MinioStorage 
                 Sexo sexo,
                 boolean pttc) {
 
-        super(id, ativo);
+        super(id, ativo, LocalDateTime.now());
         this.cpf = cpf;
         this.titulacao = titulacao;
         this.posto = posto;
@@ -304,6 +305,7 @@ public class User extends SequenceIdEntity implements UserDetails, MinioStorage 
         this.setObservacoes(rec.observacoes());
         this.setId(rec.id());
         this.setAtivo(rec.ativo());
+        this.setLastUpdate(DateTimeAPIHandler.converterStringDate(rec.lastUpdate()));
 
         return changes;
     }

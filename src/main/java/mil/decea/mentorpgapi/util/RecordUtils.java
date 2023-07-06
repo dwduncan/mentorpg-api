@@ -8,6 +8,8 @@ import mil.decea.mentorpgapi.domain.changewatch.logs.ChangeLogRecord;
 import mil.decea.mentorpgapi.domain.changewatch.logs.RequestLogsRecord;
 import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.TrackOnlySelectedFields;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.*;
+import mil.decea.mentorpgapi.domain.user.User;
+import mil.decea.mentorpgapi.domain.user.UserRecord;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -58,7 +60,7 @@ public class RecordUtils {
 
         constructor = new StringBuilder(_constructorDeclaration);
 
-        String setterWay = "\r\n\t@NotForRecordField\r\n\tpublic List<FieldChangedLog> ";
+        String setterWay = "\r\n\t@NotForRecordField\r\n\tpublic ObjectChangesChecker ";
 
         String c = "mil.decea.mentorpgapi.domain.IdentifiedRecord";
         impConf.add(c);
@@ -66,10 +68,10 @@ public class RecordUtils {
         boolean isTracked = classe.isAnnotationPresent(TrackOnlySelectedFields.class);
 
         reverseConstructor = new StringBuilder().append("onValuesUpdated(IdentifiedRecord incomingData) {\r\n\r\n");
-        reverseConstructor.append("\t\t").append(recName).append(" rec = (").append(recName).append(") incomingData;");
+        reverseConstructor.append("\t\t").append(recName).append(" rec = (").append(recName).append(") incomingData;\r\n\r\n\t\t");
 
-        String _changes = isTracked ? "List<FieldChangedLog> changes = new ObjectChangesChecker<>(this, rec).getChangesList();\r\n\r\n" :
-                "List<FieldChangedLog> changes = new ArrayList();\r\n\r\n";
+        String _changes = isTracked ? "ObjectChangesChecker changes = new ObjectChangesChecker<>(this, rec).getChangesList();\r\n\r\n" :
+                "ObjectChangesChecker changes = new ObjectChangesChecker();\r\n\r\n";
         reverseConstructor.append(_changes);
 
         main.append(recName).append("(\r\n");
@@ -617,9 +619,10 @@ public class RecordUtils {
         exportEnumsToTypeScript(targetDirATD, User.class);
 
         */
+        //RecordUtils ru = new RecordUtils(User.class);
+        //ru.generateRecord();
 
-
-        RecordUtils.exportReactModel(RequestLogsRecord.class,targetDirATD);
+        RecordUtils.exportReactModel(UserRecord.class,targetDirATD);
 
         //exportEnumsToTypeScript(targetDirHome, Posto.class);
 

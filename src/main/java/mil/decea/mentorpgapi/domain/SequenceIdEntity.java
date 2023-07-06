@@ -1,9 +1,6 @@
 package mil.decea.mentorpgapi.domain;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,6 +9,7 @@ import mil.decea.mentorpgapi.domain.changewatch.CollectionsChangesChecker;
 import mil.decea.mentorpgapi.domain.changewatch.logs.FieldChangedWatcher;
 import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.TrackedElementCollection;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -27,6 +25,8 @@ public abstract class SequenceIdEntity implements TrackedEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
     boolean ativo = true;
+    @Column(columnDefinition = "TIMESTAMP")
+    protected LocalDateTime lastUpdate;
 
     public <T extends TrackedElementCollection<T>> CollectionsChangesChecker<T> updateDocumentsCollections(Collection<T> currentCollection, Collection<T> updatedCollection, Class<?> elementType, boolean updateCurrentList){
 
