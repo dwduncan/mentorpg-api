@@ -5,11 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import mil.decea.mentorpgapi.domain.EntityDTOAdapter;
 import mil.decea.mentorpgapi.domain.ExternalDataRecord;
-import mil.decea.mentorpgapi.domain.IdentifiedRecord;
 import mil.decea.mentorpgapi.domain.TrackedEntity;
-import mil.decea.mentorpgapi.domain.changewatch.ObjectChangesChecker;
 import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.AppendFieldLabelDescriptor;
 import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.IgnoreTrackChange;
 import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.TrackOnlySelectedFields;
@@ -21,7 +18,6 @@ import mil.decea.mentorpgapi.domain.daoservices.minio.MinioStorage;
 import mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio.ExternalDataEntity;
 import mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio.StatusDoc;
 import mil.decea.mentorpgapi.domain.user.User;
-import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
 
 @Table(name = "userdocs", schema = "mentorpgapi")
 @Entity

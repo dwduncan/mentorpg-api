@@ -5,10 +5,12 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import mil.decea.mentorpgapi.domain.*;
-import mil.decea.mentorpgapi.domain.changewatch.ObjectChangesChecker;
-import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.PreviousValueMessage;
+import mil.decea.mentorpgapi.domain.EmbeddedImage;
+import mil.decea.mentorpgapi.domain.IdentifiedRecord;
+import mil.decea.mentorpgapi.domain.SequenceIdEntity;
+import mil.decea.mentorpgapi.domain.TrackedEntity;
 import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.NotAutomatedTrack;
+import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.PreviousValueMessage;
 import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.RecordFieldName;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.CollectionForRecordField;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
@@ -113,6 +115,7 @@ public class User extends SequenceIdEntity implements UserDetails, MinioStorage 
         this.especialidade = especialidade;
         this.nomeGuerra = nomeGuerra;
         this.nomeCompleto = nomeCompleto;
+
     }
 
     public User(Long id,

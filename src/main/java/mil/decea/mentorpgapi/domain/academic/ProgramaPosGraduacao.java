@@ -10,6 +10,8 @@ import mil.decea.mentorpgapi.domain.IdentifiedRecord;
 import mil.decea.mentorpgapi.domain.SequenceIdEntity;
 import mil.decea.mentorpgapi.domain.TrackedEntity;
 import mil.decea.mentorpgapi.domain.changewatch.ObjectChangesChecker;
+import mil.decea.mentorpgapi.domain.daoservices.datageneration.CollectionForRecordField;
+import mil.decea.mentorpgapi.domain.documents.UserDocument;
 import mil.decea.mentorpgapi.domain.user.User;
 
 import java.util.ArrayList;
@@ -42,10 +44,9 @@ public class ProgramaPosGraduacao extends SequenceIdEntity {
     @Column(columnDefinition = "TEXT")
     private String fatoresCondicionantes;
 
-
-
     @OrderBy
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "programa")
+    @OneToMany(mappedBy = "programa")
+    @CollectionForRecordField(elementsOfType = AreaDeConcentracao.class)
     private List<AreaDeConcentracao> areasConcentracao = new ArrayList<>();
 
     public void setSigla(String sigla) {

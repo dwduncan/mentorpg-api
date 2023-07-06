@@ -8,7 +8,7 @@ public record UserImageRecord(
 Long id,
 String previousFileName,
 String nomeArquivo,
-String dataHoraUpload,
+String lastUpdate,
 String base64Data,
 String arquivoUrl,
 String formato,

@@ -4,7 +4,7 @@ public interface ExternalDataRecord extends IdentifiedRecord{
 
     String previousFileName();
     String nomeArquivo();
-    String dataHoraUpload();
+    String lastUpdate();
     String base64Data();
     String arquivoUrl();
     String formato();

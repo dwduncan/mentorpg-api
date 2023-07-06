@@ -2,6 +2,7 @@ package mil.decea.mentorpgapi.util;
 
 import jakarta.persistence.Embedded;
 import jakarta.validation.Constraint;
+import mil.decea.mentorpgapi.domain.EmbeddedExternalData;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.CollectionForRecordField;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.MethodDefaultValue;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
@@ -31,11 +32,14 @@ public class AdapterBuilder {
     StringBuilder injections = new StringBuilder();
     boolean hasAddedField;
     String targetDir;
+
+    boolean embeddableExternalData;
     public AdapterBuilder(Class<?> classe) {
         this.classe = classe;
         this.targetDir =  "./src/main/java/" + classe.getPackage().getName().replaceAll("\\.","/") + "/";;
         imps = new StringBuilder();
         recordClass = classe.getSimpleName() + "Record";
+        embeddableExternalData = EmbeddedExternalData.class.isAssignableFrom(classe);
     }
 
     public String build() throws IOException {
@@ -74,16 +78,19 @@ public class AdapterBuilder {
                         if (method.getReturnType().isRecord()) {
                             continue;
                         } else if (ofrf != null && ofrf.elementsOfType() != Object.class) {
-                            processAttribute(field,ofrf);
+                            //processAttribute(field,ofrf);
                         } else if (field.isAnnotationPresent(ObjectForRecordField.class)) {
                             processAttribute(method);
-                        } else if (field.isAnnotationPresent(Embedded.class)) {
+                        } else if (EmbeddedExternalData.class.isAssignableFrom(field.getType())) {
+                            processAttribute(field.getName());
+                        }  else if (field.isAnnotationPresent(Embedded.class)) {
                             String adapter = new AdapterBuilder(method.getReturnType()).build();
-                            processAttribute(adapter);
-                        } else {
+                            processAttribute(field.getType(), adapter);
+                        }  else {
                             processAttribute(method, field);
                         }
                     }
+
                 } catch (Exception ignored) {
                 }
             }
@@ -154,14 +161,29 @@ public class AdapterBuilder {
         hasAddedField = true;
     }
 
-    private void processAttribute(String adapter){
+    private void processAttribute(String fieldName){
 
-        String objName =  adapter.replace("Adapter","(");
-        String fieldName = adapter.substring(0, 1).toLowerCase() + adapter.substring(1);
-        String methodSetName = ".onValuesUpdated(";//"".set" + objName;
-        String methodGetName = "getEntity().get" + objName + ")";
-        injections.append("\r\n@Autowired\r\n").append(adapter).append(" ").append(fieldName).append(";\r\n");
+        String objName =  fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+        String methodGetName = "getEntity().get" + objName + "()";
+        injections.append("\r\n@Autowired\r\n").append("EmbeddedExternalDataAdapter ").append(fieldName).append(";\r\n");
         fileBody.append("\r\n\t\t").append(fieldName).append(".with(").append(methodGetName).append(", ").append("getIdentifiedRecord().").append(fieldName).append("Record()).updateEntity();");
+        hasAddedField = true;
+    }
+
+    private void processAttribute(Class<?> fieldType, String adapter){
+
+        String objName =  adapter.replace("Adapter","");
+        String fieldName = adapter.substring(0, 1).toLowerCase() + adapter.substring(1);
+        String methodGetName = "getEntity().get" + objName + "()";
+
+        if (EmbeddedExternalData.class.isAssignableFrom(fieldType)){
+            injections.append("\r\n@Autowired\r\n").append("EmbeddedExternalDataAdapter ").append(fieldName).append(";\r\n");
+        }else{
+            injections.append("\r\n@Autowired\r\n").append(adapter).append(" ").append(fieldName).append(";\r\n");
+        }
+        fileBody.append("\r\n\t\t").append(fieldName).append(".with(").append(methodGetName).append(", ").append("getIdentifiedRecord().").append(fieldName).append("Record()).updateEntity();");
+
+
         hasAddedField = true;
     }
 

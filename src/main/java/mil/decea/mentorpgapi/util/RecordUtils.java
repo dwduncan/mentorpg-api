@@ -2,9 +2,14 @@ package mil.decea.mentorpgapi.util;
 
 import jakarta.persistence.Embedded;
 import jakarta.validation.Constraint;
+import mil.decea.mentorpgapi.domain.EmbeddedExternalData;
+import mil.decea.mentorpgapi.domain.EmbeddedExternalDataRecord;
 import mil.decea.mentorpgapi.domain.SequenceIdEntity;
+import mil.decea.mentorpgapi.domain.academic.AreaDeConcentracao;
 import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.TrackOnlySelectedFields;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.*;
+import mil.decea.mentorpgapi.domain.documents.DocumentType;
+import mil.decea.mentorpgapi.domain.documents.UserDocument;
 import mil.decea.mentorpgapi.domain.user.User;
 
 import java.io.FileWriter;
@@ -149,6 +154,8 @@ public class RecordUtils {
                             } else if (field.isAnnotationPresent(ObjectForRecordField.class)) {
                                 String record = new RecordUtils(method.getReturnType()).generateRecord();
                                 processAttribute(method, prefixObjReference, prefixRecReference);
+                            } else if (EmbeddedExternalData.class.isAssignableFrom(field.getType())) {
+                                processAttribute(field.getName());
                             } else if (field.isAnnotationPresent(Embedded.class)) {
                                 String record = new RecordUtils(method.getReturnType()).generateRecord();
                                 processAttribute(record, prefixObjReference, prefixRecReference);
@@ -220,10 +227,13 @@ public class RecordUtils {
             main.append(annotations).append("String ").append(fieldName);
         } else {
 
-            if (!type.isPrimitive() && !(String.class.isAssignableFrom(type))
+            String typeComplementation = " ";
+            if (!type.isPrimitive() && !(String.class.isAssignableFrom(type)) && !Number.class.isAssignableFrom(type)
+                    && !Boolean.class.isAssignableFrom(type)
                     && !type.getPackage().equals(classe.getPackage()) && !impConf.contains(type.getName())) {
-                imps.append("import ").append(type.getName()).append(";\r\n");
-                impConf.add(type.getName());
+                typeComplementation = "Record ";
+                imps.append("import ").append(type.getName()).append("Record;\r\n");
+                impConf.add(type.getName()+"Record");
             }
 
             if (fieldName.equals("id")) reverseConstructor.append("\r\n\t\t").append(metodSetName).append(prefixRecReference).append(fieldName).append("());");
@@ -232,7 +242,7 @@ public class RecordUtils {
             if (Collection.class.isAssignableFrom(type)) {
                 main.append(annotations).append(type.getSimpleName()).append("<?> ").append(fieldName);
             } else {
-                main.append(annotations).append(type.getSimpleName()).append(" ").append(fieldName);
+                main.append(annotations).append(type.getSimpleName()).append(typeComplementation).append(fieldName);
             }
 
         }
@@ -261,6 +271,27 @@ public class RecordUtils {
         main.append("\t").append(name).append(" ").append(fieldName);
         constructor.append("new ").append(name).append("(").append(prefixObjReference).append("get").append(name.replace("Record","")).append("())");
         reverseConstructor.append("\r\n\t\t").append(methodGetName).append(methodSetName).append(prefixRecReference).append(fieldName).append("());");
+        hasAddedField = true;
+    }
+
+    private void processAttribute(String fieldName){
+
+        String objName =  fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+        String methodSetName = ".onValuesUpdated";//"".set" + objName;
+        String methodGetName = "this.get" + objName + ")";
+        if (!impConf.contains(EmbeddedExternalDataRecord.class.getName())) {
+            impConf.add(EmbeddedExternalDataRecord.class.getName());
+            imps.append("import ").append(EmbeddedExternalDataRecord.class.getName()).append(";\r\n");
+        }
+
+        if (hasAddedField) {
+            main.append(",\r\n");
+            constructor.append(",\r\n\t\t\t");
+        }
+
+        main.append("EmbeddedExternalDataRecord ").append(fieldName).append("Record");
+        constructor.append("new EmbeddedExternalDataRecord").append("(obj.get").append(objName).append("())");
+        reverseConstructor.append("\r\n\t\t").append(methodGetName).append(methodSetName).append("rec.").append(fieldName).append("Record());");
         hasAddedField = true;
     }
     private void processAttribute(Method method, String prefixObjReference, String prefixRecReference){
@@ -615,10 +646,10 @@ public class RecordUtils {
         exportEnumsToTypeScript(targetDirATD, User.class);
 
         */
-        //RecordUtils ru = new RecordUtils(AreaDeConcentracao.class);
-        //
+        RecordUtils ru = new RecordUtils(AreaDeConcentracao.class);
+        ru.generateRecord();
 
-        new AdapterBuilder(User.class).build();
+        new AdapterBuilder(AreaDeConcentracao.class).build();
 
         //RecordUtils.exportReactModel(UserRecord.class,targetDirHome);
 

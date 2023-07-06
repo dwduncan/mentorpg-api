@@ -1,6 +1,7 @@
 package mil.decea.mentorpgapi.domain;
 
 import jakarta.persistence.Embeddable;
+import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,12 +11,12 @@ import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField
 import mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio.AbstractExternalData;
 import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
 
-@Embeddable
+@MappedSuperclass
 @Getter
 @Setter
 @NoArgsConstructor
 @TrackedByStringComparison(recordFieldToCompare = "nomeArquivo")
-public class EmbeddedExternalData extends AbstractExternalData {
+public abstract class EmbeddedExternalData extends AbstractExternalData implements TrackedEntity{
 
     @Transient
     protected Long id;
@@ -23,4 +24,21 @@ public class EmbeddedExternalData extends AbstractExternalData {
     public String toString() {
         return getNomeArquivo();
     }
+
+
+    @Override
+    public String getEntityDescriptor() {
+        return getNomeArquivo();
+    }
+
+    @NotForRecordField
+    public void updateValues(EmbeddedExternalDataRecord rec) {
+        this.setBase64Data(rec.base64Data());
+        this.setArquivoUrl(rec.arquivoUrl());
+        this.setFormato(rec.formato());
+        this.setNomeArquivo(rec.nomeArquivo());
+        this.setLastUpdate(DateTimeAPIHandler.converterStringDate(rec.lastUpdate()));
+        this.setTamanho(rec.tamanho());
+    }
+
 }

@@ -1,9 +1,11 @@
 package mil.decea.mentorpgapi.domain.academic;
 
+
 import mil.decea.mentorpgapi.domain.AbstractEntityDTOAdapter;
 import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Service;import mil.decea.mentorpgapi.domain.user.User;
+import java.lang.Long;
 import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
-import org.springframework.stereotype.Service;
 
 
 @NoArgsConstructor
@@ -21,8 +23,8 @@ public class AreaDeConcentracaoAdapter extends AbstractEntityDTOAdapter<AreaDeCo
 		getEntity().setPrograma(getIdentifiedRecord().programa());
 		getEntity().setDefinicao(getIdentifiedRecord().definicao());
 		getEntity().setId(getIdentifiedRecord().id());
-		getEntity().setLastUpdate(DateTimeAPIHandler.converterStringDate(getIdentifiedRecord().lastUpdate()));
 		getEntity().setAtivo(getIdentifiedRecord().ativo());
+		getEntity().setLastUpdate(DateTimeAPIHandler.converterStringDate(getIdentifiedRecord().lastUpdate()));
 		return getEntity();
 	}
 }

@@ -5,17 +5,15 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import mil.decea.mentorpgapi.domain.EntityDTOAdapter;
 import mil.decea.mentorpgapi.domain.IdentifiedRecord;
 import mil.decea.mentorpgapi.domain.SequenceIdEntity;
 import mil.decea.mentorpgapi.domain.TrackedEntity;
 import mil.decea.mentorpgapi.domain.changewatch.ObjectChangesChecker;
+import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.RecordFieldName;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
+import mil.decea.mentorpgapi.domain.daoservices.datageneration.ObjectForRecordField;
 import mil.decea.mentorpgapi.domain.user.User;
 import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
-import org.hibernate.annotations.ColumnDefault;
-
-import java.util.ArrayList;
 
 /**
  * Força Aérea Brasileira - (FAB)
@@ -91,7 +89,7 @@ public class AreaDeConcentracao extends SequenceIdEntity implements Comparable<A
         ObjectChangesChecker changes = new ObjectChangesChecker(this, rec, programa);
 
 
-        this.setRepresentanteDaArea(rec.representanteDaArea());
+        //this.setRepresentanteDaArea(rec.representanteDaArea());
         this.setSigla(rec.sigla());
         this.setNome(rec.nome());
         this.setPrograma(rec.programa());

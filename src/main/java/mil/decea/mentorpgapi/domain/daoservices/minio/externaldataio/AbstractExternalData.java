@@ -51,7 +51,7 @@ public abstract class AbstractExternalData implements ExternalData {
         this.setArquivoUrl(rec.arquivoUrl());
         this.setFormato(rec.formato());
         this.setNomeArquivo(rec.nomeArquivo());
-        this.setLastUpdate(DateTimeAPIHandler.converterStringDate(rec.dataHoraUpload()));
+        this.setLastUpdate(DateTimeAPIHandler.converterStringDate(rec.lastUpdate()));
         this.setTamanho(rec.tamanho());
     }
 

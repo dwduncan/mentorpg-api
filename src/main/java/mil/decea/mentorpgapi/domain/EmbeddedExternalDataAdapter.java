@@ -1,21 +1,18 @@
 package mil.decea.mentorpgapi.domain;
 
-
-import mil.decea.mentorpgapi.domain.AbstractEntityDTOAdapter;
 import lombok.NoArgsConstructor;
-import org.springframework.stereotype.Service;import java.lang.Long;
 import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
-
+import org.springframework.stereotype.Service;
 
 @NoArgsConstructor
 @Service
-public class EmbeddedImageAdapter extends AbstractEntityDTOAdapter<EmbeddedImage, EmbeddedImageRecord> {
+public class EmbeddedExternalDataAdapter extends AbstractEntityDTOAdapter<EmbeddedExternalData, EmbeddedExternalDataRecord> {
 
 
 	@Override
-	public EmbeddedImageRecord generateRecord() { return new EmbeddedImageRecord(getEntity());}
+	public EmbeddedExternalDataRecord generateRecord() { return new EmbeddedExternalDataRecord(getEntity());}
 
-	public EmbeddedImage updateEntity() {
+	public EmbeddedExternalData updateEntity() {
 		getEntity().setId(getIdentifiedRecord().id());
 		getEntity().setPreviousFileName(getIdentifiedRecord().previousFileName());
 		getEntity().setNomeArquivo(getIdentifiedRecord().nomeArquivo());

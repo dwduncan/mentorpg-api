@@ -11,11 +11,17 @@ import mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio.AbstractExt
 import mil.decea.mentorpgapi.domain.user.UserImageRecord;
 import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
 
-@Embeddable
 @Getter
 @Setter
 @NoArgsConstructor
 @TrackedByStringComparison(recordFieldToCompare = "nomeArquivo")
+@Embeddable
 public class EmbeddedImage extends EmbeddedExternalData {
+
+    @Override
+    @Transient
+    public TrackedEntity getParentObject() {
+        return null;
+    }
 
 }

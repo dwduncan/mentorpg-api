@@ -12,7 +12,7 @@ import jakarta.persistence.MappedSuperclass;
  * @param record objeto DTO com os valores a serem alterados na entidade ao qual se refere.
  * @return a lista de mudanças caso tenham ocorrido ou um array sempre vazio quando não houver controle de mudanças
  */
-@MappedSuperclass
+
 public interface TrackedEntity extends DomainEntity{
 
 
