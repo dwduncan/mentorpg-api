@@ -2,7 +2,7 @@ package mil.decea.mentorpgapi.domain.documents;
 import mil.decea.mentorpgapi.domain.IdentifiedRecord;
 import mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio.StatusDoc;
 import java.lang.Long;
-import mil.decea.mentorpgapi.domain.documents.DocumentTypeRecord;
+
 import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
 
 public record UserDocumentRecord(
@@ -36,7 +36,7 @@ long tamanho) implements IdentifiedRecord {
 			obj.isAtivo(),
 			obj.getPreviousFileName(),
 			obj.getNomeArquivo(),
-			DateTimeAPIHandler.converter(obj.getDataHoraUpload())+"",
+			DateTimeAPIHandler.converter(obj.getLastUpdate())+"",
 			obj.getBase64Data(),
 			obj.getArquivoUrl(),
 			obj.getFormato(),

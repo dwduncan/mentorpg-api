@@ -6,8 +6,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import mil.decea.mentorpgapi.domain.EntityDTOAdapter;
 import mil.decea.mentorpgapi.domain.IdentifiedRecord;
 import mil.decea.mentorpgapi.domain.SequenceIdEntity;
+import mil.decea.mentorpgapi.domain.TrackedEntity;
 import mil.decea.mentorpgapi.domain.changewatch.ObjectChangesChecker;
 import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.TrackOnlySelectedFields;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
@@ -25,25 +27,10 @@ public class DocumentType extends SequenceIdEntity implements Comparable<Documen
     public String toString() {
         return tipo;
     }
-
     @Override
     public int compareTo(DocumentType o) {
         return getTipo().compareToIgnoreCase(o.getTipo());
     }
-    @NotForRecordField
-    public ObjectChangesChecker onValuesUpdated(IdentifiedRecord incomingData) {
-
-        DocumentTypeRecord rec = (DocumentTypeRecord) incomingData;
-
-        ObjectChangesChecker changes = new ObjectChangesChecker(this, rec, null);
-
-        this.setTipo(rec.tipo());
-        this.setId(rec.id());
-        this.setAtivo(rec.ativo());
-
-        return changes;
-    }
-
 
     @NotForRecordField
     public DocumentType(DocumentTypeRecord rec) {
@@ -51,9 +38,13 @@ public class DocumentType extends SequenceIdEntity implements Comparable<Documen
         this.setId(rec.id());
         this.setAtivo(rec.ativo());
     }
-
     @Override
     public String getEntityDescriptor() {
         return getTipo();
+    }
+
+    @Override
+    public TrackedEntity getParentObject() {
+        return null;
     }
 }

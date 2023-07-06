@@ -5,8 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import mil.decea.mentorpgapi.domain.IdentifiedRecord;
-import mil.decea.mentorpgapi.domain.SequenceIdEntity;
+import mil.decea.mentorpgapi.domain.*;
 import mil.decea.mentorpgapi.domain.changewatch.ObjectChangesChecker;
 import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.PreviousValueMessage;
 import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.NotAutomatedTrack;
@@ -90,7 +89,7 @@ public class User extends SequenceIdEntity implements UserDetails, MinioStorage 
     @Embedded
     @RecordFieldName("userImageRecord")
     @PreviousValueMessage("Foto de perfil alterada")
-    private UserImage userImage;
+    private EmbeddedImage userImage;
 
     @CollectionForRecordField(elementsOfType = UserDocument.class)
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
@@ -152,8 +151,8 @@ public class User extends SequenceIdEntity implements UserDetails, MinioStorage 
         this.cpf = cpf.replaceAll("\\D","") ;
     }
 
-    public UserImage getUserImage(){
-        if (userImage == null) userImage = new UserImage();
+    public EmbeddedImage getUserImage(){
+        if (userImage == null) userImage = new EmbeddedImage();
         return userImage;
     }
 
@@ -207,7 +206,7 @@ public class User extends SequenceIdEntity implements UserDetails, MinioStorage 
 
     @Override
     @NotForRecordField
-    public UserImage getExternalData() {
+    public EmbeddedImage getExternalData() {
         return getUserImage();
     }
 
@@ -274,11 +273,9 @@ public class User extends SequenceIdEntity implements UserDetails, MinioStorage 
     }
 
     @NotForRecordField
-    public ObjectChangesChecker onValuesUpdated(IdentifiedRecord incomingData) {
+    public void onValuesUpdated(IdentifiedRecord incomingData) {
 
         UserRecord rec = (UserRecord) incomingData;
-
-        ObjectChangesChecker changes = new ObjectChangesChecker(this, rec, null);
 
         this.getUserImage().updateValues(rec.userImageRecord());
         this.setPttc(rec.pttc());
@@ -306,9 +303,12 @@ public class User extends SequenceIdEntity implements UserDetails, MinioStorage 
         this.setId(rec.id());
         this.setAtivo(rec.ativo());
         this.setLastUpdate(DateTimeAPIHandler.converterStringDate(rec.lastUpdate()));
-        return changes;
     }
 
+    @Override
+    public TrackedEntity getParentObject() {
+        return null;
+    }
 
 
     @NotForRecordField
@@ -320,4 +320,5 @@ public class User extends SequenceIdEntity implements UserDetails, MinioStorage 
     public String getEntityDescriptor() {
         return getCpf() + " - " + getNomeCompleto();
     }
+
 }

@@ -5,7 +5,10 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import mil.decea.mentorpgapi.domain.EntityDTOAdapter;
+import mil.decea.mentorpgapi.domain.ExternalDataRecord;
 import mil.decea.mentorpgapi.domain.IdentifiedRecord;
+import mil.decea.mentorpgapi.domain.TrackedEntity;
 import mil.decea.mentorpgapi.domain.changewatch.ObjectChangesChecker;
 import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.AppendFieldLabelDescriptor;
 import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.IgnoreTrackChange;
@@ -47,37 +50,10 @@ public class UserDocument extends ExternalDataEntity implements MinioStorage, Tr
     private boolean obrigatorio;
     private Long idExigencia;
 
-    @NotForRecordField
-    public ObjectChangesChecker onValuesUpdated(IdentifiedRecord incomingData) {
-
-        UserDocumentRecord rec = (UserDocumentRecord) incomingData;
-
-        ObjectChangesChecker changes = new ObjectChangesChecker(this, rec, user);
-
-        this.setArquivoUrl(rec.arquivoUrl());
-        this.setTipoDocumentacao(new DocumentType(rec.tipoDocumentacao()));
-        this.setPreviousFileName(rec.previousFileName());
-        this.setMotivoRecusa(rec.motivoRecusa());
-        this.setIdExigencia(rec.idExigencia());
-        this.setObrigatorio(rec.obrigatorio());
-        this.setStatusDocumento(rec.statusDocumento());
-        this.setAtivo(rec.ativo());
-        this.setNomeArquivo(rec.nomeArquivo());
-        this.setFormato(rec.formato());
-        this.setTamanho(rec.tamanho());
-        this.setDataHoraUpload(DateTimeAPIHandler.converterStringDate(rec.dataHoraUpload()));
-        this.setBase64Data(rec.base64Data());
-
-        return changes;
-    }
 
     @NotForRecordField
     public UserDocument(User user) {
         this.user = user;
-    }
-    @NotForRecordField
-    public UserDocument(UserDocumentRecord rec) {
-        onValuesUpdated(rec);
     }
 
     @MethodDefaultValue(fieldName = "userId",defaultValue = "obj.getUser().getId()")
@@ -122,7 +98,7 @@ public class UserDocument extends ExternalDataEntity implements MinioStorage, Tr
         this.setNomeArquivo(previousEntity.getNomeArquivo());
         this.setFormato(previousEntity.getFormato());
         this.setTamanho(previousEntity.getTamanho());
-        this.setDataHoraUpload(previousEntity.getDataHoraUpload());
+        this.setLastUpdate(previousEntity.getLastUpdate());
         this.setBase64Data(previousEntity.getBase64Data());
         this.setArquivoUrl(previousEntity.getArquivoUrl());
     }
@@ -132,8 +108,17 @@ public class UserDocument extends ExternalDataEntity implements MinioStorage, Tr
         return " arquivo: " + getNomeArquivo() + " tipo: " + getTipoDocumentacao().getTipo();
     }
 
+    @Override
+    public TrackedEntity getParentObject() {
+        return user;
+    }
+
     public String getFieldLabelDescriptor() {
         return getTipoDocumentacao().getTipo();
     }
 
+    @Override
+    public void updateValues(ExternalDataRecord rec) {
+
+    }
 }

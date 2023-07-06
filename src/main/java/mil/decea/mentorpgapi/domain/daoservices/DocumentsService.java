@@ -2,8 +2,6 @@ package mil.decea.mentorpgapi.domain.daoservices;
 
 import jakarta.transaction.Transactional;
 import mil.decea.mentorpgapi.domain.changewatch.ObjectChangesChecker;
-import mil.decea.mentorpgapi.domain.changewatch.logs.FieldChangedWatcher;
-import mil.decea.mentorpgapi.domain.changewatch.logs.ObjecCreatedLog;
 import mil.decea.mentorpgapi.domain.daoservices.minio.ClientMinioImplemantationException;
 import mil.decea.mentorpgapi.domain.daoservices.minio.ClienteMinio;
 import mil.decea.mentorpgapi.domain.daoservices.repositories.DocumentTypeRepository;
@@ -11,14 +9,15 @@ import mil.decea.mentorpgapi.domain.daoservices.repositories.UserDocumentReposit
 import mil.decea.mentorpgapi.domain.daoservices.repositories.UserRepository;
 import mil.decea.mentorpgapi.domain.documents.DocumentTypeRecord;
 import mil.decea.mentorpgapi.domain.documents.UserDocument;
+import mil.decea.mentorpgapi.domain.documents.UserDocumentAdapter;
 import mil.decea.mentorpgapi.domain.documents.UserDocumentRecord;
 import mil.decea.mentorpgapi.domain.user.AuthUser;
+import mil.decea.mentorpgapi.domain.user.UserAdapter;
 import mil.decea.mentorpgapi.etc.exceptions.MentorValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 @SuppressWarnings("unused")
 @Service
@@ -29,19 +28,21 @@ public class DocumentsService {
     ChangeLogService changeLogService;
     UserDocumentRepository userDocumentRepository;
     ClienteMinio clienteMinio;
+    UserDocumentAdapter userDocumentAdapter;
 
     @Autowired
     public DocumentsService(DocumentTypeRepository documentTypeRepository,
                             ChangeLogService changeLogService,
                             UserDocumentRepository userDocumentRepository,
                             UserRepository userRepository,
-                            ClienteMinio clienteMinio) {
+                            ClienteMinio clienteMinio,
+                            UserDocumentAdapter userDocumentAdapter) {
         this.documentTypeRepository = documentTypeRepository;
-
         this.changeLogService = changeLogService;
         this.userDocumentRepository = userDocumentRepository;
         this.clienteMinio = clienteMinio;
         this.userRepository = userRepository;
+        this.userDocumentAdapter = userDocumentAdapter;
     }
 
 
@@ -67,7 +68,7 @@ public class DocumentsService {
 
             UserDocument userDoc = newEntity ? new UserDocument(user) : userDocumentRepository.getReferenceById(dados.id());
 
-            ObjectChangesChecker changes = userDoc.onValuesUpdated(dados);
+            ObjectChangesChecker changes = userDocumentAdapter.with(userDoc, dados).getChangesAndUpdate();
 
             userDoc = userDocumentRepository.save(userDoc);
 

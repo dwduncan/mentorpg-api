@@ -26,8 +26,6 @@ public abstract class SequenceIdEntity implements TrackedEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
     boolean ativo = true;
-    @Column(columnDefinition = "TIMESTAMP")
-    protected LocalDateTime lastUpdate;
 
     @IgnoreTrackChange
     @Column(columnDefinition = "TIMESTAMP")

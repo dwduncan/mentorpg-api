@@ -1,16 +1,20 @@
 package mil.decea.mentorpgapi.domain;
 
 import jakarta.persistence.MappedSuperclass;
-import mil.decea.mentorpgapi.domain.changewatch.ObjectChangesChecker;
-import mil.decea.mentorpgapi.domain.changewatch.logs.FieldChangedWatcher;
-
-import java.util.List;
-
+/**
+ * <br>
+ * <b>ATENÇÃO: SE A CLASSE NÃO ESTIVER ANOTADA COM <i>@TrackOnlySelectedFields</i> AS MUDANÇAS SOMENTE SERÃO COMPUTADAS SE A REFERIDA
+ * CLASSE FOR ATRIBUTO DE UMA OUTRA CLASSE QUE POSSUA ESSA ANOTAÇÃO</b>
+ * <br> <br>
+ * Método que todas as entidades devem implementar caso seja necessário rastrear suas alterações. No caso onde não
+ * se deseja rastrear ou os dados são verificados pelo método de updateValues de outro objeto, recomenda-se retornar
+ * uma List vazia.
+ * @param record objeto DTO com os valores a serem alterados na entidade ao qual se refere.
+ * @return a lista de mudanças caso tenham ocorrido ou um array sempre vazio quando não houver controle de mudanças
+ */
 @MappedSuperclass
-public interface TrackedEntity {
+public interface TrackedEntity extends DomainEntity{
 
-    Long getId();
-    void setId(Long id);
 
     /**
      * Descritor simples que resume ou sintetiza em uma única string o que foi alterado de importante no objeto.
@@ -20,19 +24,7 @@ public interface TrackedEntity {
      * @return a descrição resumida da mudança
      */
      String getEntityDescriptor();
+     TrackedEntity getParentObject();
 
-    /**
-     * <br>
-     * <b>ATENÇÃO: SE A CLASSE NÃO ESTIVER ANOTADA COM <i>@TrackOnlySelectedFields</i> AS MUDANÇAS SOMENTE SERÃO COMPUTADAS SE A REFERIDA
-     * CLASSE FOR ATRIBUTO DE UMA OUTRA CLASSE QUE POSSUA ESSA ANOTAÇÃO</b>
-     * <br> <br>
-     * Método que todas as entidades devem implementar caso seja necessário rastrear suas alterações. No caso onde não
-     * se deseja rastrear ou os dados são verificados pelo método de updateValues de outro objeto, recomenda-se retornar
-     * uma List vazia.
-     * @param record objeto DTO com os valores a serem alterados na entidade ao qual se refere.
-     * @return a lista de mudanças caso tenham ocorrido ou um array sempre vazio quando não houver controle de mudanças
-     */
-    ObjectChangesChecker onValuesUpdated(IdentifiedRecord incomingData);
 
-    //ObjectChangesChecker onValuesUpdated(IdentifiedRecord incomingData, TrackedEntity parentObject);
 }

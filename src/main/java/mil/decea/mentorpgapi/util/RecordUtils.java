@@ -3,13 +3,9 @@ package mil.decea.mentorpgapi.util;
 import jakarta.persistence.Embedded;
 import jakarta.validation.Constraint;
 import mil.decea.mentorpgapi.domain.SequenceIdEntity;
-import mil.decea.mentorpgapi.domain.changewatch.logs.ChangeLog;
-import mil.decea.mentorpgapi.domain.changewatch.logs.ChangeLogRecord;
-import mil.decea.mentorpgapi.domain.changewatch.logs.RequestLogsRecord;
 import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.TrackOnlySelectedFields;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.*;
 import mil.decea.mentorpgapi.domain.user.User;
-import mil.decea.mentorpgapi.domain.user.UserRecord;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -619,9 +615,12 @@ public class RecordUtils {
         exportEnumsToTypeScript(targetDirATD, User.class);
 
         */
+        //RecordUtils ru = new RecordUtils(AreaDeConcentracao.class);
+        //
 
+        new AdapterBuilder(User.class).build();
 
-        RecordUtils.exportReactModel(UserRecord.class,targetDirHome);
+        //RecordUtils.exportReactModel(UserRecord.class,targetDirHome);
 
         //exportEnumsToTypeScript(targetDirHome, Posto.class);
 

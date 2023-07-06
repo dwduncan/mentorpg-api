@@ -1,6 +1,6 @@
 package mil.decea.mentorpgapi.domain.daoservices.minio;
 
-import mil.decea.mentorpgapi.domain.IdentifiedRecord;
+import mil.decea.mentorpgapi.domain.ExternalDataRecord;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
 
 public interface ExternalData {
@@ -8,7 +8,7 @@ public interface ExternalData {
 
     String getNomeArquivo();
 
-    java.time.LocalDateTime getDataHoraUpload();
+    java.time.LocalDateTime getLastUpdate();
 
     String getArquivoUrl();
 
@@ -20,11 +20,13 @@ public interface ExternalData {
 
     void setNomeArquivo(String nomeArquivo);
 
-    void setDataHoraUpload(java.time.LocalDateTime dataHoraUpload);
+    void setLastUpdate(java.time.LocalDateTime dataHoraUpload);
 
     void setArquivoUrl(String arquivoUrl);
 
     void setBase64Data(String base64Data);
+
+    void updateValues(ExternalDataRecord rec);
 
     @NotForRecordField
     default String[] getFileNamePrefixSuffix(){

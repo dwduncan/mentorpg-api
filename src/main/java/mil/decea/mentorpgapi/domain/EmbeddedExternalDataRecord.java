@@ -1,10 +1,8 @@
-package mil.decea.mentorpgapi.domain.user;
+package mil.decea.mentorpgapi.domain;
 
-import mil.decea.mentorpgapi.domain.EmbeddedImage;
-import mil.decea.mentorpgapi.domain.ExternalDataRecord;
 import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
 
-public record UserImageRecord(
+public record EmbeddedExternalDataRecord(
 Long id,
 String previousFileName,
 String nomeArquivo,
@@ -12,8 +10,8 @@ String dataHoraUpload,
 String base64Data,
 String arquivoUrl,
 String formato,
-long tamanho) implements ExternalDataRecord {
-	public UserImageRecord(EmbeddedImage obj) {
+long tamanho) implements IdentifiedRecord {
+	public EmbeddedExternalDataRecord(EmbeddedExternalData obj) {
 		this(obj.getId(),
 			obj.getPreviousFileName(),
 			obj.getNomeArquivo(),

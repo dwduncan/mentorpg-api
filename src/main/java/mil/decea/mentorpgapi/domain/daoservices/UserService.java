@@ -35,15 +35,18 @@ public class UserService implements UserDetailsService {
     private final ClienteMinio clienteMinio;
     //private final List<DTOValidator<UserRecord>> validators;
     private final EntityManager entityManager;
+    UserAdapter userAdapter;
 
     @Autowired
     public UserService( UserRepository repository,
                         ChangeLogService changeLogService,
-                        //List<DTOValidator<UserRecord>> validators,
+                        UserAdapter userAdapter,
+    //List<DTOValidator<UserRecord>> validators,
                         EntityManager entityManager,
                         ClienteMinio clienteMinio) {
         this.repository = repository;
         this.changeLogService = changeLogService;
+        this.userAdapter = userAdapter;
         //this.validators = validators;
         this.entityManager = entityManager;
         this.clienteMinio = clienteMinio;
@@ -114,13 +117,11 @@ public class UserService implements UserDetailsService {
     @Transactional
     public UserRecord save(UserRecord dados) throws ClientMinioImplemantationException {
 
-        AuthUser ausr = (AuthUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
         boolean newEntity = dados.id() == null;
 
         var entity = newEntity ? new User() : repository.getReferenceById(dados.id());
 
-        ObjectChangesChecker changes = entity.onValuesUpdated(dados);
+        ObjectChangesChecker changes = userAdapter.with(entity, dados).getChangesAndUpdate();
 
         try {
 
