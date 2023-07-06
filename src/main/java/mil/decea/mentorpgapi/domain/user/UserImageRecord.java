@@ -7,19 +7,19 @@ public record UserImageRecord(
 Long id,
 String previousFileName,
 String nomeArquivo,
-String formato,
 String dataHoraUpload,
 String base64Data,
 String arquivoUrl,
+String formato,
 long tamanho) implements IdentifiedRecord {
 	public UserImageRecord(UserImage obj) {
 		this(obj.getId(),
 			obj.getPreviousFileName(),
 			obj.getNomeArquivo(),
-			obj.getFormato(),
 			DateTimeAPIHandler.converter(obj.getDataHoraUpload())+"",
 			obj.getBase64Data(),
 			obj.getArquivoUrl(),
+			obj.getFormato(),
 			obj.getTamanho());
 	}
 }

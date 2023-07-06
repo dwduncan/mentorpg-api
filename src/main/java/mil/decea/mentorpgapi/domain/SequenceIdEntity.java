@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import mil.decea.mentorpgapi.domain.changewatch.CollectionsChangesChecker;
 import mil.decea.mentorpgapi.domain.changewatch.logs.FieldChangedWatcher;
+import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.IgnoreTrackChange;
 import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.TrackedElementCollection;
 
 import java.time.LocalDateTime;
@@ -25,6 +26,10 @@ public abstract class SequenceIdEntity implements TrackedEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
     boolean ativo = true;
+    @Column(columnDefinition = "TIMESTAMP")
+    protected LocalDateTime lastUpdate;
+
+    @IgnoreTrackChange
     @Column(columnDefinition = "TIMESTAMP")
     protected LocalDateTime lastUpdate;
 

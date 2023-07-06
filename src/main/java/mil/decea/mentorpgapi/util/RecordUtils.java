@@ -68,10 +68,10 @@ public class RecordUtils {
         boolean isTracked = classe.isAnnotationPresent(TrackOnlySelectedFields.class);
 
         reverseConstructor = new StringBuilder().append("onValuesUpdated(IdentifiedRecord incomingData) {\r\n\r\n");
-        reverseConstructor.append("\t\t").append(recName).append(" rec = (").append(recName).append(") incomingData;\r\n\r\n\t\t");
+        reverseConstructor.append("\t\t").append(recName).append(" rec = (").append(recName).append(") incomingData;");
 
         String _changes = isTracked ? "ObjectChangesChecker changes = new ObjectChangesChecker<>(this, rec).getChangesList();\r\n\r\n" :
-                "ObjectChangesChecker changes = new ObjectChangesChecker();\r\n\r\n";
+                "ObjectChangesChecker changes = new ArrayList();\r\n\r\n";
         reverseConstructor.append(_changes);
 
         main.append(recName).append("(\r\n");
@@ -619,10 +619,9 @@ public class RecordUtils {
         exportEnumsToTypeScript(targetDirATD, User.class);
 
         */
-        //RecordUtils ru = new RecordUtils(User.class);
-        //ru.generateRecord();
 
-        RecordUtils.exportReactModel(UserRecord.class,targetDirATD);
+
+        RecordUtils.exportReactModel(UserRecord.class,targetDirHome);
 
         //exportEnumsToTypeScript(targetDirHome, Posto.class);
 

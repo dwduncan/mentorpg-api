@@ -8,8 +8,8 @@ import lombok.Setter;
 import mil.decea.mentorpgapi.domain.IdentifiedRecord;
 import mil.decea.mentorpgapi.domain.SequenceIdEntity;
 import mil.decea.mentorpgapi.domain.changewatch.ObjectChangesChecker;
-import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.NotAutomatedTrack;
 import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.PreviousValueMessage;
+import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.NotAutomatedTrack;
 import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.RecordFieldName;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.CollectionForRecordField;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
@@ -306,7 +306,6 @@ public class User extends SequenceIdEntity implements UserDetails, MinioStorage 
         this.setId(rec.id());
         this.setAtivo(rec.ativo());
         this.setLastUpdate(DateTimeAPIHandler.converterStringDate(rec.lastUpdate()));
-
         return changes;
     }
 
