@@ -38,6 +38,7 @@ public class AreaDeConcentracao extends SequenceIdEntity implements Comparable<A
     private String nome = "";
 
     @ManyToOne
+    @ObjectForRecordField
     private User representanteDaArea;
 
     @Column
@@ -48,6 +49,7 @@ public class AreaDeConcentracao extends SequenceIdEntity implements Comparable<A
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
+    @ObjectForRecordField
     private ProgramaPosGraduacao programa;
 
 
@@ -81,23 +83,4 @@ public class AreaDeConcentracao extends SequenceIdEntity implements Comparable<A
         return programa;
     }
 
-    @NotForRecordField
-    public ObjectChangesChecker onValuesUpdated(IdentifiedRecord incomingData) {
-
-        AreaDeConcentracaoRecord rec = (AreaDeConcentracaoRecord) incomingData;
-
-        ObjectChangesChecker changes = new ObjectChangesChecker(this, rec, programa);
-
-
-        //this.setRepresentanteDaArea(rec.representanteDaArea());
-        this.setSigla(rec.sigla());
-        this.setNome(rec.nome());
-        this.setPrograma(rec.programa());
-        this.setDefinicao(rec.definicao());
-        this.setId(rec.id());
-        this.setLastUpdate(DateTimeAPIHandler.converterStringDate(rec.lastUpdate()));
-        this.setAtivo(rec.ativo());
-
-        return changes;
-    }
 }

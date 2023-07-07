@@ -96,6 +96,13 @@ public class ReflectionUtils {
                 || Temporal.class.isAssignableFrom(_class);
     }
 
+    public static boolean isLikePrimitiveOrString(Class<?> _class){
+        return  _class.isPrimitive()
+                || String.class.isAssignableFrom(_class)
+                || Number.class.isAssignableFrom(_class)
+                || Boolean.class.isAssignableFrom(_class);
+    }
+
     public static Set<Field> getAllNonCollectionsFields(Class<?> _class){
 
         Class<?> actual = _class;

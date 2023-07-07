@@ -11,6 +11,7 @@ import mil.decea.mentorpgapi.domain.SequenceIdEntity;
 import mil.decea.mentorpgapi.domain.TrackedEntity;
 import mil.decea.mentorpgapi.domain.changewatch.ObjectChangesChecker;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.CollectionForRecordField;
+import mil.decea.mentorpgapi.domain.daoservices.datageneration.ObjectForRecordField;
 import mil.decea.mentorpgapi.domain.documents.UserDocument;
 import mil.decea.mentorpgapi.domain.user.User;
 
@@ -30,7 +31,8 @@ public class ProgramaPosGraduacao extends SequenceIdEntity {
     @Column(columnDefinition = "TEXT")
     private String nome = "";
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @ObjectForRecordField
     private User coordenador;
 
     @Column(columnDefinition = "TEXT")

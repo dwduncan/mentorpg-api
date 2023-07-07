@@ -6,12 +6,15 @@ import mil.decea.mentorpgapi.domain.EmbeddedExternalData;
 import mil.decea.mentorpgapi.domain.EmbeddedExternalDataRecord;
 import mil.decea.mentorpgapi.domain.SequenceIdEntity;
 import mil.decea.mentorpgapi.domain.academic.AreaDeConcentracao;
+import mil.decea.mentorpgapi.domain.academic.AreaDePesquisa;
+import mil.decea.mentorpgapi.domain.academic.LinhaDePesquisa;
+import mil.decea.mentorpgapi.domain.academic.ProgramaPosGraduacao;
 import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.TrackOnlySelectedFields;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.*;
-import mil.decea.mentorpgapi.domain.documents.DocumentType;
 import mil.decea.mentorpgapi.domain.documents.UserDocument;
 import mil.decea.mentorpgapi.domain.user.User;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -37,7 +40,7 @@ public class RecordUtils {
         this.classe = classe;
     }
 
-
+    static Set<String> createdRecords = new HashSet<>();
 
     /**
      *
@@ -56,7 +59,7 @@ public class RecordUtils {
         imps = new StringBuilder();
         String dir = "./src/main/java/" + classe.getPackage().getName().replaceAll("\\.","/") + "/";
         main = new StringBuilder("package " + classe.getPackage().getName());
-        main.append(";\r\n{IMPORTS}\r\npublic record ");
+        main.append(";\r\n\r\n{IMPORTS}\r\npublic record ");
         String _constructorDeclaration = "\r\n\tpublic " + recName + "(" + classe.getSimpleName() +" obj) {\r\n\t\tthis(";
 
         constructor = new StringBuilder(_constructorDeclaration);
@@ -141,6 +144,7 @@ public class RecordUtils {
                     if (methodDefaultValue != null) {
                         processAttribute(methodDefaultValue, method.getReturnType());
                     }else{
+
                         Field field = getMethodField(method);
 
                         if (field != null && !Modifier.isStatic(field.getModifiers()) && !field.isAnnotationPresent(NotForRecordField.class)) {
@@ -149,16 +153,18 @@ public class RecordUtils {
                             if (method.getReturnType().isRecord()) {
                                 new RecordUtils(method.getReturnType()).generateRecord();
                             } else if (ofrf != null && ofrf.elementsOfType() != Object.class) {
-                                String record = new RecordUtils(ofrf.elementsOfType()).generateRecord();
-                                processAttribute(field, prefixObjReference, prefixRecReference, ofrf, false);
-                            } else if (field.isAnnotationPresent(ObjectForRecordField.class)) {
-                                String record = new RecordUtils(method.getReturnType()).generateRecord();
-                                processAttribute(method, prefixObjReference, prefixRecReference);
+                                checkOrCreateRecordFor(ofrf.elementsOfType());
+                                processCollectionForRecordField(field, prefixObjReference, prefixRecReference, ofrf);
+                            } else if (field.isAnnotationPresent(ObjectForRecordField.class)
+                                    || SequenceIdEntity.class.isAssignableFrom(field.getType())) {
+                                checkOrCreateRecordFor(method.getReturnType());
+                                processObjectForRecordField(method, prefixObjReference, prefixRecReference);
                             } else if (EmbeddedExternalData.class.isAssignableFrom(field.getType())) {
-                                processAttribute(field.getName());
+                                processEmbeddedExternalDataField(field.getName());
                             } else if (field.isAnnotationPresent(Embedded.class)) {
-                                String record = new RecordUtils(method.getReturnType()).generateRecord();
-                                processAttribute(record, prefixObjReference, prefixRecReference);
+                                checkOrCreateRecordFor(method.getReturnType());
+                                String record = method.getReturnType().getName() + "Record";
+                                processEmbeddedField(record, prefixObjReference, prefixRecReference);
                             } else {
                                 processAttribute(method, field, prefixObjReference, prefixRecReference);
                             }
@@ -168,6 +174,12 @@ public class RecordUtils {
                 }
             }
         }
+    }
+
+    private void checkOrCreateRecordFor(Class<?> _classe) throws IOException {
+        String arq = "./src/main/java/" + _classe.getName().replaceAll("\\.","/") + "Record.java";
+        File _file = new File(arq);
+        if (!_file.exists() && createdRecords.add(arq)) new RecordUtils(_classe).generateRecord();
     }
 
     private void processAttribute(MethodDefaultValue methodDefaultValue, Class<?> returnType){
@@ -195,10 +207,7 @@ public class RecordUtils {
         for(Annotation ann : field.getAnnotations()){
             if (ann.annotationType().getAnnotation(Constraint.class) != null){
                 annotations.append(ann.toString().replace("jakarta.validation.constraints.","")).append("\r\n");
-                if (!impConf.contains(ann.annotationType().getName())) {
-                    impConf.add(ann.annotationType().getName());
-                    imps.append("import ").append(ann.annotationType().getName()).append(";\r\n");
-                }
+                processImports(ann.annotationType().getName());
             }
         }
 
@@ -208,38 +217,24 @@ public class RecordUtils {
                 method.getName().replaceFirst("is","set"))+ "(";
 
 
-        if (hasAddedField) {
-            main.append(",\r\n");
-            constructor.append(",\r\n\t\t\t");
-        }
+        checkBrakeLineAndIdentation();
 
 
-        if (LocalDate.class.isAssignableFrom(type) || LocalDateTime.class.isAssignableFrom(type)) {
-            String c = "mil.decea.mentorpgapi.util.DateTimeAPIHandler";
+        if (!processIfTemporalField(field, prefixObjReference, prefixRecReference, annotations.toString())) {
 
-            if (!impConf.contains(c)) {
-                impConf.add(c);
-                imps.append("import ").append(c).append(";\r\n");
-            }
-            reverseConstructor.append("\r\n\t\t").append(metodSetName).append("DateTimeAPIHandler.converterStringDate(")
-                    .append(prefixRecReference).append(fieldName).append("()));");
-            constructor.append("DateTimeAPIHandler.converter(").append(prefixObjReference).append(methodName).append("())+\"\"");
-            main.append(annotations).append("String ").append(fieldName);
-        } else {
-
-            String typeComplementation = " ";
-            if (!type.isPrimitive() && !(String.class.isAssignableFrom(type)) && !Number.class.isAssignableFrom(type)
-                    && !Boolean.class.isAssignableFrom(type)
+            String typeComplementation = " ";/*
+            if (!ReflectionUtils.isLikePrimitiveOrString(field.getType())
                     && !type.getPackage().equals(classe.getPackage()) && !impConf.contains(type.getName())) {
                 typeComplementation = "Record ";
-                imps.append("import ").append(type.getName()).append("Record;\r\n");
-                impConf.add(type.getName()+"Record");
-            }
+                processImports(type.getName() + "Record");
+            }*/
 
             if (fieldName.equals("id")) reverseConstructor.append("\r\n\t\t").append(metodSetName).append(prefixRecReference).append(fieldName).append("());");
             else reverseConstructor.append("\r\n\t\t").append(metodSetName).append(prefixRecReference).append(fieldName).append("());");
+
             constructor.append(prefixObjReference).append(methodName).append("()");
             if (Collection.class.isAssignableFrom(type)) {
+                processImports(type.getName());
                 main.append(annotations).append(type.getSimpleName()).append("<?> ").append(fieldName);
             } else {
                 main.append(annotations).append(type.getSimpleName()).append(typeComplementation).append(fieldName);
@@ -249,7 +244,22 @@ public class RecordUtils {
 
         hasAddedField = true;
     }
-    private void processAttribute(String recordField, String prefixObjReference, String prefixRecReference){
+
+
+    public boolean processIfTemporalField(Field field, String prefixObjReference, String prefixRecReference, String annotations){
+        boolean b = Temporal.class.isAssignableFrom(field.getType());
+        if (b){
+            String setMethod = "set" + field.getName().substring(0,1).toUpperCase() + field.getName().substring(1);
+            String getMethod = "get" + field.getName().substring(0,1).toUpperCase() + field.getName().substring(1);
+            processImports("mil.decea.mentorpgapi.util.DateTimeAPIHandler");
+            reverseConstructor.append("\r\n\t\t").append(setMethod).append("DateTimeAPIHandler.converterStringDate(")
+                    .append(prefixRecReference).append(field.getName()).append("()));");
+            constructor.append("DateTimeAPIHandler.converter(").append(prefixObjReference).append(getMethod).append("())+\"\"");
+            main.append(annotations).append("String ").append(field.getName());
+        }
+        return b;
+    }
+    private void processEmbeddedField(String recordField, String prefixObjReference, String prefixRecReference){
 
         String[] pack = recordField.split("\\.");
         String name = pack[pack.length-1];
@@ -258,43 +268,47 @@ public class RecordUtils {
         String methodSetName = ".onValuesUpdated";//"".set" + objName;
         String methodGetName = "this.get" + objName + ")";
 
-        if (!impConf.contains(recordField)) {
-            impConf.add(recordField);
-            imps.append("import ").append(recordField).append(";\r\n");
-        }
+        processImports(recordField);
+        checkBrakeLineAndIdentation();
 
-        if (hasAddedField) {
-            main.append(",\r\n");
-            constructor.append(",\r\n\t\t\t");
-        }
-
-        main.append("\t").append(name).append(" ").append(fieldName);
+        main.append(name).append(" ").append(fieldName);
         constructor.append("new ").append(name).append("(").append(prefixObjReference).append("get").append(name.replace("Record","")).append("())");
         reverseConstructor.append("\r\n\t\t").append(methodGetName).append(methodSetName).append(prefixRecReference).append(fieldName).append("());");
         hasAddedField = true;
     }
 
-    private void processAttribute(String fieldName){
+
+    private void processEmbeddedExternalDataField(String fieldName){
 
         String objName =  fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
-        String methodSetName = ".onValuesUpdated";//"".set" + objName;
+        String methodSetName = ".onValuesUpdated";
         String methodGetName = "this.get" + objName + ")";
-        if (!impConf.contains(EmbeddedExternalDataRecord.class.getName())) {
-            impConf.add(EmbeddedExternalDataRecord.class.getName());
-            imps.append("import ").append(EmbeddedExternalDataRecord.class.getName()).append(";\r\n");
-        }
-
-        if (hasAddedField) {
-            main.append(",\r\n");
-            constructor.append(",\r\n\t\t\t");
-        }
+        processImports(EmbeddedExternalDataRecord.class.getName());
+        checkBrakeLineAndIdentation();
 
         main.append("EmbeddedExternalDataRecord ").append(fieldName).append("Record");
         constructor.append("new EmbeddedExternalDataRecord").append("(obj.get").append(objName).append("())");
         reverseConstructor.append("\r\n\t\t").append(methodGetName).append(methodSetName).append("rec.").append(fieldName).append("Record());");
         hasAddedField = true;
     }
-    private void processAttribute(Method method, String prefixObjReference, String prefixRecReference){
+
+    private void processImports(String... imports){
+        for(String i : imports) {
+
+            if (!impConf.contains(i) && !i.startsWith(classe.getPackage().getName())) {
+                impConf.add(i);
+                imps.append("\r\nimport ").append(i).append(";");
+            }
+        }
+    }
+
+    private void checkBrakeLineAndIdentation(){
+        if (hasAddedField) {
+            main.append(",\r\n");
+            constructor.append(",\r\n\t\t\t");
+        }
+    }
+    private void processObjectForRecordField(Method method, String prefixObjReference, String prefixRecReference){
 
         String name = method.getName().replaceFirst("get","");
         String typeName =  method.getReturnType().getSimpleName() + "Record";
@@ -302,23 +316,18 @@ public class RecordUtils {
         String fieldName = name.substring(0, 1).toLowerCase() + name.substring(1);
         String methodSetName = "this.set" + name + "(";
 
-        if (!impConf.contains(packRec)) {
-            impConf.add(packRec);
-            imps.append("import ").append(packRec).append(";\r\n");
-        }
+        processImports(packRec);
 
-        if (hasAddedField ) {
-            main.append(",\r\n");
-            constructor.append(",\r\n\t\t\t");
-        }
+        checkBrakeLineAndIdentation();
 
-        main.append("\t").append(typeName).append(" ").append(fieldName);
+        main.append(typeName).append(" ").append(fieldName);
         constructor.append("new ").append(typeName).append("(").append(prefixObjReference).append(method.getName()).append("())");
         reverseConstructor.append("\r\n\t\t").append(methodSetName).append("new ").append(method.getReturnType().getSimpleName()).append("(").append(prefixRecReference).append(fieldName).append("()));");
         hasAddedField = true;
     }
 
-    private void processAttribute(Field field, String prefixObjReference, String prefixRecReference, CollectionForRecordField annotation, boolean hasAppended){
+
+    private void processCollectionForRecordField(Field field, String prefixObjReference, String prefixRecReference, CollectionForRecordField annotation){
 
         String fieldName = field.getName();
         String suffixMethod =  fieldName.substring(0,1).toUpperCase() + fieldName.substring(1);
@@ -327,11 +336,7 @@ public class RecordUtils {
         String packRec = annotation.elementsOfType().getName() + "Record";
         String elemRec = annotation.elementsOfType().getSimpleName() + "Record";
 
-
-        if (hasAddedField || hasAppended) {
-            main.append(",\r\n");
-            constructor.append(",\r\n\t\t\t");
-        }
+        checkBrakeLineAndIdentation();
 
         String toCollection =".toList()";
         String collection = "List<"+elemRec+"> ";
@@ -343,18 +348,10 @@ public class RecordUtils {
             toimport = "java.util.Set";
         }
 
-        if (!impConf.contains(packRec)) {
-            impConf.add(packRec);
-            imps.append("import ").append(packRec).append(";\r\n");
-        }
-
-        if (!impConf.contains(toimport)) {
-            impConf.add(toimport);
-            imps.append("import ").append(toimport).append(";\r\n");
-        }
+        processImports(packRec, toimport);
 
         String reverseMap = "().stream().map(" + annotation.elementsOfType().getSimpleName() + "::new)" + toCollection + ");";
-        main.append("\t").append(collection).append(" ").append(fieldName);
+        main.append(collection).append(" ").append(fieldName);
         constructor.append(prefixObjReference).append(methodGetName).append("().stream().map(").append(elemRec).append("::new)").append(toCollection);
         reverseConstructor.append("\r\n\t\tthis").append(methodSetName).append(prefixRecReference).append(fieldName).append(reverseMap);
         hasAddedField = true;
@@ -646,10 +643,10 @@ public class RecordUtils {
         exportEnumsToTypeScript(targetDirATD, User.class);
 
         */
-        RecordUtils ru = new RecordUtils(AreaDeConcentracao.class);
-        ru.generateRecord();
+        //RecordUtils ru = new RecordUtils(LinhaDePesquisa.class);
+        //ru.generateRecord();
 
-        new AdapterBuilder(AreaDeConcentracao.class).build();
+        new AdapterBuilder(LinhaDePesquisa.class).build();
 
         //RecordUtils.exportReactModel(UserRecord.class,targetDirHome);
 

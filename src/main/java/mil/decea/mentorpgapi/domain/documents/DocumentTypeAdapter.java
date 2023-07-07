@@ -3,9 +3,8 @@ package mil.decea.mentorpgapi.domain.documents;
 
 import mil.decea.mentorpgapi.domain.AbstractEntityDTOAdapter;
 import lombok.NoArgsConstructor;
-import org.springframework.stereotype.Service;import java.lang.Long;
 import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
-
+import org.springframework.stereotype.Service;
 
 @NoArgsConstructor
 @Service

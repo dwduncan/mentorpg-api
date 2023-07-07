@@ -6,29 +6,25 @@ import lombok.NoArgsConstructor;
 import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
-import mil.decea.mentorpgapi.domain.academic.ProgramaPosGraduacaoAdapter;
 import mil.decea.mentorpgapi.domain.user.UserAdapter;
 
 @NoArgsConstructor
 @Service
-public class AreaDeConcentracaoAdapter extends AbstractEntityDTOAdapter<AreaDeConcentracao, AreaDeConcentracaoRecord> {
+public class ProgramaPosGraduacaoAdapter extends AbstractEntityDTOAdapter<ProgramaPosGraduacao, ProgramaPosGraduacaoRecord> {
 
 @Autowired
-ProgramaPosGraduacaoAdapter programa;
-
-@Autowired
-UserAdapter representanteDaArea;
+UserAdapter coordenador;
 
 
 	@Override
-	public AreaDeConcentracaoRecord generateRecord() { return new AreaDeConcentracaoRecord(getEntity());}
+	public ProgramaPosGraduacaoRecord generateRecord() { return new ProgramaPosGraduacaoRecord(getEntity());}
 
-	public AreaDeConcentracao updateEntity() {
+	public ProgramaPosGraduacao updateEntity() {
 		getEntity().setSigla(getIdentifiedRecord().sigla());
-		programa.with(getEntity().getPrograma(), getIdentifiedRecord().programa()).updateEntity();
 		getEntity().setDefinicao(getIdentifiedRecord().definicao());
 		getEntity().setNome(getIdentifiedRecord().nome());
-		representanteDaArea.with(getEntity().getRepresentanteDaArea(), getIdentifiedRecord().representanteDaArea()).updateEntity();
+		getEntity().setFatoresCondicionantes(getIdentifiedRecord().fatoresCondicionantes());
+		coordenador.with(getEntity().getCoordenador(), getIdentifiedRecord().coordenador()).updateEntity();
 		getEntity().setId(getIdentifiedRecord().id());
 		getEntity().setAtivo(getIdentifiedRecord().ativo());
 		getEntity().setLastUpdate(DateTimeAPIHandler.converterStringDate(getIdentifiedRecord().lastUpdate()));
