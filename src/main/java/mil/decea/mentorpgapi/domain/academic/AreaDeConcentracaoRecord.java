@@ -1,12 +1,11 @@
 package mil.decea.mentorpgapi.domain.academic;
 import mil.decea.mentorpgapi.domain.IdentifiedRecord;
-import mil.decea.mentorpgapi.domain.user.UserRecord;
+import mil.decea.mentorpgapi.domain.user.UserRecord_old;
 import jakarta.validation.constraints.NotNull;
-import mil.decea.mentorpgapi.domain.academic.ProgramaPosGraduacaoRecord;
 import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
 
 public record AreaDeConcentracaoRecord(
-UserRecord representanteDaArea,
+UserRecord_old representanteDaArea,
 @NotNull(message="Obrigat\u00f3rio informar a sigla", payload={}, groups={})
 String sigla,
 String definicao,
@@ -16,7 +15,7 @@ Long id,
 String lastUpdate,
 boolean ativo) implements IdentifiedRecord {
 	public AreaDeConcentracaoRecord(AreaDeConcentracao obj) {
-		this(new UserRecord(obj.getRepresentanteDaArea()),
+		this(new UserRecord_old(obj.getRepresentanteDaArea()),
 			obj.getSigla(),
 			obj.getDefinicao(),
 			obj.getNome(),

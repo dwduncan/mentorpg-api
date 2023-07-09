@@ -9,6 +9,7 @@ import mil.decea.mentorpgapi.domain.daoservices.datageneration.MethodDefaultValu
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.ObjectForRecordField;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -25,6 +26,8 @@ import java.util.Set;
 public class AdapterBuilder {
 
     Set<String> impConf = new HashSet<>();
+
+    static Set<String> createdAdapters = new HashSet<>();
     StringBuilder imps;
     final Class<?> classe;
     
@@ -36,7 +39,6 @@ public class AdapterBuilder {
 
     String adapterName;
     String adapterSimpleName;
-
     boolean embeddableExternalData;
     public AdapterBuilder(Class<?> classe) {
         this.classe = classe;
@@ -46,10 +48,22 @@ public class AdapterBuilder {
         embeddableExternalData = EmbeddedExternalData.class.isAssignableFrom(classe);
         adapterSimpleName = classe.getSimpleName() + "Adapter";
         adapterName = classe.getName() + "Adapter";
+        File _file = new File(targetDir + adapterSimpleName + ".java");
+        if (_file.exists()){
+            createdAdapters.add(adapterName);
+        }
     }
 
     public String build() throws IOException {
+        return build(false);
+    }
 
+    public String build(boolean forceAdapterCreation) throws IOException {
+
+        if (!forceAdapterCreation && createdAdapters.contains(adapterName)){
+            System.out.println(adapterSimpleName + " já existe");
+            //return adapterName;
+        }
 
         StringBuilder classDeclaration = new StringBuilder("\r\n\r\n@NoArgsConstructor\r\n").append("@Service\r\n").append("public class ")
                 .append(adapterSimpleName).append(" extends AbstractEntityDTOAdapter<")
@@ -108,6 +122,7 @@ public class AdapterBuilder {
             arq.write(fileBody.toString());
             arq.close();
         }
+        createdAdapters.add(adapterName);
         return adapterName;
     }
     private void processCollectionField(Field field, CollectionForRecordField annotation){
@@ -201,7 +216,7 @@ public class AdapterBuilder {
             }
 
             if (fieldName.equals("id")) fileBody.append(metodSetName).append("getIdentifiedRecord().").append(fieldName).append("());");
-            else fileBody.append(metodSetName).append("getIdentifiedRecord().").append(fieldName).append("());");
+            else                        fileBody.append(metodSetName).append("getIdentifiedRecord().").append(fieldName).append("());");
         }
 
         hasAddedField = true;

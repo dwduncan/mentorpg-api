@@ -6,30 +6,30 @@ import lombok.NoArgsConstructor;
 import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
-import mil.decea.mentorpgapi.domain.EmbeddedExternalDataAdapter;
 import mil.decea.mentorpgapi.domain.user.UserAdapter;
+import mil.decea.mentorpgapi.domain.EmbeddedExternalDataAdapter;
 
 @NoArgsConstructor
 @Service
 public class AreaDePesquisaAdapter extends AbstractEntityDTOAdapter<AreaDePesquisa, AreaDePesquisaRecord> {
 
 @Autowired
-EmbeddedExternalDataAdapter imagemAreaDePesquisa;
+UserAdapter coordenadorDaArea;
 
 @Autowired
-UserAdapter coordenadorDaArea;
+EmbeddedExternalDataAdapter imagemAreaDePesquisa;
 
 
 	@Override
 	public AreaDePesquisaRecord generateRecord() { return new AreaDePesquisaRecord(getEntity());}
 
 	public AreaDePesquisa updateEntity() {
-		imagemAreaDePesquisa.with(getEntity().getImagemAreaDePesquisa(), getIdentifiedRecord().imagemAreaDePesquisaRecord()).updateEntity();
+		getEntity().setSigla(getIdentifiedRecord().sigla());
 		coordenadorDaArea.with(getEntity().getCoordenadorDaArea(), getIdentifiedRecord().coordenadorDaArea()).updateEntity();
+		imagemAreaDePesquisa.with(getEntity().getImagemAreaDePesquisa(), getIdentifiedRecord().imagemAreaDePesquisaRecord()).updateEntity();
 		getEntity().setConceito(getIdentifiedRecord().conceito());
 		getEntity().setNomeExtenso(getIdentifiedRecord().nomeExtenso());
 		getEntity().setEncerrado(getIdentifiedRecord().encerrado());
-		getEntity().setSigla(getIdentifiedRecord().sigla());
 		getEntity().setId(getIdentifiedRecord().id());
 		getEntity().setAtivo(getIdentifiedRecord().ativo());
 		getEntity().setLastUpdate(DateTimeAPIHandler.converterStringDate(getIdentifiedRecord().lastUpdate()));

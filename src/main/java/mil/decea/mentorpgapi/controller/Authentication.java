@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import mil.decea.mentorpgapi.domain.daoservices.UserService;
 import mil.decea.mentorpgapi.domain.user.LoginRecord;
 import mil.decea.mentorpgapi.domain.user.User;
-import mil.decea.mentorpgapi.domain.user.UserRecord;
+import mil.decea.mentorpgapi.domain.user.UserRecord_old;
 import mil.decea.mentorpgapi.etc.security.FirstAdminRecord;
 import mil.decea.mentorpgapi.etc.security.TokenService;
 import mil.decea.mentorpgapi.etc.security.UserJWT;
@@ -39,7 +39,7 @@ public class Authentication {
 
     @PostMapping("/firstAdmin")
     public ResponseEntity<?> criarPrimeiroAdmin(@RequestBody @Valid FirstAdminRecord dados) {
-        UserRecord _usr = userService.createFirstAdmin(dados);
+        UserRecord_old _usr = userService.createFirstAdmin(dados);
         return ResponseEntity.ok(authenticate(_usr.cpf(), dados.senha()));
     }
 

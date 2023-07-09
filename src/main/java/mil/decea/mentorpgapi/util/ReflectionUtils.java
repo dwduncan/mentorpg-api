@@ -1,6 +1,6 @@
 package mil.decea.mentorpgapi.util;
 
-import mil.decea.mentorpgapi.domain.user.UserRecord;
+import mil.decea.mentorpgapi.domain.user.UserRecord_old;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -143,7 +143,7 @@ public class ReflectionUtils {
     }
 
     public static void main(String ...args) throws NoSuchFieldException {
-        System.out.println(getElementType(UserRecord.class.getDeclaredField("documents")).getSimpleName());
+        System.out.println(getElementType(UserRecord_old.class.getDeclaredField("documents")).getSimpleName());
     }
 
 }

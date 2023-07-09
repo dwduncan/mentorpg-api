@@ -5,13 +5,11 @@ import jakarta.validation.Constraint;
 import mil.decea.mentorpgapi.domain.EmbeddedExternalData;
 import mil.decea.mentorpgapi.domain.EmbeddedExternalDataRecord;
 import mil.decea.mentorpgapi.domain.SequenceIdEntity;
-import mil.decea.mentorpgapi.domain.academic.AreaDeConcentracao;
-import mil.decea.mentorpgapi.domain.academic.AreaDePesquisa;
 import mil.decea.mentorpgapi.domain.academic.LinhaDePesquisa;
-import mil.decea.mentorpgapi.domain.academic.ProgramaPosGraduacao;
+import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.RecordFieldName;
 import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.TrackOnlySelectedFields;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.*;
-import mil.decea.mentorpgapi.domain.documents.UserDocument;
+import mil.decea.mentorpgapi.domain.daoservices.datageneration.generators.RecordFileGenerator;
 import mil.decea.mentorpgapi.domain.user.User;
 
 import java.io.File;
@@ -19,8 +17,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.temporal.Temporal;
 import java.util.*;
 
@@ -160,7 +156,7 @@ public class RecordUtils {
                                 checkOrCreateRecordFor(method.getReturnType());
                                 processObjectForRecordField(method, prefixObjReference, prefixRecReference);
                             } else if (EmbeddedExternalData.class.isAssignableFrom(field.getType())) {
-                                processEmbeddedExternalDataField(field.getName());
+                                processEmbeddedExternalDataField(field);
                             } else if (field.isAnnotationPresent(Embedded.class)) {
                                 checkOrCreateRecordFor(method.getReturnType());
                                 String record = method.getReturnType().getName() + "Record";
@@ -201,7 +197,7 @@ public class RecordUtils {
     private void processAttribute(Method method, Field field, String prefixObjReference, String prefixRecReference){
 
         String methodName = method.getName();
-        String fieldName = field.getName();
+        String fieldName = field.isAnnotationPresent(RecordFieldName.class) ? field.getAnnotation(RecordFieldName.class).value() : field.getName();
 
         StringBuilder annotations = new StringBuilder();
         for(Annotation ann : field.getAnnotations()){
@@ -249,13 +245,14 @@ public class RecordUtils {
     public boolean processIfTemporalField(Field field, String prefixObjReference, String prefixRecReference, String annotations){
         boolean b = Temporal.class.isAssignableFrom(field.getType());
         if (b){
-            String setMethod = "set" + field.getName().substring(0,1).toUpperCase() + field.getName().substring(1);
-            String getMethod = "get" + field.getName().substring(0,1).toUpperCase() + field.getName().substring(1);
+            String fieldName = field.isAnnotationPresent(RecordFieldName.class) ? field.getAnnotation(RecordFieldName.class).value() : field.getName();
+            String setMethod = "set" + fieldName.substring(0,1).toUpperCase() + fieldName.substring(1);
+            String getMethod = "get" + fieldName.substring(0,1).toUpperCase() + fieldName.substring(1);
             processImports("mil.decea.mentorpgapi.util.DateTimeAPIHandler");
             reverseConstructor.append("\r\n\t\t").append(setMethod).append("DateTimeAPIHandler.converterStringDate(")
                     .append(prefixRecReference).append(field.getName()).append("()));");
             constructor.append("DateTimeAPIHandler.converter(").append(prefixObjReference).append(getMethod).append("())+\"\"");
-            main.append(annotations).append("String ").append(field.getName());
+            main.append(annotations).append("String ").append(fieldName);
         }
         return b;
     }
@@ -278,8 +275,8 @@ public class RecordUtils {
     }
 
 
-    private void processEmbeddedExternalDataField(String fieldName){
-
+    private void processEmbeddedExternalDataField(Field  field){
+        String fieldName = field.isAnnotationPresent(RecordFieldName.class) ? field.getAnnotation(RecordFieldName.class).value() : field.getName();
         String objName =  fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
         String methodSetName = ".onValuesUpdated";
         String methodGetName = "this.get" + objName + ")";
@@ -329,7 +326,7 @@ public class RecordUtils {
 
     private void processCollectionForRecordField(Field field, String prefixObjReference, String prefixRecReference, CollectionForRecordField annotation){
 
-        String fieldName = field.getName();
+        String fieldName = field.isAnnotationPresent(RecordFieldName.class) ? field.getAnnotation(RecordFieldName.class).value() : field.getName();
         String suffixMethod =  fieldName.substring(0,1).toUpperCase() + fieldName.substring(1);
         String methodSetName = ".set" + suffixMethod + "(";
         String methodGetName = "get" + suffixMethod;
@@ -643,10 +640,10 @@ public class RecordUtils {
         exportEnumsToTypeScript(targetDirATD, User.class);
 
         */
-        //RecordUtils ru = new RecordUtils(LinhaDePesquisa.class);
-        //ru.generateRecord();
 
-        new AdapterBuilder(LinhaDePesquisa.class).build();
+        new RecordFileGenerator(User.class).createFile();
+
+        //new AdapterBuilder(LinhaDePesquisa.class).build(true);
 
         //RecordUtils.exportReactModel(UserRecord.class,targetDirHome);
 

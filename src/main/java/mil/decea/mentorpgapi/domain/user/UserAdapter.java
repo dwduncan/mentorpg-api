@@ -10,39 +10,38 @@ import mil.decea.mentorpgapi.domain.EmbeddedExternalDataAdapter;
 
 @NoArgsConstructor
 @Service
-public class UserAdapter extends AbstractEntityDTOAdapter<User, UserRecord> {
+public class UserAdapter extends AbstractEntityDTOAdapter<User, UserRecord_old> {
 
 @Autowired
-EmbeddedExternalDataAdapter userImageRecord;
-
+EmbeddedExternalDataAdapter userImage;
 
 	@Override
-	public UserRecord generateRecord() { return new UserRecord(getEntity());}
+	public UserRecord_old generateRecord() { return new UserRecord_old(getEntity());}
 
 	public User updateEntity() {
 		getEntity().setAntiguidadeRelativa(getIdentifiedRecord().antiguidadeRelativa());
-		getEntity().setNomeQualificado(getIdentifiedRecord().nomeQualificado());
+		getEntity().setCpf(getIdentifiedRecord().cpf());
+		userImage.with(getEntity().getUserImage(), getIdentifiedRecord().userImageRecord()).updateEntity();
 		getEntity().setQuadro(getIdentifiedRecord().quadro());
 		getEntity().setPttc(getIdentifiedRecord().pttc());
-		getEntity().setCpf(getIdentifiedRecord().cpf());
-		userImageRecord.with(getEntity().getUserImageRecord(), getIdentifiedRecord().userImageRecordRecord()).updateEntity();
-		getEntity().setPosto(getIdentifiedRecord().posto());
-		getEntity().setNomeGuerra(getIdentifiedRecord().nomeGuerra());
 		getEntity().setNomeCompleto(getIdentifiedRecord().nomeCompleto());
-		getEntity().setTitulacao(getIdentifiedRecord().titulacao());
-		getEntity().setEspecialidade(getIdentifiedRecord().especialidade());
-		getEntity().setUltimaPromocao(DateTimeAPIHandler.converterStringDate(getIdentifiedRecord().ultimaPromocao()));
-		getEntity().setRole(getIdentifiedRecord().role());
-		getEntity().setObservacoes(getIdentifiedRecord().observacoes());
-		getEntity().setEmail(getIdentifiedRecord().email());
-		getEntity().setIdentidade(getIdentifiedRecord().identidade());
 		getEntity().setSexo(getIdentifiedRecord().sexo());
-		getEntity().setForcaSingular(getIdentifiedRecord().forcaSingular());
-		getEntity().setProximaPromocao(DateTimeAPIHandler.converterStringDate(getIdentifiedRecord().proximaPromocao()));
-		getEntity().setDataPraca(DateTimeAPIHandler.converterStringDate(getIdentifiedRecord().dataPraca()));
+		getEntity().setNomeGuerra(getIdentifiedRecord().nomeGuerra());
+		getEntity().setEspecialidade(getIdentifiedRecord().especialidade());
+		getEntity().setPosto(getIdentifiedRecord().posto());
+		getEntity().setNomeQualificado(getIdentifiedRecord().nomeQualificado());
 		getEntity().setCelular(getIdentifiedRecord().celular());
-		getEntity().setDataNascimento(DateTimeAPIHandler.converterStringDate(getIdentifiedRecord().dataNascimento()));
+		getEntity().setIdentidade(getIdentifiedRecord().identidade());
+		getEntity().setTitulacao(getIdentifiedRecord().titulacao());
+		getEntity().setUltimaPromocao(DateTimeAPIHandler.converterStringDate(getIdentifiedRecord().ultimaPromocao()));
+		getEntity().setForcaSingular(getIdentifiedRecord().forcaSingular());
+		getEntity().setRole(getIdentifiedRecord().role());
+		getEntity().setEmail(getIdentifiedRecord().email());
 		getEntity().setSaram(getIdentifiedRecord().saram());
+		getEntity().setDataPraca(DateTimeAPIHandler.converterStringDate(getIdentifiedRecord().dataPraca()));
+		getEntity().setProximaPromocao(DateTimeAPIHandler.converterStringDate(getIdentifiedRecord().proximaPromocao()));
+		getEntity().setObservacoes(getIdentifiedRecord().observacoes());
+		getEntity().setDataNascimento(DateTimeAPIHandler.converterStringDate(getIdentifiedRecord().dataNascimento()));
 		getEntity().setId(getIdentifiedRecord().id());
 		getEntity().setAtivo(getIdentifiedRecord().ativo());
 		getEntity().setLastUpdate(DateTimeAPIHandler.converterStringDate(getIdentifiedRecord().lastUpdate()));

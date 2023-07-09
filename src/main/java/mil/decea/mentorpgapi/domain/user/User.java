@@ -11,7 +11,6 @@ import mil.decea.mentorpgapi.domain.SequenceIdEntity;
 import mil.decea.mentorpgapi.domain.TrackedEntity;
 import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.NotAutomatedTrack;
 import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.PreviousValueMessage;
-import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.RecordFieldName;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.CollectionForRecordField;
 import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
 import mil.decea.mentorpgapi.domain.daoservices.minio.MinioStorage;
@@ -89,7 +88,6 @@ public class User extends SequenceIdEntity implements UserDetails, MinioStorage 
     private String observacoes;
 
     @Embedded
-    @RecordFieldName("userImageRecord")
     @PreviousValueMessage("Foto de perfil alterada")
     private EmbeddedImage userImage;
 
@@ -278,9 +276,9 @@ public class User extends SequenceIdEntity implements UserDetails, MinioStorage 
     @NotForRecordField
     public void onValuesUpdated(IdentifiedRecord incomingData) {
 
-        UserRecord rec = (UserRecord) incomingData;
+        UserRecord_old rec = (UserRecord_old) incomingData;
 
-        this.getUserImage().updateValues(rec.userImageRecord());
+        //this.getUserImage().updateValues(rec.userImageRecord());
         this.setPttc(rec.pttc());
         this.setQuadro(rec.quadro());
         this.setCpf(rec.cpf());
@@ -315,7 +313,7 @@ public class User extends SequenceIdEntity implements UserDetails, MinioStorage 
 
 
     @NotForRecordField
-    public User(UserRecord rec) {
+    public User(UserRecord_old rec) {
         onValuesUpdated(rec);
     }
 

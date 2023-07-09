@@ -19,8 +19,8 @@ AreaDePesquisaAdapter areaDePesquisa;
 	public LinhaDePesquisaRecord generateRecord() { return new LinhaDePesquisaRecord(getEntity());}
 
 	public LinhaDePesquisa updateEntity() {
-		getEntity().setConceito(getIdentifiedRecord().conceito());
 		getEntity().setNome(getIdentifiedRecord().nome());
+		getEntity().setConceito(getIdentifiedRecord().conceito());
 		areaDePesquisa.with(getEntity().getAreaDePesquisa(), getIdentifiedRecord().areaDePesquisa()).updateEntity();
 		getEntity().setId(getIdentifiedRecord().id());
 		getEntity().setAtivo(getIdentifiedRecord().ativo());

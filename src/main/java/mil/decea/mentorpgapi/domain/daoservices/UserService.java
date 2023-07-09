@@ -6,8 +6,6 @@ import jakarta.persistence.criteria.*;
 import jakarta.transaction.Transactional;
 import mil.decea.mentorpgapi.domain.changewatch.ObjectChangesChecker;
 import mil.decea.mentorpgapi.domain.changewatch.logs.FieldChangedLog;
-import mil.decea.mentorpgapi.domain.changewatch.logs.FieldChangedWatcher;
-import mil.decea.mentorpgapi.domain.changewatch.logs.ObjecCreatedLog;
 import mil.decea.mentorpgapi.domain.changewatch.logs.ObjecRemovedLog;
 import mil.decea.mentorpgapi.domain.daoservices.minio.ClientMinioImplemantationException;
 import mil.decea.mentorpgapi.domain.daoservices.minio.ClienteMinio;
@@ -18,7 +16,6 @@ import mil.decea.mentorpgapi.etc.security.FirstAdminRecord;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -115,7 +112,7 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public UserRecord save(UserRecord dados) throws ClientMinioImplemantationException {
+    public UserRecord_old save(UserRecord_old dados) throws ClientMinioImplemantationException {
 
         boolean newEntity = dados.id() == null;
 
@@ -135,7 +132,7 @@ public class UserService implements UserDetailsService {
 
             changeLogService.insert(changes);//, ausr
 
-            return new UserRecord(entity);
+            return new UserRecord_old(entity);
         } catch (ClientMinioImplemantationException e) {
             throw new ClientMinioImplemantationException(e);
         } catch (Exception e){
@@ -145,16 +142,16 @@ public class UserService implements UserDetailsService {
     }
 
 
-    public UserRecord delete(Long id){
+    public UserRecord_old delete(Long id){
         var entity = repository.getReferenceById(id);
         entity.setAtivo(false);
         repository.save(entity);
         ObjecRemovedLog log = new ObjecRemovedLog(entity,null,false);
         changeLogService.insert(log);
-        return new UserRecord(entity);
+        return new UserRecord_old(entity);
     }
 
-    public UserRecord deleteForever(Long id){
+    public UserRecord_old deleteForever(Long id){
         var entity = repository.getReferenceById(id);
         try {
 
@@ -166,15 +163,15 @@ public class UserService implements UserDetailsService {
         } catch (ClientMinioImplemantationException e) {
             throw new RuntimeException(e);
         }
-        return new UserRecord(new User());
+        return new UserRecord_old(new User());
     }
 
-    public List<UserRecord> searchUsersByName(String search_name){
+    public List<UserRecord_old> searchUsersByName(String search_name){
 
         return searchUserByNomeCompleto(search_name);
     }
 
-    private UserRecord getUserRecord(User user){
+    private UserRecord_old getUserRecord(User user){
         if (user != null) {
             try {
                 clienteMinio.insertSasUrl(user);
@@ -182,18 +179,18 @@ public class UserService implements UserDetailsService {
                 e.printStackTrace();
             }
         }
-        return new UserRecord(user == null ? new User() : user);
+        return new UserRecord_old(user == null ? new User() : user);
     }
-    public UserRecord getUserById(Long id){
+    public UserRecord_old getUserById(Long id){
         return getUserRecord(repository.getReferenceById(id));
     }
 
-    public UserRecord getUserByCPF(String cpf){
+    public UserRecord_old getUserByCPF(String cpf){
         return getUserRecord(repository.findByCpf(cpf));
     }
-    private List<UserRecord> searchUserByNomeCompleto(String search_name){
+    private List<UserRecord_old> searchUserByNomeCompleto(String search_name){
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<UserRecord> cq = cb.createQuery(UserRecord.class);
+        CriteriaQuery<UserRecord_old> cq = cb.createQuery(UserRecord_old.class);
         Root<User> root = cq.from(User.class);
 
         List<Predicate> predicates = new ArrayList<>();
@@ -217,7 +214,7 @@ public class UserService implements UserDetailsService {
             return entityManager.createQuery(cq).getResultList();
     }
 
-    public UserRecord createFirstAdmin(FirstAdminRecord usr){
+    public UserRecord_old createFirstAdmin(FirstAdminRecord usr){
 
         if (numberOfUsers() != null && numberOfUsers().intValue() != 0) throw new AccessDeniedException("Acesso negado, já existem usuários cadastrados");
 
@@ -234,7 +231,7 @@ public class UserService implements UserDetailsService {
 
         _user = repository.save(_user);
 
-        return new UserRecord(_user);
+        return new UserRecord_old(_user);
     }
 
     public Long numberOfUsers(){

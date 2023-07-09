@@ -7,7 +7,7 @@ import mil.decea.mentorpgapi.domain.daoservices.DocumentsService;
 import mil.decea.mentorpgapi.domain.daoservices.UserService;
 import mil.decea.mentorpgapi.domain.daoservices.minio.ClientMinioImplemantationException;
 import mil.decea.mentorpgapi.domain.user.AuthUserRecord;
-import mil.decea.mentorpgapi.domain.user.UserRecord;
+import mil.decea.mentorpgapi.domain.user.UserRecord_old;
 import mil.decea.mentorpgapi.domain.user.validation.annotations.IsValidCpf;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,7 +36,7 @@ public class UserController {
 
     @PostMapping("/save")
     @Transactional
-    public ResponseEntity save(@RequestBody @Valid UserRecord dados) throws ClientMinioImplemantationException{
+    public ResponseEntity save(@RequestBody @Valid UserRecord_old dados) throws ClientMinioImplemantationException{
         return ResponseEntity.ok(userService.save(dados));
     }
 
