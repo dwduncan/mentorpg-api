@@ -21,15 +21,12 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuppressWarnings("unused")
-public abstract class SequenceIdEntity implements TrackedEntity {
+public abstract class SequenceIdEntity extends IdEntity implements TrackedEntity {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
-    boolean ativo = true;
-
-    @IgnoreTrackChange
-    @Column(columnDefinition = "TIMESTAMP")
-    protected LocalDateTime lastUpdate;
 
     public <T extends TrackedElementCollection<T>> CollectionsChangesChecker<T> updateDocumentsCollections(Collection<T> currentCollection, Collection<T> updatedCollection, Class<?> elementType, boolean updateCurrentList){
 
@@ -37,18 +34,9 @@ public abstract class SequenceIdEntity implements TrackedEntity {
         return ccc;
     }
 
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof SequenceIdEntity sequenceIdEntity)) return false;
-        return Objects.equals(id, sequenceIdEntity.id);
+    public SequenceIdEntity(Long id, boolean ativo, LocalDateTime lastUpdate) {
+        super(lastUpdate, ativo);
+        this.id = id;
     }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
-
 
 }
