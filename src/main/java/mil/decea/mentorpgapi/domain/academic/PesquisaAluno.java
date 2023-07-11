@@ -16,7 +16,7 @@ import mil.decea.mentorpgapi.domain.TrackedEntity;
 @NoArgsConstructor
 public class PesquisaAluno extends Pesquisa{
 
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "pesquisaAluno")
+    @OneToOne(fetch = FetchType.LAZY)
     private Aluno aluno;
 
     @Override

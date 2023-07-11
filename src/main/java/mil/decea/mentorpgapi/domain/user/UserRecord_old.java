@@ -4,7 +4,7 @@ import mil.decea.mentorpgapi.domain.IdentifiedRecord;
 
 import jakarta.validation.constraints.NotNull;
 import mil.decea.mentorpgapi.domain.EmbeddedExternalDataRecord;
-import mil.decea.mentorpgapi.domain.documents.UserDocumentRecord;
+import mil.decea.mentorpgapi.domain.documents.records.UserDocumentRecord;
 import java.util.List;
 import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
 public record UserRecord_old(

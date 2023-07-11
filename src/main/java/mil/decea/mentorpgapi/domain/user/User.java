@@ -23,10 +23,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 
 @Table(name = "users", schema = "mentorpgapi",indexes = {@Index(unique = true, name = "indexcpfs", columnList = "cpf")})
@@ -34,7 +31,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class User extends SequenceIdEntity implements UserDetails, MinioStorage {
+public class User extends SequenceIdEntity implements UserDetails, MinioStorage, Comparable<User> {
 
     @IsValidCpf
     @NotNull(message = "Informe um CPF válido")
@@ -322,4 +319,40 @@ public class User extends SequenceIdEntity implements UserDetails, MinioStorage 
         return getCpf() + " - " + getNomeCompleto();
     }
 
+    @Override
+    public int compareTo(User otherUser) {
+        int dif = 0;
+
+        if (posto != null && otherUser.posto != null) {
+            dif = posto.getAntiguidade() - otherUser.posto.getAntiguidade();
+        }else if (posto == null){
+            return -1;
+        }else {
+            return 1;
+        }
+
+        if (dif == 0){
+            boolean mesmoStatusReserva = Objects.equals(isPttc(),otherUser.isPttc());
+
+            if (mesmoStatusReserva) {
+
+                if (getUltimaPromocao() == null && otherUser.getUltimaPromocao() == null) {
+                    return 0;
+                } else if (getUltimaPromocao() != null && otherUser.getUltimaPromocao() != null) {
+                    dif = getUltimaPromocao().compareTo(otherUser.getUltimaPromocao());
+                    if (dif == 0) {
+                        dif = getAntiguidadeRelativa() - otherUser.getAntiguidadeRelativa();
+                    }
+                } else if (getUltimaPromocao() != null) {
+                    return -1;
+                } else {
+                    return 1;
+                }
+
+            }else{
+                return isPttc() ? 1 : -1;
+            }
+        }
+        return dif;
+    }
 }

@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class AbstractExternalData implements ExternalData {
+public abstract class AbstractExternalData implements ExternalData, Cloneable {
 
     @Column(columnDefinition = "TEXT")
     protected String formato;
@@ -52,7 +52,15 @@ public abstract class AbstractExternalData implements ExternalData {
         this.setLastUpdate(DateTimeAPIHandler.converterStringDate(rec.lastUpdate()));
         this.setTamanho(rec.tamanho());
     }
+    @Override
+    protected AbstractExternalData clone()  {
+        try {
+            return (AbstractExternalData) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-//@MethodDefaultValue(fieldName = "bucket",defaultValue = "\"userdocuments\"")
+    //@MethodDefaultValue(fieldName = "bucket",defaultValue = "\"userdocuments\"")
 
 }

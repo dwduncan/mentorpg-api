@@ -1,21 +1,24 @@
 package mil.decea.mentorpgapi.domain.daoservices.datageneration.generators;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
 
 public abstract class AbstractFilesGenerator {
 
     protected final Class<?> classe;
-    protected String targetDir;
+
     protected StringBuilder fileBody = new StringBuilder();
 
     String classCloseBlock = "\n}";
 
     public AbstractFilesGenerator(Class<?> classe) {
         this.classe = classe;
-        this.targetDir =  "./src/main/java/" + classe.getPackage().getName().replaceAll("\\.","/") + "/";
     }
 
     public String getPackageStatement(){
@@ -27,6 +30,7 @@ public abstract class AbstractFilesGenerator {
     public abstract List<String> getConstructors();
     public abstract Set<String> getRequiredImports();
     public abstract Set<String> getClassFields();
+    public abstract String getTargetDir();
 
     public void createFile() throws IOException {
 
@@ -64,7 +68,10 @@ public abstract class AbstractFilesGenerator {
         fileBody.append(classCloseBlock);
 
         if (!fileBody.toString().isBlank()) {
+            String targetDir = getTargetDir();
             if (!targetDir.endsWith("/")) targetDir += "/";
+            Path path = Paths.get(targetDir);
+            if (!path.toFile().exists()) Files.createDirectory(path);
             FileWriter arq = new FileWriter(targetDir + getSimpleFileName());
             arq.write(fileBody.toString());
             arq.close();

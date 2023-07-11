@@ -26,8 +26,8 @@ public class AdapterFilesGenerator extends AbstractFilesGenerator{
         fields = _fields.stream().map(ObjectFieldProcessor::new).toList();
 
         requiredImports.addAll(List.of("mil.decea.mentorpgapi.domain.AbstractEntityDTOAdapter",
+                classe.getName(),
                 "lombok.NoArgsConstructor",
-                "mil.decea.mentorpgapi.util.DateTimeAPIHandler",
                 "org.springframework.stereotype.Service"));
         
         StringBuilder method1 = new StringBuilder();
@@ -82,5 +82,10 @@ public class AdapterFilesGenerator extends AbstractFilesGenerator{
         return injections;
     }
 
+
+    @Override
+    public String getTargetDir() {
+        return "./src/main/java/" + classe.getPackage().getName().replaceAll("\\.","/") + "/adapters/";
+    }
 
 }

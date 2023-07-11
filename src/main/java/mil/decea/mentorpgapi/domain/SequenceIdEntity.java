@@ -39,4 +39,12 @@ public abstract class SequenceIdEntity extends IdEntity implements TrackedEntity
         this.id = id;
     }
 
+    @Override
+    public SequenceIdEntity clone() {
+        try {
+            return (SequenceIdEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

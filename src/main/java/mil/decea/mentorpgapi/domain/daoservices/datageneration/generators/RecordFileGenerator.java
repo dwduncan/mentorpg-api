@@ -19,6 +19,7 @@ public class RecordFileGenerator extends AbstractFilesGenerator{
     List<String> constructors = new ArrayList<>();
     String recordClass;
 
+
     StringBuilder classNameBody;
     public RecordFileGenerator(Class<?> classe) {
         super(classe);
@@ -125,7 +126,7 @@ public class RecordFileGenerator extends AbstractFilesGenerator{
         }
 
         requiredImports.add("mil.decea.mentorpgapi.domain.IdentifiedRecord");
-
+        requiredImports.add(classe.getName());
 
         classNameBody.append(") implements IdentifiedRecord {\n");
 
@@ -164,6 +165,10 @@ public class RecordFileGenerator extends AbstractFilesGenerator{
         return classFields;
     }
 
+    @Override
+    public String getTargetDir() {
+        return "./src/main/java/" + classe.getPackage().getName().replaceAll("\\.","/") + "/records/";
+    }
 
 
     private void checkOrCreateRecordForField(RecordFieldProcessor field)  {

@@ -25,7 +25,7 @@ import mil.decea.mentorpgapi.domain.user.User;
 @Setter
 @NoArgsConstructor
 @TrackOnlySelectedFields({"motivoRecusa", "statusDocumento", "nomeArquivo"})
-public class UserDocument extends ExternalDataEntity implements MinioStorage, TrackedElementCollection<UserDocument> {
+public class UserDocument extends ExternalDataEntity implements TrackedElementCollection<UserDocument> {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -72,7 +72,7 @@ public class UserDocument extends ExternalDataEntity implements MinioStorage, Tr
     @Override
     @NotForRecordField
     public String getPreviousStorageDestinationPath() {
-        return user.getId() + "/type" + getTipoDocumentacao().getId() + "/" + previousFileName;
+        return user.getId() + "/type_" + getTipoDocumentacao().getId() + "/" + previousFileName;
     }
     @Override
     public UserDocument getExternalData() {
@@ -113,8 +113,4 @@ public class UserDocument extends ExternalDataEntity implements MinioStorage, Tr
         return getTipoDocumentacao().getTipo();
     }
 
-    @Override
-    public void updateValues(ExternalDataRecord rec) {
-
-    }
 }
