@@ -1,7 +1,7 @@
 package mil.decea.mentorpgapi.domain.user;
 
 import lombok.*;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
+import mil.decea.mentorpgapi.util.datageneration.NotForRecordField;
 
 import java.io.Serializable;
 

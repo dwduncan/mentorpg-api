@@ -1,14 +1,13 @@
-package mil.decea.mentorpgapi.domain.daoservices.datageneration.generators.processors;
+package mil.decea.mentorpgapi.util.datageneration.generators.processors;
 
 import jakarta.persistence.Embedded;
 import jakarta.validation.Constraint;
 import lombok.Getter;
 import mil.decea.mentorpgapi.domain.EmbeddedExternalData;
 import mil.decea.mentorpgapi.domain.SequenceIdEntity;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.CollectionForRecordField;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.MethodDefaultValue;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.ObjectForRecordField;
+import mil.decea.mentorpgapi.util.datageneration.CollectionForRecordField;
+import mil.decea.mentorpgapi.util.datageneration.NotForRecordField;
+import mil.decea.mentorpgapi.util.datageneration.ObjectForRecordField;
 import mil.decea.mentorpgapi.util.ReflectionUtils;
 
 import java.lang.annotation.Annotation;

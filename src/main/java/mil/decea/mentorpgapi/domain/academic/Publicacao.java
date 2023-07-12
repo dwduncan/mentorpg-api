@@ -5,8 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import mil.decea.mentorpgapi.domain.TrackedEntity;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.MethodDefaultValue;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
+import mil.decea.mentorpgapi.util.datageneration.MethodDefaultValue;
+import mil.decea.mentorpgapi.util.datageneration.NotForRecordField;
 import mil.decea.mentorpgapi.domain.user.User;
 
 import java.text.DecimalFormat;

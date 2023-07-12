@@ -1,9 +1,8 @@
-package mil.decea.mentorpgapi.domain.daoservices.datageneration.generators;
+package mil.decea.mentorpgapi.util.datageneration.generators;
 
 import mil.decea.mentorpgapi.domain.SequenceIdEntity;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.OptionalsRecordField;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.generators.processors.ReactFieldProcessor;
-import mil.decea.mentorpgapi.util.ReactExtrasToExport;
+import mil.decea.mentorpgapi.util.datageneration.OptionalsRecordField;
+import mil.decea.mentorpgapi.util.datageneration.generators.processors.ReactFieldProcessor;
 
 import java.util.*;
 

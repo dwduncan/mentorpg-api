@@ -1,6 +1,6 @@
-package mil.decea.mentorpgapi.domain.daoservices.datageneration.generators.processors;
+package mil.decea.mentorpgapi.util.datageneration.generators.processors;
 
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.CollectionForRecordField;
+import mil.decea.mentorpgapi.util.datageneration.CollectionForRecordField;
 
 import java.lang.reflect.Field;
 import java.util.List;

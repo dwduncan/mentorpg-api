@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import mil.decea.mentorpgapi.domain.SequenceIdEntity;
 import mil.decea.mentorpgapi.domain.TrackedEntity;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
+import mil.decea.mentorpgapi.util.datageneration.NotForRecordField;
 import mil.decea.mentorpgapi.domain.documents.records.DocumentTypeRecord;
 
 @Entity

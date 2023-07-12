@@ -1,7 +1,7 @@
 package mil.decea.mentorpgapi.domain.documents.records;
 import java.lang.Long;
 
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.OptionalsRecordField;
+import mil.decea.mentorpgapi.util.datageneration.OptionalsRecordField;
 import mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio.ExternalDataEntity;
 import mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio.StatusDoc;
 import mil.decea.mentorpgapi.domain.documents.UserDocument;

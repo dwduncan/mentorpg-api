@@ -1,4 +1,4 @@
-package mil.decea.mentorpgapi.domain.daoservices.datageneration;
+package mil.decea.mentorpgapi.util.datageneration;
 
 import mil.decea.mentorpgapi.domain.SequenceIdEntity;
 import mil.decea.mentorpgapi.util.ReflectionUtils;

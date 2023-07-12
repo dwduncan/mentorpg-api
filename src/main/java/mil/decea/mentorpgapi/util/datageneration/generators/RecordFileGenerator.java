@@ -1,10 +1,10 @@
-package mil.decea.mentorpgapi.domain.daoservices.datageneration.generators;
+package mil.decea.mentorpgapi.util.datageneration.generators;
 
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.CollectionForRecordField;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.MethodDefaultValue;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.generators.processors.RecordConstructorProcessor;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.generators.processors.RecordFieldProcessor;
+import mil.decea.mentorpgapi.util.datageneration.CollectionForRecordField;
+import mil.decea.mentorpgapi.util.datageneration.MethodDefaultValue;
+import mil.decea.mentorpgapi.util.datageneration.NotForRecordField;
+import mil.decea.mentorpgapi.util.datageneration.generators.processors.RecordConstructorProcessor;
+import mil.decea.mentorpgapi.util.datageneration.generators.processors.RecordFieldProcessor;
 
 import java.io.File;
 import java.io.IOException;

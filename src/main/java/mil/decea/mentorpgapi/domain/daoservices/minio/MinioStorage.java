@@ -1,7 +1,5 @@
 package mil.decea.mentorpgapi.domain.daoservices.minio;
 
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.MethodDefaultValue;
-
 import java.util.Objects;
 
 public interface MinioStorage {

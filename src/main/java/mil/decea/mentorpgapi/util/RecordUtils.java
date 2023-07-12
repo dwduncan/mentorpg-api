@@ -5,12 +5,12 @@ import jakarta.validation.Constraint;
 import mil.decea.mentorpgapi.domain.EmbeddedExternalData;
 import mil.decea.mentorpgapi.domain.EmbeddedExternalDataRecord;
 import mil.decea.mentorpgapi.domain.SequenceIdEntity;
-import mil.decea.mentorpgapi.domain.academic.LinhaDePesquisa;
 import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.RecordFieldName;
 import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.TrackOnlySelectedFields;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.*;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.generators.RecordFileGenerator;
 import mil.decea.mentorpgapi.domain.user.User;
+import mil.decea.mentorpgapi.util.datageneration.*;
+import mil.decea.mentorpgapi.util.datageneration.generators.ReactExtrasToExport;
+import mil.decea.mentorpgapi.util.datageneration.generators.RecordFileGenerator;
 
 import java.io.File;
 import java.io.FileWriter;

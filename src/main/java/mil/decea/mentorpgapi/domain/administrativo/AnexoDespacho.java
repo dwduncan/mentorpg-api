@@ -8,10 +8,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import mil.decea.mentorpgapi.domain.TrackedEntity;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.MethodDefaultValue;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
+import mil.decea.mentorpgapi.util.datageneration.MethodDefaultValue;
+import mil.decea.mentorpgapi.util.datageneration.NotForRecordField;
 import mil.decea.mentorpgapi.domain.daoservices.minio.externaldataio.ExternalDataEntity;
-import mil.decea.mentorpgapi.domain.documents.UserDocument;
 
 @Table(name = "anexosdespachos", schema = "mentorpgapi")
 @Entity

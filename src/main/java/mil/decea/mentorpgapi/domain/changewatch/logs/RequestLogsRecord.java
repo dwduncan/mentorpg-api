@@ -1,7 +1,6 @@
 package mil.decea.mentorpgapi.domain.changewatch.logs;
 
-import jakarta.validation.constraints.NotNull;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.OptionalsRecordField;
+import mil.decea.mentorpgapi.util.datageneration.OptionalsRecordField;
 
 public record RequestLogsRecord (
     String parentClass,

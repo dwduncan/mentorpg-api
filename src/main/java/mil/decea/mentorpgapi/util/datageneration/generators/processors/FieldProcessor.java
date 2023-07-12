@@ -1,4 +1,4 @@
-package mil.decea.mentorpgapi.domain.daoservices.datageneration.generators.processors;
+package mil.decea.mentorpgapi.util.datageneration.generators.processors;
 
 import java.util.Set;
 

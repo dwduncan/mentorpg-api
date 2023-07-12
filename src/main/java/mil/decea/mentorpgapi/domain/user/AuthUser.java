@@ -6,8 +6,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.ObjectForRecordField;
+import mil.decea.mentorpgapi.util.datageneration.NotForRecordField;
+import mil.decea.mentorpgapi.util.datageneration.ObjectForRecordField;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 

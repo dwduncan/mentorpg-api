@@ -5,15 +5,10 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import mil.decea.mentorpgapi.domain.IdentifiedRecord;
 import mil.decea.mentorpgapi.domain.SequenceIdEntity;
 import mil.decea.mentorpgapi.domain.TrackedEntity;
-import mil.decea.mentorpgapi.domain.changewatch.ObjectChangesChecker;
-import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.RecordFieldName;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.ObjectForRecordField;
+import mil.decea.mentorpgapi.util.datageneration.ObjectForRecordField;
 import mil.decea.mentorpgapi.domain.user.User;
-import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
 
 /**
  * Força Aérea Brasileira - (FAB)

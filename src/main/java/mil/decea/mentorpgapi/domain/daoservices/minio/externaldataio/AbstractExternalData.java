@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import mil.decea.mentorpgapi.domain.ExternalDataRecord;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
+import mil.decea.mentorpgapi.util.datageneration.NotForRecordField;
 import mil.decea.mentorpgapi.domain.daoservices.minio.ExternalData;
 import mil.decea.mentorpgapi.util.DateTimeAPIHandler;
 

@@ -1,4 +1,4 @@
-package mil.decea.mentorpgapi.util;
+package mil.decea.mentorpgapi.util.datageneration.generators;
 
 import mil.decea.mentorpgapi.domain.user.AuthUserRecord;
 

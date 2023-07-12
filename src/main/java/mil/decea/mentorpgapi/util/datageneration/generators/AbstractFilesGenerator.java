@@ -1,4 +1,4 @@
-package mil.decea.mentorpgapi.domain.daoservices.datageneration.generators;
+package mil.decea.mentorpgapi.util.datageneration.generators;
 
 import java.io.File;
 import java.io.FileWriter;

@@ -1,7 +1,7 @@
 package mil.decea.mentorpgapi.domain.daoservices.minio;
 
 import mil.decea.mentorpgapi.domain.ExternalDataRecord;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
+import mil.decea.mentorpgapi.util.datageneration.NotForRecordField;
 
 public interface ExternalData {
     String getFormato();

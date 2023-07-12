@@ -4,10 +4,10 @@ import jakarta.persistence.Embedded;
 import mil.decea.mentorpgapi.domain.EmbeddedExternalData;
 import mil.decea.mentorpgapi.domain.SequenceIdEntity;
 import mil.decea.mentorpgapi.domain.changewatch.trackdefiners.RecordFieldName;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.CollectionForRecordField;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.MethodDefaultValue;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.NotForRecordField;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.ObjectForRecordField;
+import mil.decea.mentorpgapi.util.datageneration.CollectionForRecordField;
+import mil.decea.mentorpgapi.util.datageneration.MethodDefaultValue;
+import mil.decea.mentorpgapi.util.datageneration.NotForRecordField;
+import mil.decea.mentorpgapi.util.datageneration.ObjectForRecordField;
 
 import java.io.File;
 import java.io.FileWriter;

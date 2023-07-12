@@ -1,15 +1,14 @@
-package mil.decea.mentorpgapi.domain.daoservices.datageneration.generators.processors;
+package mil.decea.mentorpgapi.util.datageneration.generators.processors;
 
 import lombok.Getter;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.CollectionForRecordField;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.OptionalsRecordField;
-import mil.decea.mentorpgapi.domain.daoservices.datageneration.generators.ReactFilesGenerator;
+import mil.decea.mentorpgapi.util.datageneration.CollectionForRecordField;
+import mil.decea.mentorpgapi.util.datageneration.OptionalsRecordField;
+import mil.decea.mentorpgapi.util.datageneration.generators.ReactFilesGenerator;
 import mil.decea.mentorpgapi.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
-import java.util.List;
 
 @Getter
 public class ReactFieldProcessor extends AbstractFieldProcessor {
